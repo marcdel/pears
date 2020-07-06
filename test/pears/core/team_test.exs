@@ -6,16 +6,13 @@ defmodule Pears.Core.TeamTest do
   setup [:team]
 
   test "can add and remove pears from the team", %{team: team} do
-    pear1 = Pear.new(name: "pear1")
-    pear2 = Pear.new(name: "pear2")
-
     team
-    |> Team.add_pear(pear1)
-    |> Team.add_pear(pear2)
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
     |> assert_pear_on_team("pear1")
     |> assert_pear_on_team("pear2")
-    |> Team.remove_pear(pear1)
-    |> Team.remove_pear(pear2)
+    |> Team.remove_pear("pear1")
+    |> Team.remove_pear("pear2")
     |> refute_pear_on_team("pear1")
     |> refute_pear_on_team("pear2")
   end
@@ -43,10 +40,10 @@ defmodule Pears.Core.TeamTest do
     team
     |> Team.add_track(Track.new(name: "feature track"))
     |> Team.add_track(Track.new(name: "refactor track"))
-    |> Team.add_pear(Pear.new(name: "pear1"))
-    |> Team.add_pear(Pear.new(name: "pear2"))
-    |> Team.add_pear(Pear.new(name: "pear3"))
-    |> Team.add_pear(Pear.new(name: "pear4"))
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear("pear4")
     |> Team.add_to_track("pear1", "refactor track")
     |> assert_pear_in_track("pear1", "refactor track")
     |> Team.add_to_track("pear2", "feature track")

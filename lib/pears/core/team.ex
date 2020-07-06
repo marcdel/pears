@@ -1,24 +1,19 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, pears: [], tracks: []
+  defstruct name: nil, pears: %{}, tracks: []
 
-  alias Pears.Core.Track
+  alias Pears.Core.{Pear, Track}
 
   def new(fields) do
     struct!(__MODULE__, fields)
   end
 
-  def add_pear(team, pear) do
-    Map.put(team, :pears, [pear] ++ team.pears)
+  def add_pear(team, pear_name) do
+    pear = Pear.new(name: pear_name)
+    Map.put(team, :pears, Map.put(team.pears, pear_name, pear))
   end
 
   def remove_pear(team, pear_name) do
-    Map.put(
-      team,
-      :pears,
-      Enum.filter(team.pears, fn pear ->
-        pear.name == pear_name
-      end)
-    )
+    Map.put(team, :pears, Map.delete(team.pears, pear_name))
   end
 
   def add_track(team, track) do
@@ -63,7 +58,5 @@ defmodule Pears.Core.Team do
     Enum.find(team.tracks, fn track -> track.name == track_name end)
   end
 
-  def find_pear(team, pear_name) do
-    Enum.find(team.pears, fn pear -> pear.name == pear_name end)
-  end
+  def find_pear(team, pear_name), do: Map.get(team.pears, pear_name, nil)
 end
