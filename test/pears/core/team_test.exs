@@ -91,9 +91,7 @@ defmodule Pears.Core.TeamTest do
 
   defp pear_in_track?(team, pear_name, track_name) do
     track = Team.find_track(team, track_name)
-    pear = Team.find_pear(team, pear_name)
-
-    Enum.member?(track.pears, pear)
+    Map.has_key?(track.pears, pear_name)
   end
 
   defp team(_) do
