@@ -1,5 +1,5 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, pears: %{}, tracks: []
+  defstruct name: nil, pears: %{}, tracks: %{}
 
   alias Pears.Core.{Pear, Track}
 
@@ -16,47 +16,31 @@ defmodule Pears.Core.Team do
     Map.put(team, :pears, Map.delete(team.pears, pear_name))
   end
 
-  def add_track(team, track) do
-    Map.put(team, :tracks, [track] ++ team.tracks)
+  def add_track(team, track_name) do
+    track = Track.new(name: track_name)
+    Map.put(team, :tracks, Map.put(team.tracks, track_name, track))
   end
 
   def remove_track(team, track_name) do
-    Map.put(
-      team,
-      :tracks,
-      Enum.filter(team.tracks, fn track ->
-        track.name == track_name
-      end)
-    )
+    Map.put(team, :tracks, Map.delete(team.tracks, track_name))
   end
 
   def add_to_track(team, pear_name, track_name) do
-    updated_tracks =
-      Enum.map(team.tracks, fn
-        %{name: ^track_name} = track ->
-          pear = find_pear(team, pear_name)
-          Track.add_pear(track, pear)
+    pear = find_pear(team, pear_name)
+    track = find_track(team, track_name)
 
-        track ->
-          track
-      end)
-
+    updated_tracks = Map.put(team.tracks, track_name, Track.add_pear(track, pear))
     Map.put(team, :tracks, updated_tracks)
   end
 
   def remove_from_track(team, pear_name, track_name) do
-    updated_tracks =
-      Enum.map(team.tracks, fn
-        %{name: ^track_name} = track -> Track.remove_pear(track, pear_name)
-        track -> track
-      end)
+    track = find_track(team, track_name)
 
+    updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
     Map.put(team, :tracks, updated_tracks)
   end
 
-  def find_track(team, track_name) do
-    Enum.find(team.tracks, fn track -> track.name == track_name end)
-  end
+  def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
   def find_pear(team, pear_name), do: Map.get(team.pears, pear_name, nil)
 end

@@ -17,29 +17,22 @@ defmodule Pears.Core.TeamTest do
     |> refute_pear_on_team("pear2")
   end
 
-  test "can add a track of work", %{team: team} do
-    track1 = Track.new(name: "refactor track")
-    team = Team.add_track(team, track1)
-    assert team.tracks == [track1]
-
-    track2 = Track.new(name: "feature track")
-    team = Team.add_track(team, track2)
-    assert team.tracks == [track2, track1]
-  end
-
-  test "can remove a track of work", %{team: team} do
-    track1 = Track.new(name: "refactor track")
-    team = Team.add_track(team, track1)
-    assert team.tracks == [track1]
-
-    team = Team.remove_track(team, track1)
-    assert team.tracks == []
+  test "can add and remove a track of work", %{team: team} do
+    team
+    |> Team.add_track("refactor track")
+    |> assert_track_exists("refactor track")
+    |> Team.add_track("feature track")
+    |> assert_track_exists("feature track")
+    |> Team.remove_track("refactor track")
+    |> refute_track_exists("refactor track")
+    |> Team.remove_track("feature track")
+    |> refute_track_exists("feature track")
   end
 
   test "can add and remove pears from tracks", %{team: team} do
     team
-    |> Team.add_track(Track.new(name: "feature track"))
-    |> Team.add_track(Track.new(name: "refactor track"))
+    |> Team.add_track("feature track")
+    |> Team.add_track("refactor track")
     |> Team.add_pear("pear1")
     |> Team.add_pear("pear2")
     |> Team.add_pear("pear3")
@@ -76,6 +69,20 @@ defmodule Pears.Core.TeamTest do
   defp refute_pear_on_team(team, pear_name) do
     refute pear_on_team?(team, pear_name)
     team
+  end
+
+  def assert_track_exists(team, track_name) do
+    assert track_exists?(team, track_name)
+    team
+  end
+
+  def refute_track_exists(team, track_name) do
+    refute track_exists?(team, track_name)
+    team
+  end
+
+  defp track_exists?(team, track_name) do
+    Team.find_track(team, track_name)
   end
 
   defp pear_on_team?(team, pear_name) do
