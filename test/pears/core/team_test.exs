@@ -78,22 +78,4 @@ defmodule Pears.Core.TeamTest do
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end
-
-  defp team_with_pears_and_tracks(_) do
-    pear1 = Pear.new(name: "pear1")
-    pear2 = Pear.new(name: "pear2")
-    pear3 = Pear.new(name: "pear3")
-    pear4 = Pear.new(name: "pear4")
-    track1 = Track.new(name: "refactor track")
-    track2 = Track.new(name: "feature track")
-
-    team =
-      Team.new(
-        name: "test team",
-        pears: [pear1, pear2, pear3, pear4],
-        tracks: [track1, track2]
-      )
-
-    {:ok, team: team}
-  end
 end
