@@ -11,6 +11,16 @@ defmodule Pears.Core.Team do
     Map.put(team, :pears, [pear] ++ team.pears)
   end
 
+  def remove_pear(team, pear_name) do
+    Map.put(
+      team,
+      :pears,
+      Enum.filter(team.pears, fn pear ->
+        pear.name == pear_name
+      end)
+    )
+  end
+
   def add_track(team, track) do
     Map.put(team, :tracks, [track] ++ team.tracks)
   end

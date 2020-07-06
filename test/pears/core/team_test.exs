@@ -5,14 +5,19 @@ defmodule Pears.Core.TeamTest do
 
   setup [:team]
 
-  test "can add a pear to the team", %{team: team} do
+  test "can add and remove pears from the team", %{team: team} do
     pear1 = Pear.new(name: "pear1")
-    team = Team.add_pear(team, pear1)
-    assert team.pears == [pear1]
-
     pear2 = Pear.new(name: "pear2")
-    team = Team.add_pear(team, pear2)
-    assert team.pears == [pear2, pear1]
+
+    team
+    |> Team.add_pear(pear1)
+    |> Team.add_pear(pear2)
+    |> assert_pear_on_team("pear1")
+    |> assert_pear_on_team("pear2")
+    |> Team.remove_pear(pear1)
+    |> Team.remove_pear(pear2)
+    |> refute_pear_on_team("pear1")
+    |> refute_pear_on_team("pear2")
   end
 
   test "can add a track of work", %{team: team} do
@@ -58,14 +63,26 @@ defmodule Pears.Core.TeamTest do
 
   defp assert_pear_in_track(team, pear_name, track_name) do
     assert pear_in_track?(team, pear_name, track_name)
-
     team
   end
 
   defp refute_pear_in_track(team, pear_name, track_name) do
     refute pear_in_track?(team, pear_name, track_name)
-
     team
+  end
+
+  defp assert_pear_on_team(team, pear_name) do
+    assert pear_on_team?(team, pear_name)
+    team
+  end
+
+  defp refute_pear_on_team(team, pear_name) do
+    refute pear_on_team?(team, pear_name)
+    team
+  end
+
+  defp pear_on_team?(team, pear_name) do
+    Team.find_pear(team, pear_name) != nil
   end
 
   defp pear_in_track?(team, pear_name, track_name) do
