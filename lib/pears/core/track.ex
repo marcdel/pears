@@ -12,4 +12,6 @@ defmodule Pears.Core.Track do
   def remove_pear(track, pear_name) do
     %{track | pears: Map.delete(track.pears, pear_name)}
   end
+
+  def find_pear(track, pear_name), do: Map.get(track.pears, pear_name, nil)
 end

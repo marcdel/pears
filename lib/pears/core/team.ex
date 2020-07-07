@@ -1,5 +1,5 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, pears: %{}, tracks: %{}
+  defstruct name: nil, available_pears: %{}, tracks: %{}
 
   alias Pears.Core.{Pear, Track}
 
@@ -9,11 +9,11 @@ defmodule Pears.Core.Team do
 
   def add_pear(team, pear_name) do
     pear = Pear.new(name: pear_name)
-    Map.put(team, :pears, Map.put(team.pears, pear_name, pear))
+    Map.put(team, :available_pears, Map.put(team.available_pears, pear_name, pear))
   end
 
   def remove_pear(team, pear_name) do
-    Map.put(team, :pears, Map.delete(team.pears, pear_name))
+    Map.put(team, :available_pears, Map.delete(team.available_pears, pear_name))
   end
 
   def add_track(team, track_name) do
@@ -26,21 +26,28 @@ defmodule Pears.Core.Team do
   end
 
   def add_to_track(team, pear_name, track_name) do
-    pear = find_pear(team, pear_name)
     track = find_track(team, track_name)
+    pear = find_available_pear(team, pear_name)
 
     updated_tracks = Map.put(team.tracks, track_name, Track.add_pear(track, pear))
-    Map.put(team, :tracks, updated_tracks)
+    updated_pears = Map.delete(team.available_pears, pear_name)
+
+    %{team | tracks: updated_tracks, available_pears: updated_pears}
   end
 
   def remove_from_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
+    pear = Track.find_pear(track, pear_name)
 
     updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
-    Map.put(team, :tracks, updated_tracks)
+    updated_pears = Map.put(team.available_pears, pear_name, Track.remove_pear(track, pear))
+
+    %{team | tracks: updated_tracks, available_pears: updated_pears}
   end
 
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
-  def find_pear(team, pear_name), do: Map.get(team.pears, pear_name, nil)
+  def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
+
+  def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
 end
