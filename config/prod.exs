@@ -1,5 +1,7 @@
 use Mix.Config
 
+get_env! = fn name -> Map.fetch!(System.get_env(), name) end
+
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
 # when generating URLs.
@@ -11,7 +13,27 @@ use Mix.Config
 # before starting your production server.
 config :pears, PearsWeb.Endpoint,
   url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  check_origin: [
+    "https://app.pears.dev",
+    "https://pears.gigalixirapp.com"
+  ]
+
+# Gigalixir setup
+config :pears, PearsWeb.Endpoint,
+  http: [port: {:system, "PORT"}],
+  url: [
+    host: get_env!.("APP_NAME") <> ".gigalixirapp.com",
+    port: 4000
+  ],
+  secret_key_base: get_env!.("SECRET_KEY_BASE"),
+  server: true
+
+config :pears, Pears.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: get_env!.("DATABASE_URL"),
+  ssl: true,
+  pool_size: 2
 
 # Do not print debug messages in production
 config :logger, level: :info
