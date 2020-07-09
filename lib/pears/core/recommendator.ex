@@ -5,12 +5,27 @@ defmodule Pears.Core.Recommendator do
     Enum.reduce(team.available_pears, team, &assign_pear/2)
   end
 
-  defp assign_pear({pear_name, pear}, team) do
-    {track_name, track} = find_available_track(team)
-    Team.add_to_track(team, pear_name, track_name)
+  defp assign_pear({pear_name, _pear}, team) do
+    case find_available_track(team) do
+      {track_name, _track} -> Team.add_to_track(team, pear_name, track_name)
+      :match_not_found -> team
+    end
   end
 
   defp find_available_track(team) do
+    with nil <- find_incomplete_track(team),
+      nil <- find_empty_track(team) do
+      :match_not_found
+    else
+      {track_name, track} -> {track_name, track}
+    end
+  end
+
+  defp find_incomplete_track(team) do
+    Enum.find(team.tracks, fn {_name, track} -> Enum.count(track.pears) == 1 end)
+  end
+
+  defp find_empty_track(team) do
     Enum.find(team.tracks, fn {_name, track} -> Enum.count(track.pears) == 0 end)
   end
 end

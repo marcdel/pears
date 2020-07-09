@@ -21,4 +21,40 @@ defmodule Pears.Core.RecommendatorTest do
     |> Recommendator.assign_pears()
     |> assert_pear_in_track("pear1", "feature track")
   end
+
+  test "given one empty track and two full tracks, moves pear to empty track" do
+    TeamBuilders.team()
+    |> Team.add_track("empty track")
+    |> Team.add_track("two pear track")
+    |> Team.add_track("three pear track")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear("pear4")
+    |> Team.add_pear("pear5")
+    |> Team.add_pear("pear6")
+    |> Team.add_to_track("pear1", "two pear track")
+    |> Team.add_to_track("pear2", "two pear track")
+    |> Team.add_to_track("pear3", "three pear track")
+    |> Team.add_to_track("pear4", "three pear track")
+    |> Team.add_to_track("pear5", "three pear track")
+    |> Recommendator.assign_pears()
+    |> assert_pear_in_track("pear6", "empty track")
+  end
+
+  test "given one empty track, one full track, and one incomplete track, moves pear to incomplete track" do
+    TeamBuilders.team()
+    |> Team.add_track("empty track")
+    |> Team.add_track("one pear track")
+    |> Team.add_track("two pear track")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear("pear4")
+    |> Team.add_to_track("pear1", "two pear track")
+    |> Team.add_to_track("pear2", "two pear track")
+    |> Team.add_to_track("pear3", "one pear track")
+    |> Recommendator.assign_pears()
+    |> assert_pear_in_track("pear4", "one pear track")
+  end
 end
