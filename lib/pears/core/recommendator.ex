@@ -13,12 +13,9 @@ defmodule Pears.Core.Recommendator do
   end
 
   defp find_available_track(team) do
-    with nil <- find_incomplete_track(team),
-      nil <- find_empty_track(team) do
+    find_incomplete_track(team) ||
+      find_empty_track(team) ||
       :match_not_found
-    else
-      {track_name, track} -> {track_name, track}
-    end
   end
 
   defp find_incomplete_track(team) do
