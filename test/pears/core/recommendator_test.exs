@@ -14,7 +14,6 @@ defmodule Pears.Core.RecommendatorTest do
     assert after_team == before_team
   end
 
-  @tag :skip
   test "given one pear and one track, moves pear to track" do
     TeamBuilders.team()
     |> Team.add_track("feature track")
