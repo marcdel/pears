@@ -67,7 +67,10 @@ defmodule PearsTest do
   end
 
   test "team names must be unique", %{name: name} do
+    :ok = Pears.validate_name(name)
     {:ok, _} = Pears.add_team(name)
+
+    {:error, :name_taken} = Pears.validate_name(name)
     {:error, :name_taken} = Pears.add_team(name)
   end
 

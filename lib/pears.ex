@@ -7,8 +7,13 @@ defmodule Pears do
 
   alias Pears.Boundary.{TeamManager, TeamSession}
 
+  def validate_name(team_name) do
+    TeamManager.validate_name(team_name)
+  end
+
   def add_team(team_name) do
-    with {:ok, team} <- TeamManager.add_team(team_name),
+    with :ok <- TeamManager.validate_name(team_name),
+         {:ok, team} <- TeamManager.add_team(team_name),
          {:ok, _} <- TeamSession.start_session(team) do
       {:ok, team}
     else

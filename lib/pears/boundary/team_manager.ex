@@ -13,6 +13,10 @@ defmodule Pears.Boundary.TeamManager do
 
   def init(_teams), do: {:error, "teams must be a map"}
 
+  def validate_name(manager \\ __MODULE__, name) do
+    GenServer.call(manager, {:validate_name, name})
+  end
+
   def add_team(manager \\ __MODULE__, name) do
     GenServer.call(manager, {:add_team, name})
   end
@@ -30,12 +34,16 @@ defmodule Pears.Boundary.TeamManager do
   end
 
   def handle_call({:add_team, name}, _from, teams) do
+    team = Team.new(name: name)
+    new_teams = Map.put_new(teams, team.name, team)
+    {:reply, {:ok, team}, new_teams}
+  end
+
+  def handle_call({:validate_name, name}, _from, teams) do
     if Map.has_key?(teams, name) do
       {:reply, {:error, :name_taken}, teams}
     else
-      team = Team.new(name: name)
-      new_teams = Map.put(teams, team.name, team)
-      {:reply, {:ok, team}, new_teams}
+      {:reply, :ok, teams}
     end
   end
 
