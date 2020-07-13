@@ -3,33 +3,31 @@ defmodule PearsWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    {:ok, assign(socket, team_name: "")}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
-  end
+  def handle_event("validate_name", %{"team-name" => team_name}, socket) do
+    case Pears.validate_name(team_name) do
+      :ok ->
+        {:noreply, socket}
 
-  @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
-
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
+      {:error, :name_taken} ->
+        {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}
     end
   end
 
-  defp search(query) do
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
+  @impl true
+  def handle_event("create_team", %{"team-name" => team_name}, socket) do
+    case Pears.add_team(team_name) do
+      {:ok, _team} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Congratulations, your team has been created!")
+         |> assign(team_name: "")}
+
+      {:error, :name_taken} ->
+        {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}
+    end
   end
 end
