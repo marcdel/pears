@@ -1,16 +1,31 @@
 /// <reference types="cypress" />
-import {generateName} from '../support/generateName'
 
 context('Actions', () => {
+  const existingTeamName = 'Existing Team'
+  const teamName = 'Team Cypress'
+  const teamId = 'team-cypress'
+
   beforeEach(() => {
+    cy.createTeam(existingTeamName)
+    cy.deleteTeam(teamId)
+
     cy.visit('/')
+  })
+
+  afterEach(() => {
+    cy.deleteTeam(teamId)
   })
 
   it('create team, add pears, add tracks, and recommend pairs', () => {
     cy.contains('label', /Create Team/i)
 
-    const teamName = generateName()
-    console.log({teamName})
+    cy.get('[name="team-name"]')
+      .type(existingTeamName)
+      .should('have.value', existingTeamName)
+    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
+
+    cy.get('[name="team-name"]').clear()
+    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`).should('not.exist')
 
     cy.get('[name="team-name"]')
       .type(teamName)

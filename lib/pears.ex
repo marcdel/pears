@@ -28,6 +28,7 @@ defmodule Pears do
   end
 
   def remove_team(name) do
+    TeamSession.end_session(name)
     TeamManager.remove_team(name)
   end
 
@@ -52,7 +53,13 @@ defmodule Pears do
   end
 
   def get_unsaved_team(team_name) do
-    TeamSession.get_team(team_name)
+    with true <- TeamSession.session_started?(team_name),
+         {:ok, team} <- TeamSession.get_team(team_name) do
+      {:ok, team}
+    else
+      false -> {:error, :no_session}
+      {:error, :not_found} -> {:error, :not_found}
+    end
   end
 
   def lookup_team_by_name(team_name) do

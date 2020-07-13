@@ -34,6 +34,10 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.stop(via(name))
   end
 
+  def session_started?(name) do
+    GenServer.whereis(via(name)) != nil
+  end
+
   def get_team(team_name) do
     GenServer.call(via(team_name), :get_team)
   end

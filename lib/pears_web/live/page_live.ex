@@ -10,7 +10,7 @@ defmodule PearsWeb.PageLive do
   def handle_event("validate_name", %{"team-name" => team_name}, socket) do
     case Pears.validate_name(team_name) do
       :ok ->
-        {:noreply, socket}
+        {:noreply, clear_flash(socket)}
 
       {:error, :name_taken} ->
         {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}

@@ -90,6 +90,7 @@ defmodule PearsTest do
     {:ok, _} = Pears.lookup_team_by_name(name)
     {:ok, _} = Pears.remove_team(name)
     {:error, _} = Pears.lookup_team_by_name(name)
+    {:error, _} = Pears.get_unsaved_team(name)
   end
 
   test "cannot add pair to non-existent track or non-existent pear", %{name: name} do
