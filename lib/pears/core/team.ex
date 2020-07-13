@@ -1,10 +1,11 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, available_pears: %{}, tracks: %{}
+  defstruct name: nil, slug: nil, available_pears: %{}, tracks: %{}
 
   alias Pears.Core.{Pear, Track}
 
   def new(fields) do
-    struct!(__MODULE__, fields)
+    team = struct!(__MODULE__, fields)
+    Map.put(team, :slug, to_slug(team))
   end
 
   def add_pear(team, pear_name) do
@@ -50,4 +51,6 @@ defmodule Pears.Core.Team do
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
 
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
+
+  defp to_slug(team), do: String.downcase(team.name) |> String.replace(" ", "-")
 end

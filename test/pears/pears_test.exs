@@ -30,6 +30,7 @@ defmodule PearsTest do
     assert saved_team == %Pears.Core.Team{
              available_pears: %{},
              name: name,
+             slug: name,
              tracks: %{
                "Track One" => %Pears.Core.Track{
                  name: "Track One",
@@ -72,6 +73,10 @@ defmodule PearsTest do
 
     {:error, :name_taken} = Pears.validate_name(name)
     {:error, :name_taken} = Pears.add_team(name)
+  end
+
+  test "converts name to url-safe name" do
+    assert {:ok, %{slug: "with-caps-spaces"}} = Pears.add_team("With Caps Spaces")
   end
 
   test "teams can be removed", %{name: name} do
