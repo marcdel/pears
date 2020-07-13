@@ -47,6 +47,10 @@ defmodule Pears do
     TeamSession.recommend_pears(team_name)
   end
 
+  def get_team(team_id) do
+    TeamManager.lookup_team_by_id(team_id)
+  end
+
   def get_unsaved_team(team_name) do
     TeamSession.get_team(team_name)
   end

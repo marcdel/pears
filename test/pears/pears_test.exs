@@ -30,7 +30,7 @@ defmodule PearsTest do
     assert saved_team == %Pears.Core.Team{
              available_pears: %{},
              name: name,
-             slug: name,
+             id: name,
              tracks: %{
                "Track One" => %Pears.Core.Track{
                  name: "Track One",
@@ -75,8 +75,14 @@ defmodule PearsTest do
     {:error, :name_taken} = Pears.add_team(name)
   end
 
-  test "converts name to url-safe name" do
-    assert {:ok, %{slug: "with-caps-spaces"}} = Pears.add_team("With Caps Spaces")
+  test "converts name to url-safe id" do
+    assert {:ok, %{id: "with-caps-spaces"}} = Pears.add_team("With Caps Spaces")
+  end
+
+  test "can lookup team by id", %{name: name} do
+    {:ok, %{id: id}} = Pears.add_team(name)
+    assert {:ok, %{name: ^name}} = Pears.get_team(id)
+    assert {:error, :not_found} = Pears.get_team("bad-id")
   end
 
   test "teams can be removed", %{name: name} do

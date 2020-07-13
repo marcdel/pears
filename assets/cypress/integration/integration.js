@@ -21,7 +21,7 @@ context('Actions', () => {
       .click()
 
     cy.contains('Congratulations, your team has been created!')
-    // cy.location('pathname').should('include', '/team/')
-    // cy.contains('label', teamName)
+    cy.location('pathname').should('include', '/teams/')
+    cy.contains('h1', teamName)
   })
 })

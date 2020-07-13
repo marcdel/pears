@@ -1,11 +1,11 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, slug: nil, available_pears: %{}, tracks: %{}
+  defstruct name: nil, id: nil, available_pears: %{}, tracks: %{}
 
   alias Pears.Core.{Pear, Track}
 
   def new(fields) do
     team = struct!(__MODULE__, fields)
-    Map.put(team, :slug, to_slug(team))
+    Map.put(team, :id, to_slug(team))
   end
 
   def add_pear(team, pear_name) do

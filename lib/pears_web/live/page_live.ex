@@ -20,11 +20,11 @@ defmodule PearsWeb.PageLive do
   @impl true
   def handle_event("create_team", %{"team-name" => team_name}, socket) do
     case Pears.add_team(team_name) do
-      {:ok, _team} ->
+      {:ok, team} ->
         {:noreply,
          socket
          |> put_flash(:info, "Congratulations, your team has been created!")
-         |> assign(team_name: "")}
+         |> redirect(to: Routes.show_path(socket, :show, team))}
 
       {:error, :name_taken} ->
         {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}

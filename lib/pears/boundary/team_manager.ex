@@ -21,6 +21,10 @@ defmodule Pears.Boundary.TeamManager do
     GenServer.call(manager, {:add_team, name})
   end
 
+  def lookup_team_by_id(manager \\ __MODULE__, id) do
+    GenServer.call(manager, {:lookup_team_by_id, id})
+  end
+
   def lookup_team_by_name(manager \\ __MODULE__, name) do
     GenServer.call(manager, {:lookup_team_by_name, name})
   end
@@ -50,6 +54,19 @@ defmodule Pears.Boundary.TeamManager do
   def handle_call({:lookup_team_by_name, name}, _from, teams) do
     if Map.has_key?(teams, name) do
       {:reply, {:ok, teams[name]}, teams}
+    else
+      {:reply, {:error, :not_found}, teams}
+    end
+  end
+
+  def handle_call({:lookup_team_by_id, id}, _from, teams) do
+    found_team =
+      teams
+      |> Map.values()
+      |> Enum.find(fn team -> team.id == id end)
+
+    if found_team do
+      {:reply, {:ok, found_team}, teams}
     else
       {:reply, {:error, :not_found}, teams}
     end

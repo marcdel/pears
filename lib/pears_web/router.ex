@@ -18,6 +18,7 @@ defmodule PearsWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
+    live "/teams/:id", Team.ShowLive, :show
   end
 
   # Other scopes may use custom stacks.
