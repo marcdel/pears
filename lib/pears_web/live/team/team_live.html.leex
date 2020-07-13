@@ -1,0 +1,8 @@
+<h1><%= @team_name %></h1>
+
+<%= if @live_action in [:add_pear] do %>
+  <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
+    return_to: Routes.team_path(@socket, :show, @team) %>
+<% end %>
+
+<%= live_patch "Add Pear", to: Routes.team_path(@socket, :add_pear, @team), class: "button" %>

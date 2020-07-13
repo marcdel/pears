@@ -24,7 +24,7 @@ defmodule PearsWeb.PageLive do
         {:noreply,
          socket
          |> put_flash(:info, "Congratulations, your team has been created!")
-         |> redirect(to: Routes.show_path(socket, :show, team))}
+         |> redirect(to: Routes.team_path(socket, :show, team))}
 
       {:error, :name_taken} ->
         {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}
