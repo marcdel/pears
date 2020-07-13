@@ -52,7 +52,7 @@ defmodule Pears do
     TeamManager.lookup_team_by_id(team_id)
   end
 
-  def get_unsaved_team(team_name) do
+  def get_team_session(team_name) do
     with true <- TeamSession.session_started?(team_name),
          {:ok, team} <- TeamSession.get_team(team_name) do
       {:ok, team}

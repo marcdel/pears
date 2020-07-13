@@ -23,7 +23,7 @@ defmodule PearsTest do
     Pears.persist_changes(name)
 
     {:ok, saved_team} = Pears.lookup_team_by_name(name)
-    {:ok, unsaved_team} = Pears.get_unsaved_team(name)
+    {:ok, unsaved_team} = Pears.get_team_session(name)
 
     assert unsaved_team == saved_team
 
@@ -60,7 +60,7 @@ defmodule PearsTest do
     Pears.add_track(name, "Track Two")
     Pears.recommend_pears(name)
 
-    {:ok, team} = Pears.get_unsaved_team(name)
+    {:ok, team} = Pears.get_team_session(name)
 
     Enum.each(team.tracks, fn {_, track} ->
       assert Enum.count(track.pears) == 2
@@ -90,7 +90,7 @@ defmodule PearsTest do
     {:ok, _} = Pears.lookup_team_by_name(name)
     {:ok, _} = Pears.remove_team(name)
     {:error, _} = Pears.lookup_team_by_name(name)
-    {:error, _} = Pears.get_unsaved_team(name)
+    {:error, _} = Pears.get_team_session(name)
   end
 
   test "cannot add pair to non-existent track or non-existent pear", %{name: name} do
