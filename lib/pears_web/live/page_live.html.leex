@@ -2,8 +2,10 @@
 
 <section>
   <form phx-change="validate_name" phx-submit="create_team">
-    <label>Create Team</label>
-    <input type="text" name="team-name" value="<%= @team_name %>" placeholder="New team name" autocomplete="off"/>
+    <label>
+      Create Team
+      <input type="text" name="team-name" value="<%= @team_name %>" placeholder="New team name" autocomplete="off"/>
+    </label>
     <button type="submit" phx-disable-with="Creating...">Create</button>
   </form>
 </section>

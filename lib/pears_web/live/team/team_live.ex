@@ -2,8 +2,8 @@ defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
 
   @impl true
-  def mount(_params, _session, socket) do
-    {:ok, assign(socket, team_name: "")}
+  def mount(params, _session, socket) do
+    {:ok, apply_action(socket, socket.assigns.live_action, params)}
   end
 
   @impl true
@@ -12,14 +12,15 @@ defmodule PearsWeb.TeamLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    case Pears.get_team(id) do
+    case Pears.get_team_session_by_id(id) do
       {:ok, team} ->
           socket
           |> assign(:team_name, team.name)
           |> assign(:team, team)
 
       {:error, :not_found} ->
-        put_flash(socket, :error, "Sorry, that team was not found")
+        socket
+        |> put_flash(:error, "Sorry, that team was not found")
     end
   end
 

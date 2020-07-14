@@ -12,40 +12,39 @@ context('Actions', () => {
     cy.visit('/')
   })
 
-  afterEach(() => {
-    cy.deleteTeam(teamId)
-  })
-
-  function testNameValidation() {
-    cy.get('[name="team-name"]')
-      .type(existingTeamName)
-      .should('have.value', existingTeamName)
+  function testInvalidNameValidation() {
+    cy.fillInput('Create Team', existingTeamName)
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
 
     cy.get('[name="team-name"]').clear()
-    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`).should('not.exist')
+    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
+      .should('not.exist')
+  }
+
+  function addPear(pearName) {
+    cy.clickLink('Add Pear')
+
+    cy.contains('h2', 'Add Pear')
+
+    cy.fillInput('Name', pearName)
+    cy.clickButton('Add')
+
+    cy.contains('section', 'Available Pears')
+      .within((section) => section.find('li', pearName))
   }
 
   it('create team, add pears, add tracks, and recommend pairs', () => {
-    cy.contains('label', /Create Team/i)
+    testInvalidNameValidation()
 
-    testNameValidation()
+    cy.fillInput('Create Team', teamName)
 
-    cy.get('[name="team-name"]')
-      .type(teamName)
-      .should('have.value', teamName)
-
-    cy.get('button')
-      .contains('Create')
-      .click()
+    cy.clickButton('Create')
 
     cy.contains('Congratulations, your team has been created!')
     cy.location('pathname').should('include', '/teams/')
     cy.contains('h1', teamName)
 
-    cy.contains('Add Pear')
-      .click()
-
-    cy.contains('h2', "Add Pear Teammate")
+    addPear('First Pear')
+    addPear('Second Pear')
   })
 })

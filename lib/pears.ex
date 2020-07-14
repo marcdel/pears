@@ -52,6 +52,15 @@ defmodule Pears do
     TeamManager.lookup_team_by_id(team_id)
   end
 
+  def get_team_session_by_id(team_id) do
+    with {:ok, team} <- TeamManager.lookup_team_by_id(team_id),
+         {:ok, team} <- get_team_session(team.name) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
   def get_team_session(team_name) do
     with true <- TeamSession.session_started?(team_name),
          {:ok, team} <- TeamSession.get_team(team_name) do
