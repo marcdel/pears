@@ -31,6 +31,24 @@ context('Actions', () => {
 
     cy.contains('section', 'Available Pears')
       .within((section) => section.find('li', pearName))
+
+    cy.get('.phx-modal')
+      .should('not.exist')
+  }
+
+  function addTrack(trackName) {
+    cy.clickLink('Add Track')
+
+    cy.contains('h2', 'Add Track')
+
+    cy.fillInput('Name', trackName)
+    cy.clickButton('Add')
+
+    cy.contains('section', 'Tracks')
+      .within((section) => section.find('li', trackName))
+
+    cy.get('.phx-modal')
+      .should('not.exist')
   }
 
   it('create team, add pears, add tracks, and recommend pairs', () => {
@@ -46,5 +64,7 @@ context('Actions', () => {
 
     addPear('First Pear')
     addPear('Second Pear')
+
+    addTrack('Feature Track')
   })
 })

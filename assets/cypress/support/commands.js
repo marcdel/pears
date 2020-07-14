@@ -34,5 +34,5 @@ Cypress.Commands.add('fillInput', (label, value) => {
     .should('have.value', value)
 })
 
-Cypress.Commands.add('clickButton', (text) => cy.get('button').contains(text).click())
-Cypress.Commands.add('clickLink', (text) => cy.get('a').contains(text).click())
+Cypress.Commands.add('clickButton', (text) => cy.contains('button', text).click())
+Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())

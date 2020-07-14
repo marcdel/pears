@@ -8,13 +8,37 @@
   %>
 <% end %>
 
-<section>
-  <h3>Available Pears</h3>
-  <ul>
-  <%= for pear <- Map.values(@team.available_pears) do %>
-    <li><%= pear.name %></li>
-  <% end %>
-  </ul>
-</section>
+<%= if @live_action in [:add_track] do %>
+  <%= live_modal @socket, PearsWeb.TeamLive.AddTrackForm,
+    id: @team.id,
+    team_name: @team_name,
+    return_to: Routes.team_path(@socket, :show, @team)
+  %>
+<% end %>
 
-<%= live_patch "Add Pear", to: Routes.team_path(@socket, :add_pear, @team), class: "button" %>
+<section class="container">
+  <div class="available-pears">
+    <article>
+      <h3>Available Pears</h3>
+      <ul>
+      <%= for pear <- Map.values(@team.available_pears) do %>
+        <li><%= pear.name %></li>
+      <% end %>
+      </ul>
+
+      <%= live_patch "Add Pear", to: Routes.team_path(@socket, :add_pear, @team), class: "button" %>
+    </article>
+  </div>
+  <div class="tracks">
+    <article>
+      <h3>Tracks</h3>
+      <ul>
+      <%= for track <- Map.values(@team.tracks) do %>
+        <li><%= track.name %></li>
+      <% end %>
+      </ul>
+
+      <%= live_patch "Add Track", to: Routes.team_path(@socket, :add_track, @team), class: "button" %>
+    </article>
+  </div>
+</section>

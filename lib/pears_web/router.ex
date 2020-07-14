@@ -20,6 +20,7 @@ defmodule PearsWeb.Router do
     live "/", PageLive, :index
     live "/teams/:id", TeamLive, :show
     live "/teams/:id/add_pear", TeamLive, :add_pear
+    live "/teams/:id/add_track", TeamLive, :add_track
   end
 
   # Other scopes may use custom stacks.

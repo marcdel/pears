@@ -20,11 +20,12 @@ defmodule PearsWeb.TeamLive do
 
       {:error, :not_found} ->
         socket
+        |> assign(:team_name, "")
+        |> assign(:team, %{})
         |> put_flash(:error, "Sorry, that team was not found")
     end
   end
 
-  defp apply_action(socket, :add_pear, _params) do
-    socket
-  end
+  defp apply_action(socket, :add_pear, _params), do: socket
+  defp apply_action(socket, :add_track, _params), do: socket
 end

@@ -2,6 +2,25 @@
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
+/* Team Page styles */
+article {
+  padding: 1rem;
+}
+
+.container {
+  display: grid;
+  grid-gap: 2rem;
+}
+
+.available-pears {
+  grid-column: 1;
+  border-right: 1px dashed gainsboro;
+}
+
+.tracks {
+  grid-column: 2;
+}
+
 /* LiveView specific classes for your customizations */
 .invalid-feedback {
   color: #a94442;
