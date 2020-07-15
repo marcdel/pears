@@ -75,10 +75,6 @@ defmodule Pears do
   end
 
   defp get_or_start_session(%{name: team_name}, session_started?: true) do
-    with {:ok, team} <- TeamSession.get_team(team_name) do
-      {:ok, team}
-    else
-      {:error, :not_found} -> {:error, :not_found}
-    end
+    TeamSession.get_team(team_name)
   end
 end

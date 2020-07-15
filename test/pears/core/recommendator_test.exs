@@ -7,11 +7,15 @@ defmodule Pears.Core.RecommendatorTest do
   test "does not modify team when there are no unassigned pears" do
     before_team =
       TeamBuilders.team()
-      |> TeamBuilders.with(pears: 4, tracks: 2)
+      |> Team.add_track("two pear track")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_to_track("pear1", "two pear track")
+      |> Team.add_to_track("pear2", "two pear track")
 
     after_team = Recommendator.assign_pears(before_team)
 
-    assert after_team == before_team
+    assert before_team == after_team
   end
 
   test "given one pear and one track, moves pear to track" do

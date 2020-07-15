@@ -23,6 +23,6 @@ defmodule Pears.Core.Recommendator do
   end
 
   defp find_empty_track(team) do
-    Enum.find(team.tracks, fn {_name, track} -> Enum.count(track.pears) == 0 end)
+    Enum.find(team.tracks, fn {_name, track} -> Enum.empty?(track.pears) end)
   end
 end
