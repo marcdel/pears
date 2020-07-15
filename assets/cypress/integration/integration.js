@@ -51,6 +51,11 @@ context('Actions', () => {
       .should('not.exist')
   }
 
+  it('redirects to root for teams that dont exist', () => {
+    cy.visit('/teams/fake-team')
+    cy.location('pathname').should('equal', '/')
+  })
+
   it('create team, add pears, add tracks, and recommend pairs', () => {
     testInvalidNameValidation()
 

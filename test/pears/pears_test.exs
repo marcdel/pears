@@ -22,10 +22,7 @@ defmodule PearsTest do
 
     Pears.persist_changes(name)
 
-    {:ok, saved_team} = Pears.lookup_team_by_name(name)
-    {:ok, unsaved_team} = Pears.get_team_session(name)
-
-    assert unsaved_team == saved_team
+    {:ok, saved_team} = Pears.lookup_team_by(name: name)
 
     assert saved_team == %Pears.Core.Team{
              available_pears: %{},
@@ -60,7 +57,7 @@ defmodule PearsTest do
     Pears.add_track(name, "Track Two")
     Pears.recommend_pears(name)
 
-    {:ok, team} = Pears.get_team_session(name)
+    {:ok, team} = Pears.lookup_team_by(name: name)
 
     Enum.each(team.tracks, fn {_, track} ->
       assert Enum.count(track.pears) == 2
@@ -79,18 +76,21 @@ defmodule PearsTest do
     assert {:ok, %{id: "with-caps-spaces"}} = Pears.add_team("With Caps Spaces")
   end
 
-  test "can lookup team by id", %{name: name} do
+  test "can lookup team by name or id", %{name: name} do
     {:ok, %{id: id}} = Pears.add_team(name)
-    assert {:ok, %{name: ^name}} = Pears.get_team(id)
-    assert {:error, :not_found} = Pears.get_team("bad-id")
+
+    assert {:ok, %{name: ^name, id: ^id}} = Pears.lookup_team_by(id: id)
+    assert {:error, :not_found} = Pears.lookup_team_by(id: "bad-id")
+
+    assert {:ok, %{name: ^name, id: ^id}} = Pears.lookup_team_by(name: name)
+    assert {:error, :not_found} = Pears.lookup_team_by(name: "bad-name")
   end
 
   test "teams can be removed", %{name: name} do
     {:ok, _} = Pears.add_team(name)
-    {:ok, _} = Pears.lookup_team_by_name(name)
+    {:ok, _} = Pears.lookup_team_by(name: name)
     {:ok, _} = Pears.remove_team(name)
-    {:error, _} = Pears.lookup_team_by_name(name)
-    {:error, _} = Pears.get_team_session(name)
+    {:error, _} = Pears.lookup_team_by(name: name)
   end
 
   test "cannot add pair to non-existent track or non-existent pear", %{name: name} do

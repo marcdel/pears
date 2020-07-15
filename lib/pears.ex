@@ -14,7 +14,7 @@ defmodule Pears do
   def add_team(team_name) do
     with :ok <- TeamManager.validate_name(team_name),
          {:ok, team} <- TeamManager.add_team(team_name),
-         {:ok, _} <- TeamSession.start_session(team) do
+         {:ok, team} <- TeamSession.start_session(team) do
       {:ok, team}
     else
       {:error, error} -> {:error, error}
@@ -48,30 +48,37 @@ defmodule Pears do
     TeamSession.recommend_pears(team_name)
   end
 
-  def get_team(team_id) do
-    TeamManager.lookup_team_by_id(team_id)
-  end
-
-  def get_team_session_by_id(team_id) do
-    with {:ok, team} <- TeamManager.lookup_team_by_id(team_id),
-         {:ok, team} <- get_team_session(team.name) do
+  def lookup_team_by(id: id) do
+    with {:ok, team} <- TeamManager.lookup_team_by_id(id),
+         {:ok, team} <- get_or_start_session(team) do
       {:ok, team}
     else
       error -> error
     end
   end
 
-  def get_team_session(team_name) do
-    with true <- TeamSession.session_started?(team_name),
-         {:ok, team} <- TeamSession.get_team(team_name) do
+  def lookup_team_by(name: name) do
+    with {:ok, team} <- TeamManager.lookup_team_by_name(name),
+         {:ok, team} <- get_or_start_session(team) do
       {:ok, team}
     else
-      false -> {:error, :no_session}
-      {:error, :not_found} -> {:error, :not_found}
+      error -> error
     end
   end
 
-  def lookup_team_by_name(team_name) do
-    TeamManager.lookup_team_by_name(team_name)
+  defp get_or_start_session(team) do
+    get_or_start_session(team, session_started?: TeamSession.session_started?(team.name))
+  end
+
+  defp get_or_start_session(team, session_started?: false) do
+    TeamSession.start_session(team)
+  end
+
+  defp get_or_start_session(%{name: team_name}, session_started?: true) do
+    with {:ok, team} <- TeamSession.get_team(team_name) do
+      {:ok, team}
+    else
+      {:error, :not_found} -> {:error, :not_found}
+    end
   end
 end
