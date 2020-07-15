@@ -1,5 +1,3 @@
-<h1><%= @team_name %></h1>
-
 <%= if @live_action in [:add_pear] do %>
   <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
     id: @team.id,
@@ -15,6 +13,15 @@
     return_to: Routes.team_path(@socket, :show, @team)
   %>
 <% end %>
+
+<section class="container header">
+  <article>
+    <h1><%= @team_name %></h1>
+  </article>
+  <article>
+    <button phx-click="recommend-pears">Recommend Pairs</button>
+  </article>
+</section>
 
 <section class="container">
   <div class="available-pears">

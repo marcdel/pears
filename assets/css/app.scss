@@ -14,6 +14,10 @@ article {
   grid-gap: 2rem;
 }
 
+.container .header {
+  grid-template-columns: 400px 200px;
+}
+
 .available-pears {
   grid-column: 1;
   border-right: 1px dashed gainsboro;

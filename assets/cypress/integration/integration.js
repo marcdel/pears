@@ -66,5 +66,11 @@ context('Actions', () => {
     addPear('Second Pear')
 
     addTrack('Feature Track')
+
+    cy.clickButton('Recommend Pairs')
+
+    cy.contains('Feature Track').parent()
+      .should('contain', 'First Pear')
+      .and('contain', 'Second Pear')
   })
 })

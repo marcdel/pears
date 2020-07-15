@@ -26,6 +26,13 @@ defmodule PearsWeb.TeamLive do
     end
   end
 
+  @impl true
+  def handle_event("recommend-pears", _params, socket) do
+    {:ok, team} = Pears.recommend_pears(socket.assigns.team_name)
+    {:noreply, assign(socket, :team, team)}
+  end
+
+
   defp apply_action(socket, :add_pear, _params), do: socket
   defp apply_action(socket, :add_track, _params), do: socket
 end
