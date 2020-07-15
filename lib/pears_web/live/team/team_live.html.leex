@@ -20,23 +20,27 @@
   <div class="available-pears">
     <article>
       <h3>Available Pears</h3>
-      <ul>
-      <%= for pear <- Map.values(@team.available_pears) do %>
-        <li><%= pear.name %></li>
-      <% end %>
-      </ul>
-
+      <p>
+        <%= for pear <- Map.values(@team.available_pears) do %>
+          <span class="pill"><%= pear.name %></span>
+        <% end %>
+      </p>
       <%= live_patch "Add Pear", to: Routes.team_path(@socket, :add_pear, @team), class: "button" %>
     </article>
   </div>
   <div class="tracks">
     <article>
       <h3>Tracks</h3>
-      <ul>
+      <p>
       <%= for track <- Map.values(@team.tracks) do %>
-        <li><%= track.name %></li>
+        <div class="track">
+          <h4><%= track.name %></h4>
+          <%= for pear <- Map.values(track.pears) do %>
+            <span class="pill"><%= pear.name %></span>
+          <% end %>
+        </div>
       <% end %>
-      </ul>
+      </p>
 
       <%= live_patch "Add Track", to: Routes.team_path(@socket, :add_track, @team), class: "button" %>
     </article>

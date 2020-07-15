@@ -1,6 +1,8 @@
 /* This file is for your main application css. */
+@import "./milligram.css";
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
+@import url('https://fonts.googleapis.com/css?family=Roboto|Titan+One');
 
 /* Team Page styles */
 article {
@@ -19,6 +21,112 @@ article {
 
 .tracks {
   grid-column: 2;
+}
+
+.track {
+  h4 {
+   border-bottom: 1px solid gainsboro;
+  }
+
+  border: 1px solid gainsboro;
+  margin: 1rem;
+  padding: 1rem;
+}
+
+/* app styles */
+
+html {
+  --cta-color: #C34182;
+  --link-color: #C34182;
+  --logo-color: #512E67;
+  --bg-color: #FAFAFA;
+  --pill-color: #512E67;
+  --pill-text-color: #FFFFFF;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  font-size: 18px;
+}
+
+a.logo, a.logo:hover, .logo {
+  font-family: 'Titan One', cursive;
+  font-size: 40px;
+  color: var(--logo-color);
+  text-decoration: none;
+}
+
+.button, button {
+  background-color: var(--cta-color);
+  border-color: var(--cta-color);
+}
+
+.button:focus, .button:hover, button:focus, button:hover, input[type='button']:focus, input[type='button']:hover, input[type='reset']:focus, input[type='reset']:hover, input[type='submit']:focus, input[type='submit']:hover {
+  background-color: var(--cta-color);
+  border-color: var(--cta-color);
+  filter: brightness(95%);
+}
+
+.button.button-outline {
+  color: var(--cta-color);
+  border-color: var(--cta-color);
+}
+
+.button.button-outline:focus, .button.button-outline:hover, button.button-outline:focus, button.button-outline:hover, input[type='button'].button-outline:focus, input[type='button'].button-outline:hover, input[type='reset'].button-outline:focus, input[type='reset'].button-outline:hover, input[type='submit'].button-outline:focus, input[type='submit'].button-outline:hover {
+  color: var(--cta-color);
+  border-color: var(--cta-color);
+  filter: brightness(95%);
+}
+
+header h1 {
+  margin-bottom: 0;
+}
+
+@media (max-width: 40.0rem) {
+  header section {
+    grid-template-columns: 1fr !important;
+  }
+
+  header nav ul {
+    margin-left: 0;
+  }
+}
+
+header section {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  justify-items: start;
+  align-items: center;
+}
+
+header nav ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 2rem;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+a:focus, a:hover {
+  color: var(--link-color);
+  filter: brightness(90%);
+}
+
+select {
+  width: 100%;
+}
+
+.pill {
+  color: var(--pill-text-color);
+  background-color: var(--pill-color);
+  border-radius: 15px;
+  padding: 0.5rem 1.1rem;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 /* LiveView specific classes for your customizations */
