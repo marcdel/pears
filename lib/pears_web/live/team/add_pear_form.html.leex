@@ -3,7 +3,7 @@
 <form phx-submit="add_pear" phx-target="<%= @myself %>">
   <label>
     Name
-    <input type="text" name="pear-name" value="<%= @pear_name %>" placeholder="What's this pear's name?" autocomplete="off"/>
+    <input type="text" name="pear-name" value="<%= @pear_name %>" placeholder="What's this pear's name?" autocomplete="off" autofocus/>
   </label>
   <button type="submit" phx-disable-with="Add...">Add</button>
 </form>
