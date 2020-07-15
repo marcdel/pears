@@ -20,11 +20,11 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def start_session(team) do
-      GenServer.whereis(via(team.name)) ||
-        DynamicSupervisor.start_child(
-          Pears.Supervisor.TeamSession,
-          {__MODULE__, team}
-        )
+    GenServer.whereis(via(team.name)) ||
+      DynamicSupervisor.start_child(
+        Pears.Supervisor.TeamSession,
+        {__MODULE__, team}
+      )
 
     {:ok, team}
   end

@@ -2,16 +2,18 @@ defmodule PearsWeb.TeamLive.AddPearForm do
   use PearsWeb, :live_component
 
   @impl true
+  def mount(socket) do
+    {:ok, assign(socket, pear_name: "")}
+  end
+
+  @impl true
   def update(assigns, socket) do
-    {:ok,
-     socket
-     |> assign(assigns)
-     |> assign(pear_name: "")}
+    {:ok, assign(socket, assigns)}
   end
 
   @impl true
   def handle_event("add_pear", %{"pear-name" => pear_name}, socket) do
-    Pears.add_pear(socket.assigns.team_name, pear_name)
+    Pears.add_pear(socket.assigns.team.name, pear_name)
     {:noreply, push_redirect(socket, to: socket.assigns.return_to)}
   end
 end

@@ -1,7 +1,7 @@
 <%= if @live_action in [:add_pear] do %>
   <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
     id: @team.id,
-    team_name: @team.name,
+    team: @team,
     return_to: Routes.team_path(@socket, :show, @team)
   %>
 <% end %>
@@ -9,7 +9,7 @@
 <%= if @live_action in [:add_track] do %>
   <%= live_modal @socket, PearsWeb.TeamLive.AddTrackForm,
     id: @team.id,
-    team_name: @team.name,
+    team: @team,
     return_to: Routes.team_path(@socket, :show, @team)
   %>
 <% end %>

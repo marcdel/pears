@@ -3,12 +3,15 @@ defmodule PearsWeb.TeamLive do
 
   @impl true
   def mount(params, _session, socket) do
-    {:ok, apply_action(socket, socket.assigns.live_action, params)}
+    {:ok,
+     socket
+     |> assign_team_or_redirect(params)
+     |> apply_action(socket.assigns.live_action)}
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  def handle_params(_params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action)}
   end
 
   @impl true
@@ -17,11 +20,10 @@ defmodule PearsWeb.TeamLive do
     {:noreply, assign(socket, :team, team)}
   end
 
-  defp apply_action(socket, :show, %{"id" => id}) do
+  defp assign_team_or_redirect(socket, %{"id" => id}) do
     case Pears.lookup_team_by(id: id) do
       {:ok, team} ->
-        socket
-        |> assign(:team, team)
+        assign(socket, :team, team)
 
       {:error, :not_found} ->
         socket
@@ -30,6 +32,7 @@ defmodule PearsWeb.TeamLive do
     end
   end
 
-  defp apply_action(socket, :add_pear, _params), do: socket
-  defp apply_action(socket, :add_track, _params), do: socket
+  defp apply_action(socket, :show), do: socket
+  defp apply_action(socket, :add_pear), do: socket
+  defp apply_action(socket, :add_track), do: socket
 end
