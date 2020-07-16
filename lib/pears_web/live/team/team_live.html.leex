@@ -41,7 +41,16 @@
       <p>
       <%= for track <- Map.values(@team.tracks) do %>
         <div class="track">
-          <h4><%= track.name %> <a href="#" phx-click="remove-track" phx-value-track-name="<%= track.name %>">X</a></h4>
+          <h4 class="track-name">
+            <%= track.name %>
+            <a
+              phx-click="remove-track"
+              phx-value-track-name="<%= track.name %>"
+              href="#"
+              class="phx-modal-close">
+              &times;
+            </a>
+          </h4>
           <%= for pear <- Map.values(track.pears) do %>
             <span class="pill assigned-pear"><%= pear.name %></span>
           <% end %>

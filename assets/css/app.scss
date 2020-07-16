@@ -28,8 +28,11 @@ article {
 }
 
 .track {
-  h4 {
-   border-bottom: 1px solid gainsboro;
+  .track-name {
+    border-bottom: 1px solid gainsboro;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   border: 1px solid gainsboro;
@@ -182,12 +185,12 @@ select {
   float: right;
   font-size: 28px;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .phx-modal-close:hover,
 .phx-modal-close:focus {
   color: black;
-  text-decoration: none;
   cursor: pointer;
 }
 
