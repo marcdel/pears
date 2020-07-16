@@ -23,7 +23,11 @@ defmodule Pears.Core.Team do
   end
 
   def remove_track(team, track_name) do
-    Map.put(team, :tracks, Map.delete(team.tracks, track_name))
+    track = find_track(team, track_name)
+
+    team
+    |> Map.put(:tracks, Map.delete(team.tracks, track_name))
+    |> Map.put(:available_pears, Map.merge(team.available_pears, track.pears))
   end
 
   def add_to_track(team, pear_name, track_name) do

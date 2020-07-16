@@ -58,6 +58,18 @@ defmodule Pears.Core.TeamTest do
     |> assert_pear_available("pear2")
   end
 
+  test "removing a track makes pears in that track available", %{team: team} do
+    team
+    |> Team.add_track("feature track")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_to_track("pear1", "feature track")
+    |> Team.add_to_track("pear2", "feature track")
+    |> Team.remove_track("feature track")
+    |> assert_pear_available("pear1")
+    |> assert_pear_available("pear2")
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end
