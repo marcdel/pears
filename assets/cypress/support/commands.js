@@ -36,3 +36,22 @@ Cypress.Commands.add('fillInput', (label, value) => {
 
 Cypress.Commands.add('clickButton', (text) => cy.contains('button', text).click())
 Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
+
+Cypress.Commands.add('pearAvailable', (pearName) => {
+  return cy.get('.available-pear')
+    .contains(pearName).should('visible')
+})
+
+const findTrack = (trackName) => {
+  return cy.get('.track').contains(trackName)
+}
+
+Cypress.Commands.add('findTrack', findTrack)
+
+Cypress.Commands.add('trackExists', (trackName) => {
+  return findTrack(trackName).should('visible')
+})
+
+Cypress.Commands.add('trackDoesNotExist', (trackName) => {
+  return cy.contains(trackName).should('not.visible')
+})

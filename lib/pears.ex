@@ -40,6 +40,10 @@ defmodule Pears do
     TeamSession.add_track(team_name, track_name)
   end
 
+  def remove_track(team_name, track_name) do
+    TeamSession.remove_track(team_name, track_name)
+  end
+
   def add_pear_to_track(team_name, pear_name, track_name) do
     TeamSession.add_pear_to_track(team_name, pear_name, track_name)
   end

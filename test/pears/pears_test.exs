@@ -64,6 +64,22 @@ defmodule PearsTest do
     end)
   end
 
+  test "can remove a track", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_pear(name, "Pear Two")
+    Pears.add_track(name, "Track One")
+    Pears.add_pear_to_track(name, "Pear One", "Track One")
+    Pears.add_pear_to_track(name, "Pear Two", "Track One")
+
+    Pears.remove_track(name, "Track One")
+
+    {:ok, team} = Pears.lookup_team_by(name: name)
+
+    assert Enum.empty?(team.tracks)
+    assert Enum.count(team.available_pears) == 2
+  end
+
   test "team names must be unique", %{name: name} do
     :ok = Pears.validate_name(name)
     {:ok, _} = Pears.add_team(name)

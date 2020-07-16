@@ -18,7 +18,7 @@ context('Actions', () => {
 
     cy.get('[name="team-name"]').clear()
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-      .should('not.exist')
+      .should('not.visible')
   }
 
   function addPear(pearName) {
@@ -29,11 +29,10 @@ context('Actions', () => {
     cy.fillInput('Name', pearName)
     cy.clickButton('Add')
 
-    cy.contains('section', 'Available Pears')
-      .within((section) => section.find('li', pearName))
+    cy.pearAvailable(pearName)
 
     cy.get('.phx-modal')
-      .should('not.exist')
+      .should('not.visible')
   }
 
   function addTrack(trackName) {
@@ -44,11 +43,10 @@ context('Actions', () => {
     cy.fillInput('Name', trackName)
     cy.clickButton('Add')
 
-    cy.contains('section', 'Tracks')
-      .within((section) => section.find('li', trackName))
+    cy.trackExists(trackName)
 
     cy.get('.phx-modal')
-      .should('not.exist')
+      .should('not.visible')
   }
 
   it('redirects to root for teams that dont exist', () => {
@@ -77,5 +75,12 @@ context('Actions', () => {
     cy.contains('Feature Track').parent()
       .should('contain', 'First Pear')
       .and('contain', 'Second Pear')
+
+    cy.contains('Feature Track').find('a').click()
+
+    cy.trackDoesNotExist('Feature Track')
+
+    cy.pearAvailable('First Pear')
+    cy.pearAvailable('Second Pear')
   })
 })

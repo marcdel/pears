@@ -29,7 +29,7 @@
       <h3>Available Pears</h3>
       <p>
         <%= for pear <- Map.values(@team.available_pears) do %>
-          <span class="pill"><%= pear.name %></span>
+          <span class="pill available-pear"><%= pear.name %></span>
         <% end %>
       </p>
       <%= live_patch "Add Pear", to: Routes.team_path(@socket, :add_pear, @team), class: "button" %>
@@ -41,9 +41,9 @@
       <p>
       <%= for track <- Map.values(@team.tracks) do %>
         <div class="track">
-          <h4><%= track.name %></h4>
+          <h4><%= track.name %> <a href="#" phx-click="remove-track" phx-value-track-name="<%= track.name %>">X</a></h4>
           <%= for pear <- Map.values(track.pears) do %>
-            <span class="pill"><%= pear.name %></span>
+            <span class="pill assigned-pear"><%= pear.name %></span>
           <% end %>
         </div>
       <% end %>
