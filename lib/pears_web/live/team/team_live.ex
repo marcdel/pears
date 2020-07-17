@@ -33,19 +33,24 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  def handle_event("unselect-pear", _params, socket) do
+    {:noreply, assign(socket, selected_pear: nil)}
+  end
+
+  @impl true
   def handle_event("track-clicked", %{"track-name" => track_name}, socket) do
+    with {:ok, pear_name} <- selected_pear(socket),
+         {:ok, team} <- Pears.add_pear_to_track(socket.assigns.team.name, pear_name, track_name) do
+      {:noreply, assign(socket, team: team, selected_pear: nil)}
+    else
+      _ -> {:noreply, socket}
+    end
+  end
+
+  defp selected_pear(socket) do
     case socket.assigns.selected_pear do
-      nil ->
-        {:noreply, socket}
-
-      pear_name ->
-        case Pears.add_pear_to_track(socket.assigns.team.name, pear_name, track_name) do
-          {:ok, team} ->
-            {:noreply, assign(socket, team: team, selected_pear: nil)}
-
-          {:error, :not_found} ->
-            {:noreply, socket}
-        end
+      nil -> {:error, :none_selected}
+      pear_name -> {:ok, pear_name}
     end
   end
 

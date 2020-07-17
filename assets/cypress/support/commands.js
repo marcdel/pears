@@ -61,3 +61,7 @@ Cypress.Commands.add('trackExists', (trackName) => {
 Cypress.Commands.add('trackDoesNotExist', (trackName) => {
   return cy.contains(trackName).should('not.visible')
 })
+
+Cypress.Commands.add('pearIsInTrack', (pearName, trackName) => {
+  return cy.contains(trackName).parent().should('contain', pearName)
+})

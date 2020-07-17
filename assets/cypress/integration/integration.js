@@ -85,22 +85,12 @@ context('Actions', () => {
 
     addTrack('Refactor Track')
 
-    cy.findAvailablePear('First Pear')
-      .click()
+    cy.findAvailablePear('First Pear').click()
+    cy.findTrack('Refactor Track').click()
+    cy.pearIsInTrack('First Pear', 'Refactor Track')
 
-    cy.findTrack('Refactor Track')
-      .click()
-
-    cy.contains('Refactor Track').parent()
-      .should('contain', 'First Pear')
-
-    cy.findAvailablePear('Second Pear')
-      .click()
-
-    cy.findTrack('Refactor Track')
-      .click()
-
-    cy.contains('Refactor Track').parent()
-      .should('contain', 'Second Pear')
+    cy.findAvailablePear('Second Pear').click()
+    cy.findTrack('Refactor Track').click()
+    cy.pearIsInTrack('Second Pear', 'Refactor Track')
   })
 })
