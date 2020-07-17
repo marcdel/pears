@@ -23,15 +23,15 @@ article {
   border-right: 1px dashed gainsboro;
 }
 
-.pill.selected {
-  box-shadow: var(--selected-shadow);
-}
-
 .pill.button, .pill.button:hover {
   border-radius: 500px;
   color: var(--pill-text-color);
   background-color: var(--pill-color);
   border-color: var(--pill-color);
+}
+
+.pill.button:hover, .pill.selected {
+  box-shadow: var(--selected-shadow);
 }
 
 .tracks {
