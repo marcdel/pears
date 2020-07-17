@@ -23,6 +23,10 @@ article {
   border-right: 1px dashed gainsboro;
 }
 
+.pill.selected {
+  box-shadow: 0px 0px 15px 3px var(--pill-color);
+}
+
 .tracks {
   grid-column: 2;
 }

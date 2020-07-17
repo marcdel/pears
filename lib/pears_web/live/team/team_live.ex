@@ -6,6 +6,7 @@ defmodule PearsWeb.TeamLive do
     {:ok,
      socket
      |> assign_team_or_redirect(params)
+     |> assign(:selected_pear, nil)
      |> apply_action(socket.assigns.live_action)}
   end
 
@@ -24,6 +25,28 @@ defmodule PearsWeb.TeamLive do
   def handle_event("remove-track", %{"track-name" => track_name}, socket) do
     {:ok, team} = Pears.remove_track(socket.assigns.team.name, track_name)
     {:noreply, assign(socket, team: team)}
+  end
+
+  @impl true
+  def handle_event("available-pear-selected", %{"pear-name" => pear_name}, socket) do
+    {:noreply, assign(socket, selected_pear: pear_name)}
+  end
+
+  @impl true
+  def handle_event("track-clicked", %{"track-name" => track_name}, socket) do
+    case socket.assigns.selected_pear do
+      nil ->
+        {:noreply, socket}
+
+      pear_name ->
+        case Pears.add_pear_to_track(socket.assigns.team.name, pear_name, track_name) do
+          {:ok, team} ->
+            {:noreply, assign(socket, team: team, selected_pear: nil)}
+
+          {:error, :not_found} ->
+            {:noreply, socket}
+        end
+    end
   end
 
   defp assign_team_or_redirect(socket, %{"id" => id}) do
