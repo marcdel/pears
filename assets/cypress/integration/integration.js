@@ -92,5 +92,9 @@ context('Actions', () => {
     cy.findAvailablePear('Second Pear').click()
     cy.findTrack('Refactor Track').click()
     cy.pearIsInTrack('Second Pear', 'Refactor Track')
+
+    cy.findAssignedPear('Second Pear').click()
+    cy.get('.available-pears').click()
+    cy.pearAvailable('Second Pear')
   })
 })

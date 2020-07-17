@@ -40,12 +40,12 @@ defmodule Pears.Core.Team do
     %{team | tracks: updated_tracks, available_pears: updated_pears}
   end
 
-  def remove_from_track(team, pear_name, track_name) do
+  def remove_pear_from_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
     pear = Track.find_pear(track, pear_name)
 
     updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
-    updated_pears = Map.put(team.available_pears, pear_name, Track.remove_pear(track, pear))
+    updated_pears = Map.put(team.available_pears, pear_name, pear)
 
     %{team | tracks: updated_tracks, available_pears: updated_pears}
   end

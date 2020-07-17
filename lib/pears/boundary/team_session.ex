@@ -1,7 +1,7 @@
 defmodule Pears.Boundary.TeamSession do
   use GenServer
 
-  alias Pears.Core.{Recommendator, Team}
+  alias Pears.Core.{Recommendator, Team, Track}
 
   def start_link(team) do
     GenServer.start_link(__MODULE__, team, name: via(team.name))
@@ -57,6 +57,10 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), {:add_pear_to_track, pear_name, track_name})
   end
 
+  def remove_pear_from_track(team_name, pear_name, track_name) do
+    GenServer.call(via(team_name), {:remove_pear_from_track, pear_name, track_name})
+  end
+
   def recommend_pears(team_name) do
     GenServer.call(via(team_name), :recommend_pears)
   end
@@ -88,6 +92,16 @@ defmodule Pears.Boundary.TeamSession do
     with %{} <- Team.find_track(team, track_name),
          %{} <- Team.find_available_pear(team, pear_name) do
       team = Team.add_to_track(team, pear_name, track_name)
+      {:reply, {:ok, team}, team}
+    else
+      _ -> {:reply, {:error, :not_found}, team}
+    end
+  end
+
+  def handle_call({:remove_pear_from_track, pear_name, track_name}, _from, team) do
+    with %{} = track <- Team.find_track(team, track_name),
+         %{} <- Track.find_pear(track, pear_name) do
+      team = Team.remove_pear_from_track(team, pear_name, track_name)
       {:reply, {:ok, team}, team}
     else
       _ -> {:reply, {:error, :not_found}, team}

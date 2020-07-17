@@ -42,7 +42,13 @@ function findAvailablePear(pearName) {
     .contains(pearName)
 }
 
+function findAssignedPear(pearName) {
+  return cy.get('.assigned-pear')
+    .contains(pearName)
+}
+
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
+Cypress.Commands.add('findAssignedPear', findAssignedPear)
 
 Cypress.Commands.add('pearAvailable', (pearName) => {
   return findAvailablePear(pearName).should('visible')

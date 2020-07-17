@@ -25,13 +25,13 @@
   </section>
 
   <section class="container">
-    <div class="available-pears">
+    <div class="available-pears" phx-click="unassign-pear">
       <article>
         <h3>Available Pears</h3>
         <p>
           <%= for pear <- Map.values(@team.available_pears) do %>
             <a
-             phx-click="available-pear-selected"
+             phx-click="pear-selected"
              phx-value-pear-name="<%= pear.name %>"
              class="button pill available-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
              <%= pear.name %>
@@ -61,7 +61,13 @@
               </a>
             </h4>
             <%= for pear <- Map.values(track.pears) do %>
-              <a class="button pill assigned-pear"><%= pear.name %></a>
+              <a
+                phx-click="pear-selected"
+                phx-value-pear-name="<%= pear.name %>"
+                phx-value-track-name="<%= track.name %>"
+                class="button pill assigned-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
+                <%= pear.name %>
+              </a>
             <% end %>
           </div>
         <% end %>

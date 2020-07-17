@@ -19,13 +19,16 @@ defmodule PearsTest do
 
     Pears.add_pear_to_track(name, "Pear Three", "Track Two")
     Pears.add_pear_to_track(name, "Pear Four", "Track Two")
+    Pears.remove_pear_from_track(name, "Pear Four", "Track Two")
 
     Pears.persist_changes(name)
 
     {:ok, saved_team} = Pears.lookup_team_by(name: name)
 
     assert saved_team == %Pears.Core.Team{
-             available_pears: %{},
+             available_pears: %{
+               "Pear Four" => %Pears.Core.Pear{name: "Pear Four"}
+             },
              name: name,
              id: name,
              tracks: %{
@@ -39,8 +42,7 @@ defmodule PearsTest do
                "Track Two" => %Pears.Core.Track{
                  name: "Track Two",
                  pears: %{
-                   "Pear Three" => %Pears.Core.Pear{name: "Pear Three"},
-                   "Pear Four" => %Pears.Core.Pear{name: "Pear Four"}
+                   "Pear Three" => %Pears.Core.Pear{name: "Pear Three"}
                  }
                }
              }

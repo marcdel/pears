@@ -50,10 +50,10 @@ defmodule Pears.Core.TeamTest do
     |> Team.add_to_track("pear4", "feature track")
     |> assert_pear_in_track("pear4", "feature track")
     |> refute_pear_available("pear4")
-    |> Team.remove_from_track("pear1", "refactor track")
+    |> Team.remove_pear_from_track("pear1", "refactor track")
     |> refute_pear_in_track("pear1", "refactor track")
     |> assert_pear_available("pear1")
-    |> Team.remove_from_track("pear2", "feature track")
+    |> Team.remove_pear_from_track("pear2", "feature track")
     |> refute_pear_in_track("pear2", "feature track")
     |> assert_pear_available("pear2")
   end
