@@ -72,9 +72,8 @@ context('Actions', () => {
 
     cy.clickButton('Recommend Pairs')
 
-    cy.contains('Feature Track').parent()
-      .should('contain', 'First Pear')
-      .and('contain', 'Second Pear')
+    cy.pearIsInTrack('First Pear', 'Feature Track')
+    cy.pearIsInTrack('Second Pear', 'Feature Track')
 
     cy.contains('Feature Track').find('a').click()
 
@@ -96,5 +95,10 @@ context('Actions', () => {
     cy.findAssignedPear('Second Pear').click()
     cy.get('.available-pears').click()
     cy.pearAvailable('Second Pear')
+
+    addTrack('Feature Track')
+    cy.findAssignedPear('First Pear').click()
+    cy.findTrack('Feature Track').click()
+    cy.pearIsInTrack('First Pear', 'Feature Track')
   })
 })

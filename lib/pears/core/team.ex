@@ -30,7 +30,7 @@ defmodule Pears.Core.Team do
     |> Map.put(:tracks, Map.delete(team.tracks, track_name))
   end
 
-  def add_to_track(team, pear_name, track_name) do
+  def add_pear_to_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
     pear = find_available_pear(team, pear_name)
 
@@ -38,6 +38,12 @@ defmodule Pears.Core.Team do
     updated_pears = Map.delete(team.available_pears, pear_name)
 
     %{team | tracks: updated_tracks, available_pears: updated_pears}
+  end
+
+  def move_pear_to_track(team, pear_name, from_track_name, to_track_name) do
+    team
+    |> remove_pear_from_track(pear_name, from_track_name)
+    |> add_pear_to_track(pear_name, to_track_name)
   end
 
   def remove_pear_from_track(team, pear_name, track_name) do
@@ -53,6 +59,14 @@ defmodule Pears.Core.Team do
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
+
+  def find_assigned_pear(team, pear_name) do
+    team.tracks
+    |> Enum.map(fn {_, track} -> Enum.map(track.pears, fn record -> record end) end)
+    |> List.flatten()
+    |> Enum.find({nil, nil}, fn {name, _} -> name == pear_name end)
+    |> elem(1)
+  end
 
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
 

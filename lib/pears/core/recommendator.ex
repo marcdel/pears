@@ -7,7 +7,7 @@ defmodule Pears.Core.Recommendator do
 
   defp assign_pear({pear_name, _pear}, team) do
     case find_available_track(team) do
-      {track_name, _track} -> Team.add_to_track(team, pear_name, track_name)
+      {track_name, _track} -> Team.add_pear_to_track(team, pear_name, track_name)
       :match_not_found -> team
     end
   end

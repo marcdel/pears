@@ -20,6 +20,7 @@ defmodule PearsTest do
     Pears.add_pear_to_track(name, "Pear Three", "Track Two")
     Pears.add_pear_to_track(name, "Pear Four", "Track Two")
     Pears.remove_pear_from_track(name, "Pear Four", "Track Two")
+    Pears.move_pear_to_track(name, "Pear Two", "Track One", "Track Two")
 
     Pears.persist_changes(name)
 
@@ -36,14 +37,14 @@ defmodule PearsTest do
                  id: 1,
                  name: "Track One",
                  pears: %{
-                   "Pear One" => %Pears.Core.Pear{name: "Pear One"},
-                   "Pear Two" => %Pears.Core.Pear{name: "Pear Two"}
+                   "Pear One" => %Pears.Core.Pear{name: "Pear One"}
                  }
                },
                "Track Two" => %Pears.Core.Track{
                  id: 2,
                  name: "Track Two",
                  pears: %{
+                   "Pear Two" => %Pears.Core.Pear{name: "Pear Two"},
                    "Pear Three" => %Pears.Core.Pear{name: "Pear Three"}
                  }
                }
