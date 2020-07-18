@@ -6,14 +6,19 @@ defmodule PearsWeb.TeamLive do
     {:ok,
      socket
      |> assign_team_or_redirect(params)
-     |> assign(:selected_pear, nil)
-     |> assign(:selected_pear_track, nil)
+     |> assign(selected_pear: nil, selected_pear_track: nil)
      |> apply_action(socket.assigns.live_action)}
   end
 
   @impl true
   def handle_params(_params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action)}
+  end
+
+  def list_tracks(team) do
+    team.tracks
+    |> Enum.sort_by(fn {_, %{id: id}} -> id end)
+    |> Enum.map(fn {_track_name, track} -> track end)
   end
 
   @impl true
@@ -56,7 +61,7 @@ defmodule PearsWeb.TeamLive do
          {:ok, team} <- Pears.remove_pear_from_track(team_name, pear_name, track_name) do
       {:noreply, assign(socket, team: team, selected_pear: nil)}
     else
-      _ -> {:noreply, socket}
+      _ -> {:noreply, assign(socket, selected_pear: nil, selected_pear_track: nil)}
     end
   end
 
@@ -66,7 +71,7 @@ defmodule PearsWeb.TeamLive do
          {:ok, team} <- Pears.add_pear_to_track(socket.assigns.team.name, pear_name, track_name) do
       {:noreply, assign(socket, team: team, selected_pear: nil)}
     else
-      _ -> {:noreply, socket}
+      _ -> {:noreply, assign(socket, selected_pear: nil, selected_pear_track: nil)}
     end
   end
 

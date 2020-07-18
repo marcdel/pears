@@ -1,5 +1,5 @@
 defmodule Pears.Core.Track do
-  defstruct name: nil, pears: %{}
+  defstruct name: nil, id: nil, pears: %{}
 
   def new(fields) do
     struct!(__MODULE__, fields)

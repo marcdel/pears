@@ -70,6 +70,19 @@ defmodule Pears.Core.TeamTest do
     |> assert_pear_available("pear2")
   end
 
+  test "tracks are given ascending ids", %{team: team} do
+    team =
+      team
+      |> Team.add_track("d")
+      |> Team.add_track("c")
+      |> Team.add_track("b")
+      |> Team.add_track("a")
+
+    tracks = Enum.map(team.tracks, fn {name, %{id: id}} -> {name, id} end)
+
+    assert tracks == [{"a", 4}, {"b", 3}, {"c", 2}, {"d", 1}]
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end

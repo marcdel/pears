@@ -18,7 +18,7 @@ defmodule Pears.Core.Team do
   end
 
   def add_track(team, track_name) do
-    track = Track.new(name: track_name)
+    track = Track.new(name: track_name, id: next_track_id(team))
     Map.put(team, :tracks, Map.put(team.tracks, track_name, track))
   end
 
@@ -57,4 +57,8 @@ defmodule Pears.Core.Team do
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
 
   defp to_slug(team), do: String.downcase(team.name) |> String.replace(" ", "-")
+
+  defp next_track_id(team) do
+    Enum.count(team.tracks) + 1
+  end
 end

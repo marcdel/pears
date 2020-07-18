@@ -33,6 +33,7 @@ defmodule PearsTest do
              id: name,
              tracks: %{
                "Track One" => %Pears.Core.Track{
+                 id: 1,
                  name: "Track One",
                  pears: %{
                    "Pear One" => %Pears.Core.Pear{name: "Pear One"},
@@ -40,6 +41,7 @@ defmodule PearsTest do
                  }
                },
                "Track Two" => %Pears.Core.Track{
+                 id: 2,
                  name: "Track Two",
                  pears: %{
                    "Pear Three" => %Pears.Core.Pear{name: "Pear Three"}

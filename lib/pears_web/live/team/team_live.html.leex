@@ -15,18 +15,13 @@
 <% end %>
 
 <div phx-click="unselect-pear">
-  <section class="container header">
-    <article>
-      <h1><%= @team.name %></h1>
-    </article>
-    <article>
-      <button phx-click="recommend-pears">Recommend Pairs</button>
-    </article>
-  </section>
-
-  <section class="container">
-    <div class="available-pears" phx-click="unassign-pear">
+  <section class="board">
+    <div class="left-column">
       <article>
+        <h1><%= @team.name %></h1>
+      </article>
+
+      <article class="available-pears" phx-click="unassign-pear">
         <h3>Available Pears</h3>
         <p>
           <%= for pear <- Map.values(@team.available_pears) do %>
@@ -41,39 +36,43 @@
         <%= live_patch "Add Pear", to: Routes.team_path(@socket, :add_pear, @team), class: "button" %>
       </article>
     </div>
-    <div class="tracks">
+    <div class="right-column">
       <article>
-        <h3>Tracks</h3>
-        <p>
-        <%= for track <- Map.values(@team.tracks) do %>
-          <div
-            phx-click="track-clicked"
-            phx-value-track-name="<%= track.name %>"
-            class="track">
-            <h4 class="track-name">
-              <%= track.name %>
-              <a
-                phx-click="remove-track"
-                phx-value-track-name="<%= track.name %>"
-                href="#"
-                class="phx-modal-close">
-                &times;
-              </a>
-            </h4>
-            <%= for pear <- Map.values(track.pears) do %>
-              <a
-                phx-click="pear-selected"
-                phx-value-pear-name="<%= pear.name %>"
-                phx-value-track-name="<%= track.name %>"
-                class="button pill assigned-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
-                <%= pear.name %>
-              </a>
-            <% end %>
-          </div>
-        <% end %>
-        </p>
+        <button phx-click="recommend-pears">Recommend Pairs</button>
+      </article>
 
+      <article class="tracks">
+        <h3>Tracks</h3>
         <%= live_patch "Add Track", to: Routes.team_path(@socket, :add_track, @team), class: "button" %>
+
+        <div class="tracks-container">
+          <%= for track <- list_tracks(@team) do %>
+            <div
+              phx-click="track-clicked"
+              phx-value-track-name="<%= track.name %>"
+              class="track">
+              <h4 class="track-name">
+                <%= track.name %>
+                <a
+                  phx-click="remove-track"
+                  phx-value-track-name="<%= track.name %>"
+                  href="#"
+                  class="phx-modal-close">
+                  &times;
+                </a>
+              </h4>
+              <%= for pear <- Map.values(track.pears) do %>
+                <a
+                  phx-click="pear-selected"
+                  phx-value-pear-name="<%= pear.name %>"
+                  phx-value-track-name="<%= track.name %>"
+                  class="button pill assigned-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
+                  <%= pear.name %>
+                </a>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       </article>
     </div>
   </section>
