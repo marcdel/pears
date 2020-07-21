@@ -33,15 +33,13 @@
             </a>
           <% end %>
         </p>
-        <%= live_patch to: Routes.team_path(@socket, :add_pear, @team), class: "add-pear" do %>
-          + Add Pear
-        <% end %>
+        <%= live_patch "+ Add Pear", to: Routes.team_path(@socket, :add_pear, @team) %>
       </article>
     </div>
     <div class="right-column">
       <article>
-        <%= live_patch "Add Track", to: Routes.team_path(@socket, :add_track, @team), class: "button button-outline" %>
-        <button class="button" phx-click="recommend-pears">Recommend Pairs</button>
+        <button class="button button-outline" phx-click="record-pears">Record Pears</button>
+        <button class="button" phx-click="recommend-pears">Recommend Pears</button>
       </article>
 
       <article class="tracks">
@@ -74,6 +72,7 @@
             </div>
           <% end %>
         </div>
+        <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
       </article>
     </div>
   </section>

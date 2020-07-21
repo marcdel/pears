@@ -94,6 +94,43 @@ defmodule Pears.Core.TeamTest do
     assert tracks == [{"a", 4}, {"b", 3}, {"c", 2}, {"d", 1}]
   end
 
+  test "recording pears adds the current pears to the history", %{team: team} do
+    team =
+      team
+      |> Team.add_track("feature track")
+      |> Team.add_track("refactor track")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear("pear3")
+      |> Team.add_pear("pear4")
+      |> Team.record_pears()
+
+    assert team.history == []
+
+    team =
+      team
+      |> Team.add_pear_to_track("pear1", "refactor track")
+      |> Team.add_pear_to_track("pear2", "feature track")
+      |> Team.add_pear_to_track("pear3", "refactor track")
+      |> Team.add_pear_to_track("pear4", "feature track")
+      |> Team.record_pears()
+
+    assert team.history == [
+             [["pear2", "pear4"], ["pear1", "pear3"]]
+           ]
+
+    team =
+      team
+      |> Team.move_pear_to_track("pear1", "refactor track", "feature track")
+      |> Team.move_pear_to_track("pear2", "feature track", "refactor track")
+      |> Team.record_pears()
+
+    assert team.history == [
+             [["pear1", "pear4"], ["pear2", "pear3"]],
+             [["pear2", "pear4"], ["pear1", "pear3"]]
+           ]
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end

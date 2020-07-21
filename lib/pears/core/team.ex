@@ -1,5 +1,5 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, id: nil, available_pears: %{}, tracks: %{}
+  defstruct name: nil, id: nil, available_pears: %{}, tracks: %{}, history: []
 
   alias Pears.Core.{Pear, Track}
 
@@ -56,16 +56,36 @@ defmodule Pears.Core.Team do
     %{team | tracks: updated_tracks, available_pears: updated_pears}
   end
 
+  def record_pears(team) do
+    if any_pears_assigned?(team) do
+      %{team | history: [assigned_pears(team)] ++ team.history}
+    else
+      team
+    end
+  end
+
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
 
   def find_assigned_pear(team, pear_name) do
-    team.tracks
-    |> Enum.map(fn {_, track} -> Enum.map(track.pears, fn record -> record end) end)
+    assigned_pears(team)
     |> List.flatten()
-    |> Enum.find({nil, nil}, fn {name, _} -> name == pear_name end)
-    |> elem(1)
+    |> Enum.find(fn name -> name == pear_name end)
+  end
+
+  def assigned_pears(team) do
+    team.tracks
+    |> Enum.map(fn {_, track} ->
+      Enum.map(track.pears, fn {name, _} -> name end)
+    end)
+  end
+
+  def any_pears_assigned?(team) do
+    team
+    |> assigned_pears()
+    |> List.flatten()
+    |> Enum.any?()
   end
 
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)

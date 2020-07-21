@@ -22,8 +22,6 @@ defmodule PearsTest do
     Pears.remove_pear_from_track(name, "Pear Four", "Track Two")
     Pears.move_pear_to_track(name, "Pear Two", "Track One", "Track Two")
 
-    Pears.persist_changes(name)
-
     {:ok, saved_team} = Pears.lookup_team_by(name: name)
 
     assert saved_team == %Pears.Core.Team{
@@ -67,6 +65,21 @@ defmodule PearsTest do
     Enum.each(team.tracks, fn {_, track} ->
       assert Enum.count(track.pears) == 2
     end)
+  end
+
+  test "can record pears", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_pear(name, "Pear Two")
+    Pears.add_pear(name, "Pear Three")
+    Pears.add_pear(name, "Pear Four")
+    Pears.add_track(name, "Track One")
+    Pears.add_track(name, "Track Two")
+    Pears.recommend_pears(name)
+
+    {:ok, team} = Pears.record_pears(name)
+
+    assert [[[_, _], [_, _]]] = team.history
   end
 
   test "can remove a track", %{name: name} do
@@ -114,7 +127,7 @@ defmodule PearsTest do
     {:error, _} = Pears.lookup_team_by(name: name)
   end
 
-  test "cannot add pair to non-existent track or non-existent pear", %{name: name} do
+  test "cannot add pear to non-existent track or non-existent pear", %{name: name} do
     Pears.add_team(name)
     Pears.add_pear(name, "Pear One")
     Pears.add_track(name, "Track One")

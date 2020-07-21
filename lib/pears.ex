@@ -22,11 +22,6 @@ defmodule Pears do
     end
   end
 
-  def persist_changes(team_name) do
-    {:ok, team} = TeamSession.get_team(team_name)
-    TeamManager.update_team(team)
-  end
-
   def remove_team(name) do
     TeamSession.end_session(name)
     TeamManager.remove_team(name)
@@ -60,6 +55,15 @@ defmodule Pears do
     TeamSession.recommend_pears(team_name)
   end
 
+  def record_pears(team_name) do
+    with {:ok, team} <- TeamSession.record_pears(team_name),
+         {:ok, team} <- persist_changes(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
   def lookup_team_by(id: id) do
     with {:ok, team} <- TeamManager.lookup_team_by_id(id),
          {:ok, team} <- get_or_start_session(team) do
@@ -76,6 +80,10 @@ defmodule Pears do
     else
       error -> error
     end
+  end
+
+  defp persist_changes(team) do
+    {:ok, team}
   end
 
   defp get_or_start_session(team) do

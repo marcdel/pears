@@ -54,14 +54,14 @@ context('Actions', () => {
     cy.location('pathname').should('equal', '/')
   })
 
-  it('create team, add pears, add tracks, and recommend pairs', () => {
+  it('create team, add pears, add tracks, and recommend pears', () => {
     testInvalidNameValidation()
 
     cy.fillInput('Create Team', teamName)
 
     cy.clickButton('Create')
 
-    cy.contains('Congratulations, your team has been created!')
+    cy.contains('Congratulations, your team has been created!').should('visible')
     cy.location('pathname').should('include', '/teams/')
     cy.contains('h1', teamName)
 
@@ -70,7 +70,7 @@ context('Actions', () => {
 
     addTrack('Feature Track')
 
-    cy.clickButton('Recommend Pairs')
+    cy.clickButton('Recommend Pears')
 
     cy.pearIsInTrack('First Pear', 'Feature Track')
     cy.pearIsInTrack('Second Pear', 'Feature Track')
@@ -100,5 +100,8 @@ context('Actions', () => {
     cy.findAssignedPear('First Pear').click()
     cy.findTrack('Feature Track').click()
     cy.pearIsInTrack('First Pear', 'Feature Track')
+
+    cy.clickButton('Record Pears')
+    cy.contains('Today\'s assigned pears have been recorded!').should('visible')
   })
 })

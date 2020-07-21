@@ -72,6 +72,10 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :recommend_pears)
   end
 
+  def record_pears(team_name) do
+    GenServer.call(via(team_name), :record_pears)
+  end
+
   def via(name) do
     {:via, Registry, {Pears.Registry.TeamSession, name}}
   end
@@ -117,7 +121,7 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call({:move_pear_to_track, pear_name, from_track_name, to_track_name}, _from, team) do
-    with %{} <- Team.find_assigned_pear(team, pear_name),
+    with ^pear_name <- Team.find_assigned_pear(team, pear_name),
          %{} <- Team.find_track(team, from_track_name),
          %{} <- Team.find_track(team, to_track_name) do
       team = Team.move_pear_to_track(team, pear_name, from_track_name, to_track_name)
@@ -140,6 +144,11 @@ defmodule Pears.Boundary.TeamSession do
 
   def handle_call(:recommend_pears, _from, team) do
     team = Recommendator.assign_pears(team)
+    {:reply, {:ok, team}, team}
+  end
+
+  def handle_call(:record_pears, _from, team) do
+    team = Team.record_pears(team)
     {:reply, {:ok, team}, team}
   end
 end

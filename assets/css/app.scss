@@ -190,9 +190,9 @@ select {
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 30%;
+  max-width: 40rem;
+  max-height: 22rem;
   border-radius: 10px;
-  height: 34%;
 }
 
 .phx-modal-close {

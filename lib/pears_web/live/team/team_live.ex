@@ -49,7 +49,29 @@ defmodule PearsWeb.TeamLive do
 
   @impl true
   def handle_event("unselect-pear", _params, socket) do
-    {:noreply, assign(socket, selected_pear: nil)}
+    {:noreply, unselect_pear(socket)}
+  end
+
+  @impl true
+  def handle_event("record-pears", _params, socket) do
+    case Pears.record_pears(socket.assigns.team.name) do
+      {:ok, team} ->
+        {
+          :noreply,
+          socket
+          |> unselect_pear()
+          |> assign(team: team)
+          |> put_flash(:info, "Today's assigned pears have been recorded!")
+        }
+
+      {:error, _} ->
+        {
+          :noreply,
+          socket
+          |> unselect_pear()
+          |> put_flash(:error, "Sorry! Something went wrong, please try again.")
+        }
+    end
   end
 
   @impl true
