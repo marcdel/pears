@@ -2,19 +2,18 @@ defmodule Pears.PersistenceTest do
   use Pears.DataCase, async: true
 
   alias Pears.Persistence
-  alias Pears.Core.Team
 
   describe "teams" do
     test "create_team/1" do
-      {:ok, team} = Persistence.create_team(Team.new(name: "New Team"))
+      {:ok, team} = Persistence.create_team("New Team")
       assert team.name == "New Team"
 
-      assert {:error, changeset} = Persistence.create_team(Team.new(name: "New Team"))
+      assert {:error, changeset} = Persistence.create_team("New Team")
       assert {"has already been taken", _} = changeset.errors[:name]
     end
 
     test "get_team_by_name/1" do
-      {:ok, team} = Persistence.create_team(Team.new(name: "New Team"))
+      {:ok, team} = Persistence.create_team("New Team")
       {:ok, pear} = Persistence.add_pear_to_team(team, "Pear One")
       {:ok, track} = Persistence.add_track_to_team(team, "Track One")
 
@@ -22,16 +21,23 @@ defmodule Pears.PersistenceTest do
       assert loaded_team.pears == [pear]
       assert loaded_team.tracks == [track]
     end
+
+    test "delete_team/1" do
+      {:ok, _} = Persistence.create_team("New Team")
+      {:ok, _} = Persistence.get_team_by_name("New Team")
+      {:ok, _} = Persistence.delete_team("New Team")
+      {:error, :not_found} = Persistence.get_team_by_name("New Team")
+    end
   end
 
-  def team_factory(fields) do
-    {:ok, team} = Persistence.create_team(Team.new(fields))
+  def team_factory(name) do
+    {:ok, team} = Persistence.create_team(name)
     team
   end
 
   describe "pears" do
     test "add_pear_to_team/2" do
-      team = team_factory(name: "New Team")
+      team = team_factory("New Team")
 
       {:ok, pear} = Persistence.add_pear_to_team(team, "Pear One")
       pear = Repo.preload(pear, :team)
@@ -44,7 +50,7 @@ defmodule Pears.PersistenceTest do
 
   describe "tracks" do
     test "add_track_to_team/2" do
-      team = team_factory(name: "New Team")
+      team = team_factory("New Team")
 
       {:ok, track} = Persistence.add_track_to_team(team, "Track One")
       track = Repo.preload(track, :team)
@@ -55,7 +61,7 @@ defmodule Pears.PersistenceTest do
     end
 
     test "remove_track_from_team/2" do
-      team = team_factory(name: "New Team")
+      team = team_factory("New Team")
       Persistence.add_track_to_team(team, "Track One")
 
       assert {:ok, _} = Persistence.remove_track_from_team(team, "Track One")

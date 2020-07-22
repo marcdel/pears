@@ -1,6 +1,8 @@
 defmodule PearsTest do
   use Pears.DataCase, async: true
 
+  alias Pears.Persistence
+
   setup [:name]
 
   test "happy path test", %{name: name} do
@@ -114,15 +116,20 @@ defmodule PearsTest do
   end
 
   test "fetches team from database if not in memory", %{name: name} do
-    {:ok, team} = Pears.Persistence.create_team(Pears.Core.Team.new(name: name))
-    {:ok, _} = Pears.Persistence.add_pear_to_team(team, "Pear One")
-    {:ok, _} = Pears.Persistence.add_track_to_team(team, "Track One")
+    {:ok, team} = Persistence.create_team(name)
+    {:ok, _} = Persistence.add_pear_to_team(team, "Pear One")
+    {:ok, _} = Persistence.add_track_to_team(team, "Track One")
 
     {:ok, saved_team} = Pears.lookup_team_by(name: name)
 
     assert saved_team.name == name
     assert Enum.count(saved_team.available_pears) == 1
     assert Enum.count(saved_team.tracks) == 1
+  end
+
+  test "teams can be added", %{name: name} do
+    {:ok, _} = Pears.add_team(name)
+    {:ok, %{name: ^name}} = Persistence.get_team_by_name(name)
   end
 
   test "teams can be removed", %{name: name} do

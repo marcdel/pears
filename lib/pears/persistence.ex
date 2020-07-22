@@ -8,10 +8,17 @@ defmodule Pears.Persistence do
   alias Pears.Repo
   alias Pears.Persistence.{PearRecord, TeamRecord, TrackRecord}
 
-  def create_team(team) do
+  def create_team(team_name) do
     %TeamRecord{}
-    |> TeamRecord.changeset(%{name: team.name})
+    |> TeamRecord.changeset(%{name: team_name})
     |> Repo.insert()
+  end
+
+  def delete_team(team_name) do
+    case get_team_by_name(team_name) do
+      {:error, :not_found} -> nil
+      {:ok, team} -> Repo.delete(team)
+    end
   end
 
   def get_team_by_name(team_name) do

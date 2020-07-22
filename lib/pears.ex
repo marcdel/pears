@@ -10,23 +10,38 @@ defmodule Pears do
   alias Pears.Core.Team
 
   def validate_name(team_name) do
-    TeamManager.validate_name(team_name)
+    with :ok <- TeamManager.validate_name(team_name),
+         {:error, :not_found} <- Persistence.get_team_by_name(team_name) do
+      :ok
+    else
+      _ -> {:error, :name_taken}
+    end
   end
 
   def add_team(team_name) do
     with :ok <- TeamManager.validate_name(team_name),
+         {:ok, _team_record} <- Persistence.create_team(team_name),
          {:ok, team} <- TeamManager.add_team(team_name),
          {:ok, team} <- TeamSession.start_session(team) do
       {:ok, team}
     else
-      {:error, error} -> {:error, error}
-      error -> {:error, error}
+      {:error, error} ->
+        {:error, error}
+
+      error ->
+        {:error, error}
     end
   end
 
   def remove_team(name) do
-    TeamSession.end_session(name)
-    TeamManager.remove_team(name)
+    case Persistence.delete_team(name) do
+      {:ok, _} ->
+        TeamSession.end_session(name)
+        TeamManager.remove_team(name)
+
+      error ->
+        error
+    end
   end
 
   def add_pear(team_name, pear_name) do
