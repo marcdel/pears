@@ -1,5 +1,5 @@
 defmodule PearsTest do
-  use ExUnit.Case, async: true
+  use Pears.DataCase, async: true
 
   setup [:name]
 
@@ -118,6 +118,18 @@ defmodule PearsTest do
 
     assert {:ok, %{name: ^name, id: ^id}} = Pears.lookup_team_by(name: name)
     assert {:error, :not_found} = Pears.lookup_team_by(name: "bad-name")
+  end
+
+  test "fetches team from database if not in memory", %{name: name} do
+    {:ok, team} = Pears.Persistence.create_team(Pears.Core.Team.new(name: name))
+    {:ok, _} = Pears.Persistence.add_pear_to_team(team, "Pear One")
+    {:ok, _} = Pears.Persistence.add_track_to_team(team, "Track One")
+
+    {:ok, saved_team} = Pears.lookup_team_by(name: name)
+
+    assert saved_team.name == name
+    assert Enum.count(saved_team.available_pears) == 1
+    assert Enum.count(saved_team.tracks) == 1
   end
 
   test "teams can be removed", %{name: name} do

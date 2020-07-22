@@ -6,6 +6,8 @@ defmodule Pears do
   """
 
   alias Pears.Boundary.{TeamManager, TeamSession}
+  alias Pears.Persistence
+  alias Pears.Core.Team
 
   def validate_name(team_name) do
     TeamManager.validate_name(team_name)
@@ -74,12 +76,50 @@ defmodule Pears do
   end
 
   def lookup_team_by(name: name) do
-    with {:ok, team} <- TeamManager.lookup_team_by_name(name),
+    with {:ok, team} <- maybe_fetch_team_from_db(name),
          {:ok, team} <- get_or_start_session(team) do
       {:ok, team}
     else
       error -> error
     end
+  end
+
+  def maybe_fetch_team_from_db(team_name) do
+    case TeamManager.lookup_team_by_name(team_name) do
+      {:ok, team} ->
+        {:ok, team}
+
+      {:error, :not_found} ->
+        fetch_team_from_db(team_name)
+    end
+  end
+
+  defp fetch_team_from_db(team_name) do
+    case Persistence.get_team_by_name(team_name) do
+      {:ok, team_record} ->
+        {:ok, map_to_team(team_record)}
+
+      error ->
+        error
+    end
+  end
+
+  defp map_to_team(team_record) do
+    Team.new(name: team_record.name)
+    |> add_pears(team_record)
+    |> add_tracks(team_record)
+  end
+
+  defp add_pears(team, team_record) do
+    Enum.reduce(team_record.pears, team, fn pear_record, team ->
+      Team.add_pear(team, pear_record.name)
+    end)
+  end
+
+  defp add_tracks(team, team_record) do
+    Enum.reduce(team_record.tracks, team, fn track_record, team ->
+      Team.add_track(team, track_record.name)
+    end)
   end
 
   defp persist_changes(team) do
