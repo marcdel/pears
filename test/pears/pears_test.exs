@@ -117,7 +117,7 @@ defmodule PearsTest do
 
   test "fetches team from database if not in memory", %{name: name} do
     {:ok, team} = Persistence.create_team(name)
-    {:ok, _} = Persistence.add_pear_to_team(team, "Pear One")
+    {:ok, _} = Persistence.add_pear_to_team(name, "Pear One")
     {:ok, _} = Persistence.add_track_to_team(team, "Track One")
 
     {:ok, saved_team} = Pears.lookup_team_by(name: name)
@@ -137,6 +137,16 @@ defmodule PearsTest do
     {:ok, _} = Pears.lookup_team_by(name: name)
     {:ok, _} = Pears.remove_team(name)
     {:error, _} = Pears.lookup_team_by(name: name)
+  end
+
+  test "adding a pear to the team adds it to the database", %{name: name} do
+    {:ok, _} = Pears.add_team(name)
+
+    {:ok, _} = Pears.add_pear(name, "Pear One")
+
+    {:ok, team} = Persistence.get_team_by_name(name)
+    assert Enum.count(team.pears) == 1
+    assert [%{name: "Pear One"}] = team.pears
   end
 
   test "cannot add pear to non-existent track or non-existent pear", %{name: name} do

@@ -33,7 +33,16 @@ defmodule Pears.Persistence do
     end
   end
 
-  def add_pear_to_team(team, pear_name) do
+  def add_pear_to_team(team_name, pear_name) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, pear} <- add_pear(team, pear_name) do
+      {:ok, pear}
+    else
+      error -> error
+    end
+  end
+
+  defp add_pear(team, pear_name) do
     %PearRecord{}
     |> PearRecord.changeset(%{team_id: team.id, name: pear_name})
     |> Repo.insert()

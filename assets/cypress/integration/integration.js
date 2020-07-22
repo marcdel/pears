@@ -20,6 +20,12 @@ context('Actions', () => {
       .should('not.visible')
   }
 
+  function testInvalidPearNameValidation() {
+    addPear('Second Pear')
+    cy.contains(`Sorry, a Pear with the name 'Second Pear' already exists`)
+      .should('visible')
+  }
+
   function addPear(pearName) {
     cy.clickLink('Add Pear')
 
@@ -66,6 +72,8 @@ context('Actions', () => {
 
     addPear('First Pear')
     addPear('Second Pear')
+
+    testInvalidPearNameValidation()
 
     addTrack('Feature Track')
 

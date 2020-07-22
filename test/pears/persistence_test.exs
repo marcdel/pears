@@ -14,7 +14,7 @@ defmodule Pears.PersistenceTest do
 
     test "get_team_by_name/1" do
       {:ok, team} = Persistence.create_team("New Team")
-      {:ok, pear} = Persistence.add_pear_to_team(team, "Pear One")
+      {:ok, pear} = Persistence.add_pear_to_team("New Team", "Pear One")
       {:ok, track} = Persistence.add_track_to_team(team, "Track One")
 
       {:ok, loaded_team} = Persistence.get_team_by_name("New Team")
@@ -39,11 +39,11 @@ defmodule Pears.PersistenceTest do
     test "add_pear_to_team/2" do
       team = team_factory("New Team")
 
-      {:ok, pear} = Persistence.add_pear_to_team(team, "Pear One")
+      {:ok, pear} = Persistence.add_pear_to_team("New Team", "Pear One")
       pear = Repo.preload(pear, :team)
       assert pear.team == team
 
-      assert {:error, changeset} = Persistence.add_pear_to_team(team, "Pear One")
+      assert {:error, changeset} = Persistence.add_pear_to_team("New Team", "Pear One")
       assert {"has already been taken", _} = changeset.errors[:name]
     end
   end

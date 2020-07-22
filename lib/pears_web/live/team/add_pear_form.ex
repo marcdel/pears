@@ -13,7 +13,15 @@ defmodule PearsWeb.TeamLive.AddPearForm do
 
   @impl true
   def handle_event("add_pear", %{"pear-name" => pear_name}, socket) do
-    Pears.add_pear(socket.assigns.team.name, pear_name)
-    {:noreply, push_redirect(socket, to: socket.assigns.return_to)}
+    case Pears.add_pear(socket.assigns.team.name, pear_name) do
+      {:ok, _} ->
+        {:noreply, push_redirect(socket, to: socket.assigns.return_to)}
+
+      {:error, _} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Sorry, a Pear with the name '#{pear_name}' already exists")
+         |> push_redirect(to: socket.assigns.return_to)}
+    end
   end
 end
