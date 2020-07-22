@@ -122,8 +122,8 @@ defmodule PearsWeb.TeamLive do
     assign(socket, selected_pear: nil, selected_pear_track: nil)
   end
 
-  defp assign_team_or_redirect(socket, %{"id" => id}) do
-    case Pears.lookup_team_by(id: id) do
+  defp assign_team_or_redirect(socket, %{"id" => name}) do
+    case Pears.lookup_team_by(name: name) do
       {:ok, team} ->
         assign(socket, :team, team)
 

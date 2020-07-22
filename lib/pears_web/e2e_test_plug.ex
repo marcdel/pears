@@ -16,8 +16,8 @@ defmodule PearsWeb.Plug.TestEndToEnd do
 
   delete "/teams/:id" do
     with conn <- Plug.Conn.fetch_query_params(conn),
-         team_id <- Map.get(conn.params, "id"),
-         {:ok, %{name: name}} <- Pears.lookup_team_by(id: team_id),
+         name <- Map.get(conn.params, "id"),
+         {:ok, %{name: name}} <- Pears.lookup_team_by(name: name),
          {:ok, _} <- Pears.remove_team(name) do
       send_resp(conn, 200, "team removed")
     else

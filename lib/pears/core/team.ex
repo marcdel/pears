@@ -5,7 +5,7 @@ defmodule Pears.Core.Team do
 
   def new(fields) do
     team = struct!(__MODULE__, fields)
-    Map.put(team, :id, to_slug(team))
+    Map.put(team, :id, team.name)
   end
 
   def add_pear(team, pear_name) do
@@ -89,8 +89,6 @@ defmodule Pears.Core.Team do
   end
 
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
-
-  defp to_slug(team), do: String.downcase(team.name) |> String.replace(" ", "-")
 
   defp next_track_id(team) do
     Enum.count(team.tracks) + 1

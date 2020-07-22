@@ -106,17 +106,10 @@ defmodule PearsTest do
     {:error, :name_taken} = Pears.add_team(name)
   end
 
-  test "converts name to url-safe id" do
-    assert {:ok, %{id: "with-caps-spaces"}} = Pears.add_team("With Caps Spaces")
-  end
-
   test "can lookup team by name or id", %{name: name} do
-    {:ok, %{id: id}} = Pears.add_team(name)
+    {:ok, _} = Pears.add_team(name)
 
-    assert {:ok, %{name: ^name, id: ^id}} = Pears.lookup_team_by(id: id)
-    assert {:error, :not_found} = Pears.lookup_team_by(id: "bad-id")
-
-    assert {:ok, %{name: ^name, id: ^id}} = Pears.lookup_team_by(name: name)
+    assert {:ok, %{name: ^name}} = Pears.lookup_team_by(name: name)
     assert {:error, :not_found} = Pears.lookup_team_by(name: "bad-name")
   end
 

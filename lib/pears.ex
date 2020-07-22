@@ -66,15 +66,6 @@ defmodule Pears do
     end
   end
 
-  def lookup_team_by(id: id) do
-    with {:ok, team} <- TeamManager.lookup_team_by_id(id),
-         {:ok, team} <- get_or_start_session(team) do
-      {:ok, team}
-    else
-      error -> error
-    end
-  end
-
   def lookup_team_by(name: name) do
     with {:ok, team} <- maybe_fetch_team_from_db(name),
          {:ok, team} <- get_or_start_session(team) do

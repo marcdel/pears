@@ -3,11 +3,10 @@
 context('Actions', () => {
   const existingTeamName = 'Existing Team'
   const teamName = 'Team Cypress'
-  const teamId = 'team-cypress'
 
   beforeEach(() => {
     cy.createTeam(existingTeamName)
-    cy.deleteTeam(teamId)
+    cy.deleteTeam(teamName)
 
     cy.visit('/')
   })
