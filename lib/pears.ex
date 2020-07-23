@@ -54,11 +54,21 @@ defmodule Pears do
   end
 
   def add_track(team_name, track_name) do
-    TeamSession.add_track(team_name, track_name)
+    with {:ok, _} <- Persistence.add_track_to_team(team_name, track_name),
+         {:ok, team} <- TeamSession.add_track(team_name, track_name) do
+      {:ok, team}
+    else
+      error -> error
+    end
   end
 
   def remove_track(team_name, track_name) do
-    TeamSession.remove_track(team_name, track_name)
+    with {:ok, _} <- Persistence.remove_track_from_team(team_name, track_name),
+         {:ok, team} <- TeamSession.remove_track(team_name, track_name) do
+      {:ok, team}
+    else
+      error -> error
+    end
   end
 
   def add_pear_to_track(team_name, pear_name, track_name) do
