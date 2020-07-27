@@ -74,6 +74,42 @@ defmodule Pears.Core.Team do
     |> Enum.find(fn name -> name == pear_name end)
   end
 
+  def where_is_pear?(team, pear_name) do
+    assigned =
+      team.tracks
+      |> Enum.map(fn {_, track} ->
+        Enum.map(track.pears, fn {_, pear} -> {pear, track} end)
+      end)
+      |> List.flatten()
+      |> Enum.find(fn {pear, _} -> pear.name == pear_name end)
+
+    available =
+      team.available_pears
+      |> Enum.map(fn {_, pear} -> pear end)
+      |> Enum.find(fn pear -> pear.name == pear_name end)
+
+    cond do
+      assigned != nil ->
+        {_, assigned_track} = assigned
+        {:assigned, assigned_track}
+
+      available != nil ->
+        {:available, nil}
+
+      true ->
+        {:error, :not_found}
+    end
+  end
+
+  def match_in_history?(team, potential_match) do
+    Enum.flat_map(team.history, fn days_matches ->
+      Enum.filter(days_matches, fn match ->
+        potential_match == match || potential_match == Enum.reverse(match)
+      end)
+    end)
+    |> Enum.any?()
+  end
+
   def assigned_pears(team) do
     team.tracks
     |> Enum.map(fn {_, track} ->

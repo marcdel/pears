@@ -94,6 +94,24 @@ defmodule Pears.Core.TeamTest do
     assert tracks == [{"a", 4}, {"b", 3}, {"c", 2}, {"d", 1}]
   end
 
+  test "can find a pear", %{team: team} do
+    team =
+      team
+      |> Team.add_track("feature track")
+      |> Team.add_track("refactor track")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear("pear3")
+      |> Team.add_pear_to_track("pear1", "refactor track")
+      |> Team.add_pear_to_track("pear2", "feature track")
+
+    assert {:assigned, %{name: "refactor track"}} = Team.where_is_pear?(team, "pear1")
+    assert {:assigned, %{name: "feature track"}} = Team.where_is_pear?(team, "pear2")
+
+    assert {:available, nil} = Team.where_is_pear?(team, "pear3")
+    assert {:error, :not_found} = Team.where_is_pear?(team, "pear4")
+  end
+
   test "recording pears adds the current pears to the history", %{team: team} do
     team =
       team
@@ -129,6 +147,21 @@ defmodule Pears.Core.TeamTest do
              [["pear1", "pear4"], ["pear2", "pear3"]],
              [["pear2", "pear4"], ["pear1", "pear3"]]
            ]
+  end
+
+  test "match_in_history?/2" do
+    team =
+      TeamBuilders.team()
+      |> Map.put(:history, [
+        [["pear1", "pear2"]],
+        [["pear1", "pear3"]]
+      ])
+
+    assert Team.match_in_history?(team, ["pear1", "pear2"])
+    assert Team.match_in_history?(team, ["pear2", "pear1"])
+    assert Team.match_in_history?(team, ["pear1", "pear3"])
+    refute Team.match_in_history?(team, ["pear2", "pear3"])
+    refute Team.match_in_history?(team, ["pear1", "pear4"])
   end
 
   defp team(_) do
