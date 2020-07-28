@@ -32,6 +32,11 @@ defmodule TeamAssertions do
     team
   end
 
+  def assert_history(team, expected_history) do
+    assert team.history == expected_history
+    team
+  end
+
   def track_exists?(team, track_name) do
     Team.find_track(team, track_name)
   end

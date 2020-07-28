@@ -2,35 +2,41 @@ defmodule Pears.Core.Recommendator do
   alias Pears.Core.Team
 
   def assign_pears(team) do
-    team = Enum.reduce(team.available_pears, team, &assign_preferred_matches/2)
-    Enum.reduce(team.available_pears, team, &assign_remaining_matches/2)
+    team = Enum.reduce(team.available_pears, team, &assign_preferred_match/2)
+    Enum.reduce(team.available_pears, team, &assign_remaining_match/2)
   end
 
-  defp assign_preferred_matches({pear_name, pear}, team) do
+  defp assign_preferred_match({pear_name, pear}, team) do
     case Team.find_available_pear(team, pear_name) do
       nil -> team
-      _pear -> do_assign_preferred_matches({pear_name, pear}, team)
+      _pear -> do_assign_preferred_match({pear_name, pear}, team)
     end
   end
 
-  defp do_assign_preferred_matches({pear_name, _pear}, team) do
+  defp do_assign_preferred_match({pear_name, _pear}, team) do
     case preferred_match(team, pear_name) do
       {nil, nil} ->
         team
 
       {match_name, nil} ->
-        track = find_empty_track(team)
+        case find_empty_track(team) do
+          nil ->
+            team
 
-        team
-        |> Team.add_pear_to_track(pear_name, track.name)
-        |> Team.add_pear_to_track(match_name, track.name)
+          track ->
+            track = find_empty_track(team)
+
+            team
+            |> Team.add_pear_to_track(pear_name, track.name)
+            |> Team.add_pear_to_track(match_name, track.name)
+        end
 
       {_match_name, track} ->
         Team.add_pear_to_track(team, pear_name, track.name)
     end
   end
 
-  defp assign_remaining_matches({pear_name, _pear}, team) do
+  defp assign_remaining_match({pear_name, _pear}, team) do
     case find_available_track(team) do
       nil -> team
       track -> Team.add_pear_to_track(team, pear_name, track.name)

@@ -62,25 +62,71 @@ defmodule Pears.Core.RecommendatorTest do
     |> assert_pear_in_track("pear4", "one pear track")
   end
 
-  test "given two days of history and two empty tracks, pairs the two that didn't pair the day before" do
-    team =
-      TeamBuilders.team()
-      |> Team.add_track("track one")
-      |> Team.add_track("track two")
-      |> Team.add_pear("pear1")
-      |> Team.add_pear("pear2")
-      |> Team.add_pear("pear3")
-      |> Map.put(:history, [
-        [["pear1", "pear2"]],
-        [["pear1", "pear3"]]
-      ])
-      |> Recommendator.assign_pears()
-      |> Team.record_pears()
+  test "given two days of history and two empty tracks, pairs the two that haven't paired before" do
+    TeamBuilders.team()
+    |> Team.add_track("track one")
+    |> Team.add_track("track two")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Map.put(:history, [
+      [["pear1", "pear2"]],
+      [["pear1", "pear3"]]
+    ])
+    |> Recommendator.assign_pears()
+    |> Team.record_pears()
+    |> assert_history([
+      [["pear2", "pear3"], ["pear1"]],
+      [["pear1", "pear2"]],
+      [["pear1", "pear3"]]
+    ])
+  end
 
-    assert team.history == [
-             [["pear2", "pear3"], ["pear1"]],
-             [["pear1", "pear2"]],
-             [["pear1", "pear3"]]
-           ]
+  test "leaves good choices for other people when non-optimal pair is available" do
+    TeamBuilders.team()
+    |> Team.add_track("track one")
+    |> Team.add_track("track two")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear("pear4")
+    |> Team.add_pear_to_track("pear3", "track one")
+    |> Team.add_pear_to_track("pear4", "track two")
+    |> Map.put(:history, [
+      [["pear2", "pear3"]],
+      [["pear1", "pear3"]],
+      [["pear4", "pear1"]],
+      [["pear2", "pear4"]]
+    ])
+    |> Recommendator.assign_pears()
+    |> Team.record_pears()
+    |> assert_history([
+      [["pear1", "pear3"], ["pear2", "pear4"]],
+      [["pear2", "pear3"]],
+      [["pear1", "pear3"]],
+      [["pear4", "pear1"]],
+      [["pear2", "pear4"]]
+    ])
+  end
+
+  test "pairs floating people when more floating people than available" do
+    TeamBuilders.team()
+    |> Team.add_track("track one")
+    |> Team.add_track("track two")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear_to_track("pear3", "track one")
+    |> Map.put(:history, [
+      [["pear1", "pear2"]],
+      [["pear1", "pear3"]]
+    ])
+    |> Recommendator.assign_pears()
+    |> Team.record_pears()
+    |> assert_history([
+      [["pear2", "pear3"], ["pear1"]],
+      [["pear1", "pear2"]],
+      [["pear1", "pear3"]]
+    ])
   end
 end
