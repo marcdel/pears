@@ -1,7 +1,7 @@
 defmodule Pears.Boundary.TeamSession do
   use GenServer
 
-  alias Pears.Core.{Recommendator, Team, Track}
+  alias Pears.Core.{Recommendator, Team}
 
   def start_link(team) do
     GenServer.start_link(__MODULE__, team, name: via(team.name))
@@ -100,8 +100,8 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call({:add_pear_to_track, pear_name, track_name}, _from, team) do
-    with %{} <- Team.find_track(team, track_name),
-         %{} <- Team.find_available_pear(team, pear_name) do
+    with %{name: ^pear_name} <- Team.find_available_pear(team, pear_name),
+         %{name: ^track_name} <- Team.find_track(team, track_name) do
       team = Team.add_pear_to_track(team, pear_name, track_name)
       {:reply, {:ok, team}, team}
     else
@@ -110,8 +110,8 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call({:move_pear_to_track, pear_name, nil, to_track_name}, _from, team) do
-    with %{} <- Team.find_available_pear(team, pear_name),
-         %{} <- Team.find_track(team, to_track_name) do
+    with %{name: ^pear_name} <- Team.find_available_pear(team, pear_name),
+         %{name: ^to_track_name} <- Team.find_track(team, to_track_name) do
       team = Team.add_pear_to_track(team, pear_name, to_track_name)
       {:reply, {:ok, team}, team}
     else
@@ -121,9 +121,9 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call({:move_pear_to_track, pear_name, from_track_name, to_track_name}, _from, team) do
-    with ^pear_name <- Team.find_assigned_pear(team, pear_name),
-         %{} <- Team.find_track(team, from_track_name),
-         %{} <- Team.find_track(team, to_track_name) do
+    with %{name: ^pear_name} <- Team.find_assigned_pear(team, pear_name),
+         %{name: ^from_track_name} <- Team.find_track(team, from_track_name),
+         %{name: ^to_track_name} <- Team.find_track(team, to_track_name) do
       team = Team.move_pear_to_track(team, pear_name, from_track_name, to_track_name)
       {:reply, {:ok, team}, team}
     else
@@ -133,8 +133,8 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call({:remove_pear_from_track, pear_name, track_name}, _from, team) do
-    with %{} = track <- Team.find_track(team, track_name),
-         %{} <- Track.find_pear(track, pear_name) do
+    with %{name: ^pear_name} <- Team.find_assigned_pear(team, pear_name),
+         %{name: ^track_name} <- Team.find_track(team, track_name) do
       team = Team.remove_pear_from_track(team, pear_name, track_name)
       {:reply, {:ok, team}, team}
     else

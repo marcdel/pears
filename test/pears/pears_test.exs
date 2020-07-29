@@ -30,6 +30,11 @@ defmodule PearsTest do
              available_pears: %{
                "Pear Four" => %Pears.Core.Pear{name: "Pear Four"}
              },
+             assigned_pears: %{
+               "Pear One" => %Pears.Core.Pear{name: "Pear One"},
+               "Pear Three" => %Pears.Core.Pear{name: "Pear Three"},
+               "Pear Two" => %Pears.Core.Pear{name: "Pear Two"}
+             },
              name: name,
              id: name,
              tracks: %{

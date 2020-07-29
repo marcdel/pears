@@ -164,6 +164,21 @@ defmodule Pears.Core.TeamTest do
     refute Team.match_in_history?(team, ["pear1", "pear4"])
   end
 
+  test "matched_yesterday?/2" do
+    team =
+      TeamBuilders.team()
+      |> Map.put(:history, [
+        [["pear1", "pear2"]],
+        [["pear1", "pear3"]]
+      ])
+
+    assert Team.matched_yesterday?(team, ["pear1", "pear2"])
+    assert Team.matched_yesterday?(team, ["pear2", "pear1"])
+    refute Team.matched_yesterday?(team, ["pear1", "pear3"])
+    refute Team.matched_yesterday?(team, ["pear3", "pear1"])
+    refute Team.matched_yesterday?(team, ["pear2", "pear3"])
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end

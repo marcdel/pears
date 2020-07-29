@@ -1,5 +1,10 @@
 defmodule Pears.Core.Team do
-  defstruct name: nil, id: nil, available_pears: %{}, tracks: %{}, history: []
+  defstruct name: nil,
+            id: nil,
+            available_pears: %{},
+            assigned_pears: %{},
+            tracks: %{},
+            history: []
 
   alias Pears.Core.{Pear, Track}
 
@@ -35,9 +40,15 @@ defmodule Pears.Core.Team do
     pear = find_available_pear(team, pear_name)
 
     updated_tracks = Map.put(team.tracks, track_name, Track.add_pear(track, pear))
-    updated_pears = Map.delete(team.available_pears, pear_name)
+    updated_available_pears = Map.delete(team.available_pears, pear_name)
+    updated_assigned_pears = Map.put(team.assigned_pears, pear_name, pear)
 
-    %{team | tracks: updated_tracks, available_pears: updated_pears}
+    %{
+      team
+      | tracks: updated_tracks,
+        available_pears: updated_available_pears,
+        assigned_pears: updated_assigned_pears
+    }
   end
 
   def move_pear_to_track(team, pear_name, from_track_name, to_track_name) do
@@ -51,9 +62,15 @@ defmodule Pears.Core.Team do
     pear = Track.find_pear(track, pear_name)
 
     updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
-    updated_pears = Map.put(team.available_pears, pear_name, pear)
+    updated_available_pears = Map.put(team.available_pears, pear_name, pear)
+    updated_assigned_pears = Map.delete(team.assigned_pears, pear_name)
 
-    %{team | tracks: updated_tracks, available_pears: updated_pears}
+    %{
+      team
+      | tracks: updated_tracks,
+        available_pears: updated_available_pears,
+        assigned_pears: updated_assigned_pears
+    }
   end
 
   def record_pears(team) do
@@ -67,12 +84,7 @@ defmodule Pears.Core.Team do
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
-
-  def find_assigned_pear(team, pear_name) do
-    assigned_pears(team)
-    |> List.flatten()
-    |> Enum.find(fn name -> name == pear_name end)
-  end
+  def find_assigned_pear(team, pear_name), do: Map.get(team.assigned_pears, pear_name, nil)
 
   def where_is_pear?(team, pear_name) do
     assigned =
@@ -104,10 +116,18 @@ defmodule Pears.Core.Team do
   def match_in_history?(team, potential_match) do
     Enum.flat_map(team.history, fn days_matches ->
       Enum.filter(days_matches, fn match ->
-        potential_match == match || potential_match == Enum.reverse(match)
+        Enum.sort(match) == Enum.sort(potential_match)
       end)
     end)
     |> Enum.any?()
+  end
+
+  def matched_yesterday?(%{history: []}, _), do: false
+
+  def matched_yesterday?(%{history: history}, potential_match) do
+    history
+    |> List.first()
+    |> Enum.any?(fn match -> Enum.sort(match) == Enum.sort(potential_match) end)
   end
 
   def assigned_pears(team) do
@@ -117,12 +137,7 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  def any_pears_assigned?(team) do
-    team
-    |> assigned_pears()
-    |> List.flatten()
-    |> Enum.any?()
-  end
+  def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
 
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
 
