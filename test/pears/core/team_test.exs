@@ -69,6 +69,25 @@ defmodule Pears.Core.TeamTest do
     |> refute_pear_available("pear1")
   end
 
+  test "assigning, unassigning, and moving pears (un)sets their track", %{team: team} do
+    team =
+      team
+      |> Team.add_track("feature track")
+      |> Team.add_track("refactor track")
+      |> Team.add_pear("pear1")
+
+    pear = Team.find_available_pear(team, "pear1")
+    assert pear.track == nil
+
+    team = Team.add_pear_to_track(team, "pear1", "refactor track")
+    pear = Team.find_assigned_pear(team, "pear1")
+    assert pear.track.name == "refactor track"
+
+    team = Team.move_pear_to_track(team, "pear1", "refactor track", "feature track")
+    pear = Team.find_assigned_pear(team, "pear1")
+    assert pear.track.name == "feature track"
+  end
+
   test "removing a track makes pears in that track available", %{team: team} do
     team
     |> Team.add_track("feature track")

@@ -1,6 +1,7 @@
 defmodule PearsTest do
   use Pears.DataCase, async: true
 
+  import TeamAssertions
   alias Pears.Persistence
 
   setup [:name]
@@ -26,35 +27,11 @@ defmodule PearsTest do
 
     {:ok, saved_team} = Pears.lookup_team_by(name: name)
 
-    assert saved_team == %Pears.Core.Team{
-             available_pears: %{
-               "Pear Four" => %Pears.Core.Pear{name: "Pear Four"}
-             },
-             assigned_pears: %{
-               "Pear One" => %Pears.Core.Pear{name: "Pear One"},
-               "Pear Three" => %Pears.Core.Pear{name: "Pear Three"},
-               "Pear Two" => %Pears.Core.Pear{name: "Pear Two"}
-             },
-             name: name,
-             id: name,
-             tracks: %{
-               "Track One" => %Pears.Core.Track{
-                 id: 1,
-                 name: "Track One",
-                 pears: %{
-                   "Pear One" => %Pears.Core.Pear{name: "Pear One"}
-                 }
-               },
-               "Track Two" => %Pears.Core.Track{
-                 id: 2,
-                 name: "Track Two",
-                 pears: %{
-                   "Pear Two" => %Pears.Core.Pear{name: "Pear Two"},
-                   "Pear Three" => %Pears.Core.Pear{name: "Pear Three"}
-                 }
-               }
-             }
-           }
+    saved_team
+    |> assert_pear_available("Pear Four")
+    |> assert_pear_in_track("Pear One", "Track One")
+    |> assert_pear_in_track("Pear Two", "Track Two")
+    |> assert_pear_in_track("Pear Three", "Track Two")
   end
 
   test "can recommend pears", %{name: name} do
