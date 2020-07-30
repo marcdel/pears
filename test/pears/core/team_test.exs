@@ -124,10 +124,10 @@ defmodule Pears.Core.TeamTest do
       |> Team.add_pear_to_track("pear1", "refactor track")
       |> Team.add_pear_to_track("pear2", "feature track")
 
-    assert {:assigned, %{name: "refactor track"}} = Team.where_is_pear?(team, "pear1")
-    assert {:assigned, %{name: "feature track"}} = Team.where_is_pear?(team, "pear2")
+    assert {:ok, %{name: "refactor track"}} = Team.where_is_pear?(team, "pear1")
+    assert {:ok, %{name: "feature track"}} = Team.where_is_pear?(team, "pear2")
 
-    assert {:available, nil} = Team.where_is_pear?(team, "pear3")
+    assert {:ok, nil} = Team.where_is_pear?(team, "pear3")
     assert {:error, :not_found} = Team.where_is_pear?(team, "pear4")
   end
 

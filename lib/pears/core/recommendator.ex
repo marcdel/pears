@@ -24,8 +24,6 @@ defmodule Pears.Core.Recommendator do
             team
 
           track ->
-            track = find_empty_track(team)
-
             team
             |> Team.add_pear_to_track(pear_name, track.name)
             |> Team.add_pear_to_track(match_name, track.name)
@@ -89,13 +87,11 @@ defmodule Pears.Core.Recommendator do
   end
 
   defp preferred_match(team, pear_name) do
-    case team
-         |> preferred_matches(pear_name)
-         |> List.first() do
+    case team |> preferred_matches(pear_name) |> List.first() do
       [_, match_name] ->
         case Team.where_is_pear?(team, match_name) do
-          {:assigned, track} -> {match_name, track}
-          _ -> {match_name, nil}
+          {:ok, nil} -> {match_name, nil}
+          {:ok, track} -> {match_name, track}
         end
 
       _ ->
