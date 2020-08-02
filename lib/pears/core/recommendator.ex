@@ -88,7 +88,7 @@ defmodule Pears.Core.Recommendator do
   defp score_matches(permutations, team) do
     indexed_history =
       team.history
-      |> Enum.map(fn days_matches -> Enum.map(days_matches, fn [p1, p2] -> {p1, p2} end) end)
+      |> Enum.map(fn days_matches -> Enum.map(days_matches, fn {_, [p1, p2]} -> {p1, p2} end) end)
       |> Enum.with_index(1)
 
     permutations

@@ -106,7 +106,7 @@ defmodule Pears.Core.Team do
 
   defp matched_on_day?(days_matches, potential_match) do
     days_matches
-    |> Enum.any?(fn match ->
+    |> Enum.any?(fn {track, match} ->
       Enum.all?(potential_match, fn pear ->
         Enum.count(match) < 4 && Enum.member?(match, pear)
       end)
@@ -130,7 +130,7 @@ defmodule Pears.Core.Team do
   def current_matches(team) do
     team.tracks
     |> Enum.map(fn {_, track} ->
-      Enum.map(track.pears, fn {name, _} -> name end)
+      {track.name, Enum.map(track.pears, fn {name, _} -> name end)}
     end)
   end
 

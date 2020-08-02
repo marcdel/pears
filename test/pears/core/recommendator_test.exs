@@ -70,15 +70,15 @@ defmodule Pears.Core.RecommendatorTest do
     |> Team.add_pear("pear2")
     |> Team.add_pear("pear3")
     |> Map.put(:history, [
-      [["pear1", "pear2"]],
-      [["pear1", "pear3"]]
+      [{"track one", ["pear1", "pear2"]}],
+      [{"track one", ["pear1", "pear3"]}]
     ])
     |> Recommendator.assign_pears2()
     |> Team.record_pears()
     |> assert_history([
-      [["pear2", "pear3"], ["pear1"]],
-      [["pear1", "pear2"]],
-      [["pear1", "pear3"]]
+      [{"track one", ["pear2", "pear3"]}, {"track two", ["pear1"]}],
+      [{"track one", ["pear1", "pear2"]}],
+      [{"track one", ["pear1", "pear3"]}]
     ])
   end
 
@@ -93,19 +93,19 @@ defmodule Pears.Core.RecommendatorTest do
     |> Team.add_pear_to_track("pear3", "track one")
     |> Team.add_pear_to_track("pear4", "track two")
     |> Map.put(:history, [
-      [["pear2", "pear3"]],
-      [["pear1", "pear3"]],
-      [["pear4", "pear1"]],
-      [["pear2", "pear4"]]
+      [{"track one", ["pear2", "pear3"]}],
+      [{"track one", ["pear1", "pear3"]}],
+      [{"track one", ["pear4", "pear1"]}],
+      [{"track one", ["pear2", "pear4"]}]
     ])
     |> Recommendator.assign_pears2()
     |> Team.record_pears()
     |> assert_history([
-      [["pear1", "pear3"], ["pear2", "pear4"]],
-      [["pear2", "pear3"]],
-      [["pear1", "pear3"]],
-      [["pear4", "pear1"]],
-      [["pear2", "pear4"]]
+      [{"track one", ["pear1", "pear3"]}, {"track two", ["pear2", "pear4"]}],
+      [{"track one", ["pear2", "pear3"]}],
+      [{"track one", ["pear1", "pear3"]}],
+      [{"track one", ["pear4", "pear1"]}],
+      [{"track one", ["pear2", "pear4"]}]
     ])
   end
 
@@ -118,15 +118,15 @@ defmodule Pears.Core.RecommendatorTest do
     |> Team.add_pear("pear3")
     |> Team.add_pear_to_track("pear3", "track one")
     |> Map.put(:history, [
-      [["pear1", "pear2"]],
-      [["pear1", "pear3"]]
+      [{"track one", ["pear1", "pear2"]}],
+      [{"track two", ["pear1", "pear3"]}]
     ])
     |> Recommendator.assign_pears2()
     |> Team.record_pears()
     |> assert_history([
-      [["pear2", "pear3"], ["pear1"]],
-      [["pear1", "pear2"]],
-      [["pear1", "pear3"]]
+      [{"track one", ["pear2", "pear3"]}, {"track two", ["pear1"]}],
+      [{"track one", ["pear1", "pear2"]}],
+      [{"track two", ["pear1", "pear3"]}]
     ])
   end
 
@@ -143,8 +143,8 @@ defmodule Pears.Core.RecommendatorTest do
     |> refute_pear_in_track("pear2", "track one")
     |> refute_pear_in_track("pear4", "track two")
     |> assert_history([
-      [["pear1", "pear4"], ["pear2", "pear3"]],
-      [["pear1", "pear2"], ["pear3", "pear4"]]
+      [{"track one", ["pear1", "pear4"]}, {"track two", ["pear2", "pear3"]}],
+      [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3", "pear4"]}]
     ])
   end
 end

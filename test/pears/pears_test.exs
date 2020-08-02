@@ -63,7 +63,12 @@ defmodule PearsTest do
 
     {:ok, team} = Pears.record_pears(name)
 
-    assert [[[_, _], [_, _]]] = team.history
+    assert [
+             [
+               {"Track One", ["Pear Four", "Pear One"]},
+               {"Track Two", ["Pear Three", "Pear Two"]}
+             ]
+           ] = team.history
   end
 
   test "can remove a track", %{name: name} do

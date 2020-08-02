@@ -135,7 +135,10 @@ defmodule Pears.Core.TeamTest do
       |> Team.record_pears()
 
     assert team.history == [
-             [["pear2", "pear4"], ["pear1", "pear3"]]
+             [
+               {"feature track", ["pear2", "pear4"]},
+               {"refactor track", ["pear1", "pear3"]}
+             ]
            ]
 
     team =
@@ -145,8 +148,14 @@ defmodule Pears.Core.TeamTest do
       |> Team.record_pears()
 
     assert team.history == [
-             [["pear1", "pear4"], ["pear2", "pear3"]],
-             [["pear2", "pear4"], ["pear1", "pear3"]]
+             [
+               {"feature track", ["pear1", "pear4"]},
+               {"refactor track", ["pear2", "pear3"]}
+             ],
+             [
+               {"feature track", ["pear2", "pear4"]},
+               {"refactor track", ["pear1", "pear3"]}
+             ]
            ]
   end
 
@@ -170,9 +179,9 @@ defmodule Pears.Core.TeamTest do
     team =
       TeamBuilders.team()
       |> Map.put(:history, [
-        [["pear1", "pear2"]],
-        [["pear1", "pear3"]],
-        [["pear4", "pear5", "pear6"]]
+        [{"track1", ["pear1", "pear2"]}],
+        [{"track1", ["pear1", "pear3"]}],
+        [{"track1", ["pear4", "pear5", "pear6"]}]
       ])
 
     assert Team.match_in_history?(team, ["pear1", "pear2"])
@@ -184,7 +193,7 @@ defmodule Pears.Core.TeamTest do
     team =
       TeamBuilders.team()
       |> Map.put(:history, [
-        [["pear1", "pear2", "pear3"]]
+        [{"track1", ["pear1", "pear2", "pear3"]}]
       ])
 
     assert Team.match_in_history?(team, ["pear1", "pear2"])
@@ -194,8 +203,8 @@ defmodule Pears.Core.TeamTest do
     team =
       TeamBuilders.team()
       |> Map.put(:history, [
-        [["pear1", "pear2"]],
-        [["pear1", "pear2", "pear3", "pear4"]]
+        [{"track1", ["pear1", "pear2"]}],
+        [{"track1", ["pear1", "pear2", "pear3", "pear4"]}]
       ])
 
     assert Team.match_in_history?(team, ["pear1", "pear2"])
@@ -213,8 +222,8 @@ defmodule Pears.Core.TeamTest do
     team =
       TeamBuilders.team()
       |> Map.put(:history, [
-        [["pear1", "pear2"]],
-        [["pear1", "pear3"]]
+        [{"track1", ["pear1", "pear2"]}],
+        [{"track2", ["pear1", "pear3"]}]
       ])
 
     assert Team.matched_yesterday?(team, ["pear1", "pear2"])
