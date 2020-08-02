@@ -190,6 +190,23 @@ defmodule Pears.Core.TeamTest do
     assert Team.match_in_history?(team, ["pear1", "pear2"])
     assert Team.match_in_history?(team, ["pear2", "pear3"])
     assert Team.match_in_history?(team, ["pear1", "pear3"])
+
+    team =
+      TeamBuilders.team()
+      |> Map.put(:history, [
+        [["pear1", "pear2"]],
+        [["pear1", "pear2", "pear3", "pear4"]]
+      ])
+
+    assert Team.match_in_history?(team, ["pear1", "pear2"])
+    assert Team.match_in_history?(team, ["pear2", "pear1"])
+
+    # matches with more than 3 people aren't counted towards future pairing recommendations
+    refute Team.match_in_history?(team, ["pear1", "pear3"])
+    refute Team.match_in_history?(team, ["pear1", "pear4"])
+    refute Team.match_in_history?(team, ["pear2", "pear3"])
+    refute Team.match_in_history?(team, ["pear2", "pear4"])
+    refute Team.match_in_history?(team, ["pear3", "pear4"])
   end
 
   test "matched_yesterday?/2" do

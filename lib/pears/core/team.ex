@@ -107,7 +107,9 @@ defmodule Pears.Core.Team do
   defp matched_on_day?(days_matches, potential_match) do
     days_matches
     |> Enum.any?(fn match ->
-      Enum.all?(potential_match, fn pear -> Enum.member?(match, pear) end)
+      Enum.all?(potential_match, fn pear ->
+        Enum.count(match) < 4 && Enum.member?(match, pear)
+      end)
     end)
   end
 
