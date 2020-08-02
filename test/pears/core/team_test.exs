@@ -150,7 +150,7 @@ defmodule Pears.Core.TeamTest do
            ]
   end
 
-  test "can return current matches", %{team: team} do
+  test "can return current matches" do
     team =
       [
         {"pear1", "track one"},
