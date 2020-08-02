@@ -49,10 +49,13 @@ defmodule Pears.Core.Recommendator do
 
   defp potential_matches_by_score(team) do
     potential_matches = Team.potential_matches(team)
-    primary = score_permutations(primary_matches(potential_matches), team)
-    secondary = score_permutations(secondary_matches(potential_matches), team)
-    solos = Enum.map(potential_matches.available, fn pear -> {{pear}, -1} end)
-    sort_scored_permutations(primary, secondary, solos, team)
+    primary = score_matches(primary_matches(potential_matches), team)
+    secondary = score_matches(secondary_matches(potential_matches), team)
+    scored_matches = sort_scored_matches(primary, secondary, team)
+
+    solo_pears = Enum.map(potential_matches.available, fn pear -> {pear} end)
+
+    scored_matches ++ solo_pears
   end
 
   defp primary_matches(potential_matches) do
@@ -71,18 +74,18 @@ defmodule Pears.Core.Recommendator do
 
   defp max_score(team), do: Enum.count(team.history) + 1
 
-  defp sort_scored_permutations(primary, secondary, solos, team) do
+  defp sort_scored_matches(primary, secondary, team) do
     splitter = fn {_, score} -> score >= max_score(team) end
 
     {p1, p3} = Enum.split_with(primary, splitter)
     {p2, p4} = Enum.split_with(secondary, splitter)
 
-    [p1, p2, p3, p4, solos]
+    [p1, p2, p3, p4]
     |> Enum.concat()
     |> Enum.map(fn {match, _} -> match end)
   end
 
-  defp score_permutations(permutations, team) do
+  defp score_matches(permutations, team) do
     indexed_history =
       team.history
       |> Enum.map(fn days_matches -> Enum.map(days_matches, fn [p1, p2] -> {p1, p2} end) end)
