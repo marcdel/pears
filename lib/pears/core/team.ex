@@ -75,7 +75,7 @@ defmodule Pears.Core.Team do
 
   def record_pears(team) do
     if any_pears_assigned?(team) do
-      %{team | history: [assigned_pears(team)] ++ team.history}
+      %{team | history: [current_matches(team)] ++ team.history}
     else
       team
     end
@@ -127,7 +127,7 @@ defmodule Pears.Core.Team do
     %{available: available, assigned: assigned}
   end
 
-  def assigned_pears(team) do
+  def current_matches(team) do
     team.tracks
     |> Enum.map(fn {_, track} ->
       Enum.map(track.pears, fn {name, _} -> name end)
