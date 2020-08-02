@@ -171,7 +171,8 @@ defmodule Pears.Core.TeamTest do
       TeamBuilders.team()
       |> Map.put(:history, [
         [["pear1", "pear2"]],
-        [["pear1", "pear3"]]
+        [["pear1", "pear3"]],
+        [["pear4", "pear5", "pear6"]]
       ])
 
     assert Team.match_in_history?(team, ["pear1", "pear2"])
@@ -179,6 +180,16 @@ defmodule Pears.Core.TeamTest do
     assert Team.match_in_history?(team, ["pear1", "pear3"])
     refute Team.match_in_history?(team, ["pear2", "pear3"])
     refute Team.match_in_history?(team, ["pear1", "pear4"])
+
+    team =
+      TeamBuilders.team()
+      |> Map.put(:history, [
+        [["pear1", "pear2", "pear3"]]
+      ])
+
+    assert Team.match_in_history?(team, ["pear1", "pear2"])
+    assert Team.match_in_history?(team, ["pear2", "pear3"])
+    assert Team.match_in_history?(team, ["pear1", "pear3"])
   end
 
   test "matched_yesterday?/2" do

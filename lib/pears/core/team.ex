@@ -91,12 +91,9 @@ defmodule Pears.Core.Team do
   def find_assigned_pear(team, pear_name), do: Map.get(team.assigned_pears, pear_name, nil)
 
   def match_in_history?(team, potential_match) do
-    Enum.flat_map(team.history, fn days_matches ->
-      Enum.filter(days_matches, fn match ->
-        Enum.sort(match) == Enum.sort(potential_match)
-      end)
+    Enum.any?(team.history, fn days_matches ->
+      matched_on_day?(days_matches, potential_match)
     end)
-    |> Enum.any?()
   end
 
   def matched_yesterday?(%{history: []}, _), do: false
@@ -104,7 +101,14 @@ defmodule Pears.Core.Team do
   def matched_yesterday?(%{history: history}, potential_match) do
     history
     |> List.first()
-    |> Enum.any?(fn match -> Enum.sort(match) == Enum.sort(potential_match) end)
+    |> matched_on_day?(potential_match)
+  end
+
+  defp matched_on_day?(days_matches, potential_match) do
+    days_matches
+    |> Enum.any?(fn match ->
+      Enum.all?(potential_match, fn pear -> Enum.member?(match, pear) end)
+    end)
   end
 
   def matches(team), do: Map.values(team.tracks)
