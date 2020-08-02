@@ -10,8 +10,6 @@ defmodule Pears.Core.MatchValidator do
       either_pear_available?({p1, p2}, team) &&
         destination_track_available?({p1, p2}, team)
 
-    IO.inspect({p1, p2, valid})
-
     valid
   end
 

@@ -4,7 +4,6 @@ defmodule Pears.Core.Recommendator do
   def assign_pears2(team) do
     team
     |> potential_matches_by_score()
-    |> IO.inspect()
     |> assign_matches(team)
   end
 
@@ -30,7 +29,6 @@ defmodule Pears.Core.Recommendator do
   defp do_assign_match({p1, p2}, team) do
     pear1 = Team.find_pear(team, p1)
     pear2 = Team.find_pear(team, p2)
-    IO.inspect({p1, p2})
 
     cond do
       Team.pear_available?(team, p1) && Team.pear_available?(team, p2) ->

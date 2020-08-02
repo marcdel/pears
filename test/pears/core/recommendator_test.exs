@@ -140,7 +140,6 @@ defmodule Pears.Core.RecommendatorTest do
     |> Team.remove_pear_from_track("pear4", "track two")
     |> Recommendator.assign_pears2()
     |> Team.record_pears()
-    |> IO.inspect(label: "results")
     |> refute_pear_in_track("pear2", "track one")
     |> refute_pear_in_track("pear4", "track two")
     |> assert_history([
