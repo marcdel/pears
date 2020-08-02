@@ -81,11 +81,11 @@ defmodule Pears.Core.TeamTest do
 
     team = Team.add_pear_to_track(team, "pear1", "refactor track")
     pear = Team.find_assigned_pear(team, "pear1")
-    assert pear.track.name == "refactor track"
+    assert pear.track == "refactor track"
 
     team = Team.move_pear_to_track(team, "pear1", "refactor track", "feature track")
     pear = Team.find_assigned_pear(team, "pear1")
-    assert pear.track.name == "feature track"
+    assert pear.track == "feature track"
   end
 
   test "removing a track makes pears in that track available", %{team: team} do
@@ -111,24 +111,6 @@ defmodule Pears.Core.TeamTest do
     tracks = Enum.map(team.tracks, fn {name, %{id: id}} -> {name, id} end)
 
     assert tracks == [{"a", 4}, {"b", 3}, {"c", 2}, {"d", 1}]
-  end
-
-  test "can find a pear", %{team: team} do
-    team =
-      team
-      |> Team.add_track("feature track")
-      |> Team.add_track("refactor track")
-      |> Team.add_pear("pear1")
-      |> Team.add_pear("pear2")
-      |> Team.add_pear("pear3")
-      |> Team.add_pear_to_track("pear1", "refactor track")
-      |> Team.add_pear_to_track("pear2", "feature track")
-
-    assert {:ok, %{name: "refactor track"}} = Team.where_is_pear?(team, "pear1")
-    assert {:ok, %{name: "feature track"}} = Team.where_is_pear?(team, "pear2")
-
-    assert {:ok, nil} = Team.where_is_pear?(team, "pear3")
-    assert {:error, :not_found} = Team.where_is_pear?(team, "pear4")
   end
 
   test "recording pears adds the current pears to the history", %{team: team} do
@@ -166,6 +148,22 @@ defmodule Pears.Core.TeamTest do
              [["pear1", "pear4"], ["pear2", "pear3"]],
              [["pear2", "pear4"], ["pear1", "pear3"]]
            ]
+  end
+
+  test "can return current matches", %{team: team} do
+    team =
+      [
+        {"pear1", "track one"},
+        {"pear3", "track two"},
+        "pear2",
+        "pear4"
+      ]
+      |> TeamBuilders.from_matches()
+
+    matches = Team.potential_matches(team)
+
+    assert matches.assigned == ["pear1", "pear3"]
+    assert matches.available == ["pear2", "pear4"]
   end
 
   test "match_in_history?/2" do

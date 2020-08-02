@@ -83,17 +83,12 @@ defmodule Pears.Core.Team do
 
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
+  def find_pear(team, pear_name) do
+    find_available_pear(team, pear_name) || find_assigned_pear(team, pear_name)
+  end
+
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
   def find_assigned_pear(team, pear_name), do: Map.get(team.assigned_pears, pear_name, nil)
-
-  def where_is_pear?(team, pear_name) do
-    with nil <- find_available_pear(team, pear_name),
-         nil <- find_assigned_pear(team, pear_name) do
-      {:error, :not_found}
-    else
-      pear -> {:ok, pear.track}
-    end
-  end
 
   def match_in_history?(team, potential_match) do
     Enum.flat_map(team.history, fn days_matches ->
@@ -112,6 +107,20 @@ defmodule Pears.Core.Team do
     |> Enum.any?(fn match -> Enum.sort(match) == Enum.sort(potential_match) end)
   end
 
+  def matches(team), do: Map.values(team.tracks)
+
+  def potential_matches(team) do
+    assigned =
+      team.tracks
+      |> Map.values()
+      |> Enum.filter(&Track.incomplete?/1)
+      |> Enum.flat_map(fn track -> Map.keys(track.pears) end)
+
+    available = Map.keys(team.available_pears)
+
+    %{available: available, assigned: assigned}
+  end
+
   def assigned_pears(team) do
     team.tracks
     |> Enum.map(fn {_, track} ->
@@ -120,10 +129,15 @@ defmodule Pears.Core.Team do
   end
 
   def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
+  def any_pears_available?(team), do: Enum.any?(team.available_pears)
 
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
+  def pear_assigned?(team, pear_name), do: Map.has_key?(team.assigned_pears, pear_name)
 
-  defp next_track_id(team) do
-    Enum.count(team.tracks) + 1
+  def find_empty_track(team) do
+    {_, track} = Enum.find(team.tracks, {nil, nil}, fn {_name, track} -> Track.empty?(track) end)
+    track
   end
+
+  defp next_track_id(team), do: Enum.count(team.tracks) + 1
 end

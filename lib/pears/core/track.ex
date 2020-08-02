@@ -14,4 +14,8 @@ defmodule Pears.Core.Track do
   end
 
   def find_pear(track, pear_name), do: Map.get(track.pears, pear_name, nil)
+
+  def incomplete?(track), do: Enum.count(track.pears) == 1
+
+  def empty?(track), do: Enum.empty?(track.pears)
 end

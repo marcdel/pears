@@ -6,7 +6,7 @@ defmodule Pears.Core.Pear do
   end
 
   def add_track(pear, track) do
-    Map.put(pear, :track, track)
+    Map.put(pear, :track, track.name)
   end
 
   def remove_track(pear) do

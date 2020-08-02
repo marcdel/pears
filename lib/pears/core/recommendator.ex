@@ -1,101 +1,104 @@
 defmodule Pears.Core.Recommendator do
-  alias Pears.Core.Team
+  alias Pears.Core.{MatchValidator, Team}
 
-  def assign_pears(team) do
-    team = Enum.reduce(team.available_pears, team, &assign_preferred_match/2)
-    Enum.reduce(team.available_pears, team, &assign_remaining_match/2)
-  end
-
-  defp assign_preferred_match({pear_name, pear}, team) do
-    case Team.find_available_pear(team, pear_name) do
-      nil -> team
-      _pear -> do_assign_preferred_match({pear_name, pear}, team)
-    end
-  end
-
-  defp do_assign_preferred_match({pear_name, _pear}, team) do
-    case preferred_match(team, pear_name) do
-      {nil, nil} ->
-        team
-
-      {match_name, nil} ->
-        case find_empty_track(team) do
-          nil ->
-            team
-
-          track ->
-            team
-            |> Team.add_pear_to_track(pear_name, track.name)
-            |> Team.add_pear_to_track(match_name, track.name)
-        end
-
-      {_match_name, track} ->
-        Team.add_pear_to_track(team, pear_name, track.name)
-    end
-  end
-
-  defp assign_remaining_match({pear_name, _pear}, team) do
-    case find_available_track(team) do
-      nil -> team
-      track -> Team.add_pear_to_track(team, pear_name, track.name)
-    end
-  end
-
-  defp find_available_track(team) do
-    with nil <- find_incomplete_track(team),
-         nil <- find_empty_track(team) do
-      nil
-    else
-      track -> track
-    end
-  end
-
-  defp find_incomplete_track(team) do
-    case Enum.find(team.tracks, fn {_name, track} -> Enum.count(track.pears) == 1 end) do
-      {_, track} -> track
-      _ -> nil
-    end
-  end
-
-  defp find_empty_track(team) do
-    case Enum.find(team.tracks, fn {_name, track} -> Enum.empty?(track.pears) end) do
-      {_, track} -> track
-      _ -> nil
-    end
-  end
-
-  defp potential_matches(team, pear_name) do
-    assigned_pears =
-      team
-      |> Team.assigned_pears()
-      |> Enum.find([], fn pears -> Enum.count(pears) == 1 end)
-      |> Enum.filter(fn p -> p != pear_name end)
-
-    available_pears =
-      team.available_pears
-      |> Enum.map(fn {name, _} -> name end)
-      |> Enum.filter(fn p -> p != pear_name end)
-
-    (available_pears ++ assigned_pears)
-    |> Enum.map(fn match -> [pear_name, match] end)
-  end
-
-  defp preferred_matches(team, pear_name) do
+  def assign_pears2(team) do
     team
-    |> potential_matches(pear_name)
-    |> Enum.reject(fn match -> Team.match_in_history?(team, match) end)
+    |> potential_matches_by_score()
+    |> IO.inspect()
+    |> assign_matches(team)
   end
 
-  defp preferred_match(team, pear_name) do
-    case team |> preferred_matches(pear_name) |> List.first() do
-      [_, match_name] ->
-        case Team.where_is_pear?(team, match_name) do
-          {:ok, nil} -> {match_name, nil}
-          {:ok, track} -> {match_name, track}
-        end
+  defp assign_matches(potential_matches, team) do
+    Enum.reduce_while(potential_matches, team, fn match, team ->
+      if Team.any_pears_available?(team) do
+        {:cont, assign_match(match, team)}
+      else
+        {:halt, team}
+      end
+    end)
+  end
 
-      _ ->
-        {nil, nil}
+  defp assign_match(match, team) do
+    if MatchValidator.valid?(match, team), do: do_assign_match(match, team), else: team
+  end
+
+  defp do_assign_match({p1}, team) do
+    empty_track = Team.find_empty_track(team)
+    Team.add_pear_to_track(team, p1, empty_track.name)
+  end
+
+  defp do_assign_match({p1, p2}, team) do
+    pear1 = Team.find_pear(team, p1)
+    pear2 = Team.find_pear(team, p2)
+    IO.inspect({p1, p2})
+
+    cond do
+      Team.pear_available?(team, p1) && Team.pear_available?(team, p2) ->
+        empty_track = Team.find_empty_track(team)
+        Team.add_pear_to_track(team, p1, empty_track.name)
+        Team.add_pear_to_track(team, p2, empty_track.name)
+
+      Team.pear_available?(team, p1) ->
+        Team.add_pear_to_track(team, p1, pear2.track)
+
+      Team.pear_available?(team, p2) ->
+        Team.add_pear_to_track(team, p2, pear1.track)
+
+      true ->
+        team
     end
+  end
+
+  defp potential_matches_by_score(team) do
+    potential_matches = Team.potential_matches(team)
+    primary = score_permutations(primary_matches(potential_matches), team)
+    secondary = score_permutations(secondary_matches(potential_matches), team)
+    solos = Enum.map(potential_matches.available, fn pear -> {{pear}, -1} end)
+    sort_scored_permutations(primary, secondary, solos, team)
+  end
+
+  defp primary_matches(potential_matches) do
+    for p1 <- potential_matches.available,
+        p2 <- potential_matches.assigned,
+        p1 != p2,
+        do: {p1, p2}
+  end
+
+  defp secondary_matches(potential_matches) do
+    for p1 <- potential_matches.available,
+        p2 <- potential_matches.available,
+        p1 != p2,
+        do: {p1, p2}
+  end
+
+  defp max_score(team), do: Enum.count(team.history) + 1
+
+  defp sort_scored_permutations(primary, secondary, solos, team) do
+    splitter = fn {_, score} -> score >= max_score(team) end
+
+    {p1, p3} = Enum.split_with(primary, splitter)
+    {p2, p4} = Enum.split_with(secondary, splitter)
+
+    [p1, p2, p3, p4, solos]
+    |> Enum.concat()
+    |> Enum.map(fn {match, _} -> match end)
+  end
+
+  defp score_permutations(permutations, team) do
+    indexed_history =
+      team.history
+      |> Enum.map(fn days_matches -> Enum.map(days_matches, fn [p1, p2] -> {p1, p2} end) end)
+      |> Enum.with_index(1)
+
+    permutations
+    |> Enum.map(fn {p1, p2} ->
+      {_, score} =
+        Enum.find(indexed_history, {[], max_score(team)}, fn {days_matches, _} ->
+          Enum.member?(days_matches, {p1, p2}) || Enum.member?(days_matches, {p2, p1})
+        end)
+
+      {{p1, p2}, score}
+    end)
+    |> Enum.sort(fn {_, score1}, {_, score2} -> score1 >= score2 end)
   end
 end

@@ -143,7 +143,7 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call(:recommend_pears, _from, team) do
-    team = Recommendator.assign_pears(team)
+    team = Recommendator.assign_pears2(team)
     {:reply, {:ok, team}, team}
   end
 
