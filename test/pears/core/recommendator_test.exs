@@ -13,7 +13,7 @@ defmodule Pears.Core.RecommendatorTest do
       |> Team.add_pear_to_track("pear1", "two pear track")
       |> Team.add_pear_to_track("pear2", "two pear track")
 
-    after_team = Recommendator.assign_pears2(before_team)
+    after_team = Recommendator.assign_pears(before_team)
 
     assert before_team == after_team
   end
@@ -22,7 +22,7 @@ defmodule Pears.Core.RecommendatorTest do
     TeamBuilders.team()
     |> Team.add_track("feature track")
     |> Team.add_pear("pear1")
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> assert_pear_in_track("pear1", "feature track")
   end
 
@@ -42,7 +42,7 @@ defmodule Pears.Core.RecommendatorTest do
     |> Team.add_pear_to_track("pear3", "three pear track")
     |> Team.add_pear_to_track("pear4", "three pear track")
     |> Team.add_pear_to_track("pear5", "three pear track")
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> assert_pear_in_track("pear6", "empty track")
   end
 
@@ -58,7 +58,7 @@ defmodule Pears.Core.RecommendatorTest do
     |> Team.add_pear_to_track("pear1", "two pear track")
     |> Team.add_pear_to_track("pear2", "two pear track")
     |> Team.add_pear_to_track("pear3", "one pear track")
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> assert_pear_in_track("pear4", "one pear track")
   end
 
@@ -73,7 +73,7 @@ defmodule Pears.Core.RecommendatorTest do
       [{"track one", ["pear1", "pear2"]}],
       [{"track one", ["pear1", "pear3"]}]
     ])
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> Team.record_pears()
     |> assert_history([
       [{"track one", ["pear2", "pear3"]}, {"track two", ["pear1"]}],
@@ -98,7 +98,7 @@ defmodule Pears.Core.RecommendatorTest do
       [{"track one", ["pear4", "pear1"]}],
       [{"track one", ["pear2", "pear4"]}]
     ])
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> Team.record_pears()
     |> assert_history([
       [{"track one", ["pear1", "pear3"]}, {"track two", ["pear2", "pear4"]}],
@@ -121,7 +121,7 @@ defmodule Pears.Core.RecommendatorTest do
       [{"track one", ["pear1", "pear2"]}],
       [{"track two", ["pear1", "pear3"]}]
     ])
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> Team.record_pears()
     |> assert_history([
       [{"track one", ["pear2", "pear3"]}, {"track two", ["pear1"]}],
@@ -138,7 +138,7 @@ defmodule Pears.Core.RecommendatorTest do
     |> TeamBuilders.from_matches()
     |> Team.remove_pear_from_track("pear2", "track one")
     |> Team.remove_pear_from_track("pear4", "track two")
-    |> Recommendator.assign_pears2()
+    |> Recommendator.assign_pears()
     |> Team.record_pears()
     |> refute_pear_in_track("pear2", "track one")
     |> refute_pear_in_track("pear4", "track two")

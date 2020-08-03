@@ -1,7 +1,7 @@
 defmodule Pears.Core.Recommendator do
   alias Pears.Core.{MatchValidator, Team}
 
-  def assign_pears2(team) do
+  def assign_pears(team) do
     team
     |> potential_matches_by_score()
     |> assign_matches(team)
@@ -85,16 +85,16 @@ defmodule Pears.Core.Recommendator do
     |> Enum.map(fn {match, _} -> match end)
   end
 
-  defp score_matches(permutations, team) do
+  defp score_matches(potential_matches, team) do
     indexed_history =
-      team.history
-      |> Enum.map(fn days_matches -> Enum.map(days_matches, fn {_, [p1, p2]} -> {p1, p2} end) end)
+      team
+      |> Team.historical_matches()
       |> Enum.with_index(1)
 
-    permutations
+    potential_matches
     |> Enum.map(fn {p1, p2} ->
       {_, score} =
-        Enum.find(indexed_history, {[], max_score(team)}, fn {days_matches, _} ->
+        Enum.find(indexed_history, {[], max_score(team)}, fn {days_matches, _index} ->
           Enum.member?(days_matches, {p1, p2}) || Enum.member?(days_matches, {p2, p1})
         end)
 

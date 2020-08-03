@@ -134,6 +134,12 @@ defmodule Pears.Core.Team do
     end)
   end
 
+  def historical_matches(team) do
+    Enum.map(team.history, fn days_matches ->
+      Enum.map(days_matches, fn {_, [p1, p2]} -> {p1, p2} end)
+    end)
+  end
+
   def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
   def any_pears_available?(team), do: Enum.any?(team.available_pears)
 
