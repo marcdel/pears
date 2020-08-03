@@ -175,7 +175,7 @@ defmodule Pears.Core.TeamTest do
     assert matches.available == ["pear2", "pear4"]
   end
 
-  test "match_in_history?/2" do
+  test "can find a match in the team's history" do
     team =
       TeamBuilders.team()
       |> Map.put(:history, [
@@ -218,7 +218,7 @@ defmodule Pears.Core.TeamTest do
     refute Team.match_in_history?(team, ["pear3", "pear4"])
   end
 
-  test "matched_yesterday?/2" do
+  test "can check whether two pears were matched yesterday" do
     team =
       TeamBuilders.team()
       |> Map.put(:history, [
@@ -231,6 +231,40 @@ defmodule Pears.Core.TeamTest do
     refute Team.matched_yesterday?(team, ["pear1", "pear3"])
     refute Team.matched_yesterday?(team, ["pear3", "pear1"])
     refute Team.matched_yesterday?(team, ["pear2", "pear3"])
+  end
+
+  test "can reset matches" do
+    [
+      {"pear2", "pear3", "track one"},
+      {"pear1", "track two"}
+    ]
+    |> TeamBuilders.from_matches()
+    |> Team.reset_matches()
+    |> refute_pear_in_track("pear1", "track two")
+    |> refute_pear_in_track("pear2", "track one")
+    |> refute_pear_in_track("pear3", "track one")
+  end
+
+  test "can assign pears from history" do
+    [
+      {"pear2", "pear3", "track one"},
+      {"pear1", "track two"}
+    ]
+    |> TeamBuilders.from_matches()
+    |> Team.reset_matches()
+    |> Team.assign_pears_from_history()
+    |> assert_pear_in_track("pear1", "track two")
+    |> assert_pear_in_track("pear2", "track one")
+    |> assert_pear_in_track("pear3", "track one")
+    |> Team.reset_matches()
+    |> Map.put(:history, [
+      [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3"]}],
+      [{"track one", ["pear2", "pear3"]}, {"track two", ["pear1"]}]
+    ])
+    |> Team.assign_pears_from_history()
+    |> assert_pear_in_track("pear1", "track one")
+    |> assert_pear_in_track("pear2", "track one")
+    |> assert_pear_in_track("pear3", "track two")
   end
 
   defp team(_) do

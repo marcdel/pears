@@ -106,7 +106,7 @@ defmodule Pears.Core.Team do
 
   defp matched_on_day?(days_matches, potential_match) do
     days_matches
-    |> Enum.any?(fn {track, match} ->
+    |> Enum.any?(fn {_, match} ->
       Enum.all?(potential_match, fn pear ->
         Enum.count(match) < 4 && Enum.member?(match, pear)
       end)
@@ -137,6 +137,26 @@ defmodule Pears.Core.Team do
   def historical_matches(team) do
     Enum.map(team.history, fn days_matches ->
       Enum.map(days_matches, fn {_, [p1, p2]} -> {p1, p2} end)
+    end)
+  end
+
+  def reset_matches(team) do
+    team.assigned_pears
+    |> Map.values()
+    |> Enum.reduce(team, fn pear, team ->
+      remove_pear_from_track(team, pear.name, pear.track)
+    end)
+  end
+
+  def assign_pears_from_history(%{history: []} = team), do: team
+
+  def assign_pears_from_history(team) do
+    team.history
+    |> List.first()
+    |> Enum.reduce(team, fn {track, pears}, team ->
+      Enum.reduce(pears, team, fn pear, team ->
+        add_pear_to_track(team, pear, track)
+      end)
     end)
   end
 
