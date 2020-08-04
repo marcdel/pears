@@ -69,6 +69,10 @@ defmodule PearsTest do
                {"Track Two", ["Pear Three", "Pear Two"]}
              ]
            ] = team.history
+
+    {:ok, %{snapshots: [snapshot]}} = Persistence.get_team_by_name(name)
+
+    assert [_, _] = snapshot.matches
   end
 
   test "can remove a track", %{name: name} do
@@ -104,14 +108,27 @@ defmodule PearsTest do
 
   test "fetches team from database if not in memory", %{name: name} do
     {:ok, _} = Persistence.create_team(name)
-    {:ok, _} = Persistence.add_pear_to_team(name, "Pear One")
-    {:ok, _} = Persistence.add_track_to_team(name, "Track One")
+    {:ok, _} = Persistence.add_pear_to_team(name, "pear1")
+    {:ok, _} = Persistence.add_pear_to_team(name, "pear2")
+    {:ok, _} = Persistence.add_pear_to_team(name, "pear3")
+    {:ok, _} = Persistence.add_track_to_team(name, "track one")
+    {:ok, _} = Persistence.add_track_to_team(name, "track two")
+
+    snapshot = [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3"]}]
+    {:ok, _} = Persistence.add_snapshot_to_team(name, snapshot)
 
     {:ok, saved_team} = Pears.lookup_team_by(name: name)
 
     assert saved_team.name == name
-    assert Enum.count(saved_team.available_pears) == 1
-    assert Enum.count(saved_team.tracks) == 1
+    assert Enum.empty?(saved_team.available_pears)
+    assert Enum.count(saved_team.assigned_pears) == 3
+    assert Enum.count(saved_team.tracks) == 2
+    assert saved_team.history == [[{"track two", ["pear3"]}, {"track one", ["pear1", "pear2"]}]]
+
+    saved_team
+    |> assert_pear_in_track("pear3", "track two")
+    |> assert_pear_in_track("pear1", "track one")
+    |> assert_pear_in_track("pear2", "track one")
   end
 
   test "removing a track removes it from the database", %{name: name} do

@@ -2,12 +2,13 @@ defmodule Pears.Persistence.TeamRecord do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Pears.Persistence.{PearRecord, TrackRecord}
+  alias Pears.Persistence.{SnapshotRecord, PearRecord, TrackRecord}
 
   schema "teams" do
     field :name, :string
     has_many :pears, PearRecord, foreign_key: :team_id
     has_many :tracks, TrackRecord, foreign_key: :team_id
+    has_many :snapshots, SnapshotRecord, foreign_key: :team_id
 
     timestamps()
   end

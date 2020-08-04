@@ -6,7 +6,7 @@ defmodule Pears.Persistence do
   import Ecto.Query, warn: false
 
   alias Pears.Repo
-  alias Pears.Persistence.{PearRecord, TeamRecord, TrackRecord}
+  alias Pears.Persistence.{PearRecord, SnapshotRecord, TeamRecord, TrackRecord}
 
   def create_team(team_name) do
     %TeamRecord{}
@@ -25,7 +25,7 @@ defmodule Pears.Persistence do
     result =
       TeamRecord
       |> Repo.get_by(name: team_name)
-      |> Repo.preload([:pears, :tracks])
+      |> Repo.preload([:pears, :tracks, {:snapshots, :matches}])
 
     case result do
       nil -> {:error, :not_found}
@@ -72,5 +72,31 @@ defmodule Pears.Persistence do
       error ->
         error
     end
+  end
+
+  def add_snapshot_to_team(team_name, snapshot) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, snapshot_record} <- save_snapshot(team, snapshot) do
+      {:ok, snapshot_record}
+    else
+      error -> error
+    end
+  end
+
+  defp save_snapshot(team, snapshot) do
+    %SnapshotRecord{}
+    |> SnapshotRecord.changeset(%{
+      team_id: team.id,
+      matches: build_matches(snapshot)
+    })
+    |> Repo.insert()
+  end
+
+  defp build_matches(snapshot) do
+    Enum.map(snapshot, &build_match/1)
+  end
+
+  defp build_match({track_name, pear_names}) do
+    %{track_name: track_name, pear_names: pear_names}
   end
 end

@@ -67,4 +67,32 @@ defmodule Pears.PersistenceTest do
       assert {:ok, _} = Persistence.remove_track_from_team("New Team", "Track One")
     end
   end
+
+  describe "snapshots" do
+    test "can create a snapshot of the current matches" do
+      team = team_factory("New Team")
+
+      assert {:ok, snapshot} =
+               Persistence.add_snapshot_to_team("New Team", [
+                 {"track one", ["pear1", "pear2"]},
+                 {"track two", ["pear3"]}
+               ])
+
+      snapshot = Repo.preload(snapshot, [:team, :matches])
+      assert snapshot.team == team
+
+      {:ok, %{snapshots: [snapshot]}} = Persistence.get_team_by_name("New Team")
+
+      assert [match_one, match_two] = snapshot.matches
+
+      matches =
+        snapshot.matches
+        |> Enum.map(fn match ->
+          %{track_name: match.track_name, pear_names: match.pear_names}
+        end)
+
+      assert Enum.member?(matches, %{track_name: "track one", pear_names: ["pear1", "pear2"]})
+      assert Enum.member?(matches, %{track_name: "track two", pear_names: ["pear3"]})
+    end
+  end
 end

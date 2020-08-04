@@ -129,6 +129,8 @@ defmodule Pears do
     Team.new(name: team_record.name)
     |> add_pears(team_record)
     |> add_tracks(team_record)
+    |> add_history(team_record)
+    |> assign_pears()
   end
 
   defp add_pears(team, team_record) do
@@ -143,8 +145,28 @@ defmodule Pears do
     end)
   end
 
+  defp add_history(team, team_record) do
+    history =
+      Enum.map(team_record.snapshots, fn snapshot ->
+        Enum.map(snapshot.matches, fn %{track_name: track_name, pear_names: pear_names} ->
+          {track_name, pear_names}
+        end)
+      end)
+
+    Map.put(team, :history, history)
+  end
+
+  defp assign_pears(team) do
+    Team.assign_pears_from_history(team)
+  end
+
   defp persist_changes(team) do
-    {:ok, team}
+    snapshot = Team.current_matches(team)
+
+    case Persistence.add_snapshot_to_team(team.name, snapshot) do
+      {:ok, _} -> {:ok, team}
+      error -> error
+    end
   end
 
   defp get_or_start_session(team) do
