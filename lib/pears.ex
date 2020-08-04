@@ -115,6 +115,45 @@ defmodule Pears do
     end
   end
 
+  def import_history_from_parrit_json(team_name, json) do
+    grouped_by_date =
+      json
+      |> Jason.decode!()
+      |> Enum.group_by(fn match_json ->
+        Map.get(match_json, "pairingTime")
+      end)
+
+    grouped_by_date
+    |> Map.keys()
+    |> Enum.sort(:desc)
+    |> Enum.each(fn date ->
+      snapshot =
+        grouped_by_date
+        |> Map.get(date)
+        |> Enum.map(fn match_json ->
+          track_name = Map.get(match_json, "pairingBoardName")
+
+          pear_names =
+            match_json
+            |> Map.get("people")
+            |> Enum.map(&Map.get(&1, "name"))
+
+          {track_name, pear_names}
+        end)
+
+      {:ok, _} = Persistence.add_snapshot_to_team(team_name, snapshot)
+
+      snapshot
+    end)
+
+    TeamManager.remove_team(team_name)
+    TeamSession.end_session(team_name)
+
+    {:ok, team} = lookup_team_by(name: team_name)
+
+    team
+  end
+
   defp fetch_team_from_db(team_name) do
     case Persistence.get_team_by_name(team_name) do
       {:ok, team_record} ->
@@ -130,7 +169,7 @@ defmodule Pears do
     |> add_pears(team_record)
     |> add_tracks(team_record)
     |> add_history(team_record)
-    |> assign_pears()
+    |> Team.assign_pears_from_history()
   end
 
   defp add_pears(team, team_record) do
@@ -154,10 +193,6 @@ defmodule Pears do
       end)
 
     Map.put(team, :history, history)
-  end
-
-  defp assign_pears(team) do
-    Team.assign_pears_from_history(team)
   end
 
   defp persist_changes(team) do

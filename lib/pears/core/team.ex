@@ -136,7 +136,7 @@ defmodule Pears.Core.Team do
 
   def historical_matches(team) do
     Enum.map(team.history, fn days_matches ->
-      Enum.map(days_matches, fn {_, [p1, p2]} -> {p1, p2} end)
+      Enum.map(days_matches, fn {_, match} -> List.to_tuple(match) end)
     end)
   end
 

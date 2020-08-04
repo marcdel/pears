@@ -133,7 +133,8 @@ defmodule Pears.Core.RecommendatorTest do
   test "won't pair people with the same pear as yesterday" do
     [
       {"pear1", "pear2", "track one"},
-      {"pear3", "pear4", "track two"}
+      {"pear3", "pear4", "track two"},
+      {"pear5", "track three"}
     ]
     |> TeamBuilders.from_matches()
     |> Team.remove_pear_from_track("pear2", "track one")
@@ -143,8 +144,16 @@ defmodule Pears.Core.RecommendatorTest do
     |> refute_pear_in_track("pear2", "track one")
     |> refute_pear_in_track("pear4", "track two")
     |> assert_history([
-      [{"track one", ["pear1", "pear4"]}, {"track two", ["pear2", "pear3"]}],
-      [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3", "pear4"]}]
+      [
+        {"track one", ["pear1", "pear4"]},
+        {"track three", ["pear2", "pear5"]},
+        {"track two", ["pear3"]}
+      ],
+      [
+        {"track one", ["pear1", "pear2"]},
+        {"track three", ["pear5"]},
+        {"track two", ["pear3", "pear4"]}
+      ]
     ])
   end
 end
