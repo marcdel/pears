@@ -43,6 +43,15 @@ article {
     align-items: center;
   }
 
+  img.locked, img.unlocked {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  &.locked {
+    border: 1px solid #df0606;
+  }
+
   border: 1px solid #EAEAEA;
   margin: 1rem;
   padding: 1rem;

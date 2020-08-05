@@ -34,6 +34,18 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  def handle_event("lock-track", %{"track-name" => track_name}, socket) do
+    {:ok, team} = Pears.lock_track(socket.assigns.team.name, track_name)
+    {:noreply, assign(socket, team: team)}
+  end
+
+  @impl true
+  def handle_event("unlock-track", %{"track-name" => track_name}, socket) do
+    {:ok, team} = Pears.unlock_track(socket.assigns.team.name, track_name)
+    {:noreply, assign(socket, team: team)}
+  end
+
+  @impl true
   def handle_event(
         "pear-selected",
         %{"pear-name" => pear_name, "track-name" => track_name},

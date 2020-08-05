@@ -156,4 +156,28 @@ defmodule Pears.Core.RecommendatorTest do
       ]
     ])
   end
+
+  test "won't pear people in locked tracks" do
+    [
+      {"pear1", "track one"},
+      "pear2",
+      {"pear3", "track two"},
+      "pear4"
+    ]
+    |> TeamBuilders.from_matches()
+    |> Team.lock_track("track two")
+    |> Recommendator.assign_pears()
+    |> Team.record_pears()
+    |> refute_pear_in_track("pear4", "track two")
+    |> assert_history([
+      [
+        {"track one", ["pear1", "pear2"]},
+        {"track two", ["pear3"]}
+      ],
+      [
+        {"track one", ["pear1"]},
+        {"track two", ["pear3"]}
+      ]
+    ])
+  end
 end

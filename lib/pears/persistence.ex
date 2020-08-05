@@ -59,8 +59,34 @@ defmodule Pears.Persistence do
 
   defp add_track(team, track_name) do
     %TrackRecord{}
-    |> TrackRecord.changeset(%{team_id: team.id, name: track_name})
+    |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})
     |> Repo.insert()
+  end
+
+  def lock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, true)
+  def unlock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, false)
+
+  defp toggle_track_locked(team_name, track_name, locked?) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, track} <- find_track_by_name(team, track_name),
+         {:ok, track} <- do_toggle_track_locked(track, locked?) do
+      {:ok, track}
+    else
+      error -> error
+    end
+  end
+
+  defp find_track_by_name(team, track_name) do
+    case Enum.find(team.tracks, fn track -> track.name == track_name end) do
+      nil -> {:error, :track_not_found}
+      track -> {:ok, track}
+    end
+  end
+
+  defp do_toggle_track_locked(track, locked?) do
+    track
+    |> TrackRecord.changeset(%{locked: locked?})
+    |> Repo.update()
   end
 
   def remove_track_from_team(team_name, track_name) do

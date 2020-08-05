@@ -91,6 +91,17 @@ defmodule PearsTest do
     assert Enum.count(team.available_pears) == 2
   end
 
+  test "can lock/unlock tracks", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_track(name, "Track One")
+
+    {:ok, team} = Pears.lock_track(name, "Track One")
+    assert team.tracks |> Map.values() |> List.first() |> Map.get(:locked)
+
+    {:ok, team} = Pears.unlock_track(name, "Track One")
+    refute team.tracks |> Map.values() |> List.first() |> Map.get(:locked)
+  end
+
   test "team names must be unique", %{name: name} do
     :ok = Pears.validate_name(name)
     {:ok, _} = Pears.add_team(name)
@@ -113,6 +124,7 @@ defmodule PearsTest do
     {:ok, _} = Persistence.add_pear_to_team(name, "pear3")
     {:ok, _} = Persistence.add_track_to_team(name, "track one")
     {:ok, _} = Persistence.add_track_to_team(name, "track two")
+    {:ok, _} = Persistence.lock_track(name, "track two")
 
     snapshot = [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3"]}]
     {:ok, _} = Persistence.add_snapshot_to_team(name, snapshot)
@@ -126,9 +138,10 @@ defmodule PearsTest do
     assert saved_team.history == [[{"track two", ["pear3"]}, {"track one", ["pear1", "pear2"]}]]
 
     saved_team
-    |> assert_pear_in_track("pear3", "track two")
     |> assert_pear_in_track("pear1", "track one")
     |> assert_pear_in_track("pear2", "track one")
+    |> assert_pear_in_track("pear3", "track two")
+    |> assert_track_locked("track two")
   end
 
   test "removing a track removes it from the database", %{name: name} do

@@ -82,8 +82,10 @@ context('Actions', () => {
     cy.pearIsInTrack('First Pear', 'Feature Track')
     cy.pearIsInTrack('Second Pear', 'Feature Track')
 
-    cy.contains('Feature Track').find('a').click()
+    cy.clickButton('Record Pears')
+    cy.contains('Today\'s assigned pears have been recorded!').should('visible')
 
+    cy.removeTrack('Feature Track')
     cy.trackDoesNotExist('Feature Track')
 
     cy.pearAvailable('First Pear')
@@ -107,6 +109,10 @@ context('Actions', () => {
     cy.findAssignedPear('First Pear').click()
     cy.findTrack('Feature Track').click()
     cy.pearIsInTrack('First Pear', 'Feature Track')
+
+    cy.lockTrack('Feature Track')
+    cy.clickButton('Recommend Pears')
+    cy.pearIsInTrack('Second Pear', 'Refactor Track')
 
     cy.clickButton('Record Pears')
     cy.contains('Today\'s assigned pears have been recorded!').should('visible')

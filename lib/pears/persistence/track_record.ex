@@ -6,6 +6,7 @@ defmodule Pears.Persistence.TrackRecord do
 
   schema "tracks" do
     field :name, :string
+    field :locked, :boolean
     belongs_to :team, TeamRecord, foreign_key: :team_id
 
     timestamps()
@@ -14,7 +15,7 @@ defmodule Pears.Persistence.TrackRecord do
   @doc false
   def changeset(track_record, attrs) do
     track_record
-    |> cast(attrs, [:name, :team_id])
+    |> cast(attrs, [:name, :team_id, :locked])
     |> validate_required([:name, :team_id])
     |> unique_constraint([:name, :team_id], name: :tracks_team_id_name_index)
   end

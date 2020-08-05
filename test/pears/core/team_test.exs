@@ -159,20 +159,29 @@ defmodule Pears.Core.TeamTest do
            ]
   end
 
-  test "can return current matches" do
-    team =
+  test "can return potential matches" do
+    matches =
       [
-        {"pear1", "track one"},
-        {"pear3", "track two"},
+        {"pear1", "incomplete track"},
         "pear2",
-        "pear4"
+        {"pear3", "pear4", "full track"},
+        {"pear5", "locked track"}
       ]
       |> TeamBuilders.from_matches()
+      |> Team.lock_track("locked track")
+      |> Team.potential_matches()
 
-    matches = Team.potential_matches(team)
+    assert matches.assigned == ["pear1"]
+    assert matches.available == ["pear2"]
+  end
 
-    assert matches.assigned == ["pear1", "pear3"]
-    assert matches.available == ["pear2", "pear4"]
+  test "can lock/unlock a track", %{team: team} do
+    team
+    |> Team.add_track("track one")
+    |> Team.lock_track("track one")
+    |> assert_track_locked("track one")
+    |> Team.unlock_track("track one")
+    |> refute_track_locked("track one")
   end
 
   test "can find a match in the team's history" do
@@ -243,6 +252,19 @@ defmodule Pears.Core.TeamTest do
     |> refute_pear_in_track("pear1", "track two")
     |> refute_pear_in_track("pear2", "track one")
     |> refute_pear_in_track("pear3", "track one")
+  end
+
+  test "pears in locked tracks don't get removed on reset" do
+    [
+      {"pear2", "pear3", "track one"},
+      {"pear1", "track two"}
+    ]
+    |> TeamBuilders.from_matches()
+    |> Team.lock_track("track one")
+    |> Team.reset_matches()
+    |> refute_pear_in_track("pear1", "track two")
+    |> assert_pear_in_track("pear2", "track one")
+    |> assert_pear_in_track("pear3", "track one")
   end
 
   test "can assign pears from history" do

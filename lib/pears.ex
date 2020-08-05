@@ -71,6 +71,37 @@ defmodule Pears do
     end
   end
 
+  def lock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, true)
+  def unlock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, false)
+
+  def toggle_track_locked(team_name, track_name, locked?) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, team} <- lock_or_unlock_track(team, track_name, locked?),
+         {:ok, team} <- TeamSession.update_team(team_name, team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  defp lock_or_unlock_track(team, track_name, true) do
+    with {:ok, _} <- Persistence.lock_track(team.name, track_name),
+         team <- Team.lock_track(team, track_name) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  defp lock_or_unlock_track(team, track_name, false) do
+    with {:ok, _} <- Persistence.unlock_track(team.name, track_name),
+         team <- Team.unlock_track(team, track_name) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
   def add_pear_to_track(team_name, pear_name, track_name) do
     TeamSession.add_pear_to_track(team_name, pear_name, track_name)
   end
@@ -180,8 +211,16 @@ defmodule Pears do
 
   defp add_tracks(team, team_record) do
     Enum.reduce(team_record.tracks, team, fn track_record, team ->
-      Team.add_track(team, track_record.name)
+      team
+      |> Team.add_track(track_record.name)
+      |> maybe_lock_track(track_record)
     end)
+  end
+
+  defp maybe_lock_track(team, %{locked: false}), do: team
+
+  defp maybe_lock_track(team, %{locked: true, name: track_name}) do
+    Team.lock_track(team, track_name)
   end
 
   defp add_history(team, team_record) do

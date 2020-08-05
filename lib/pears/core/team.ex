@@ -35,6 +35,18 @@ defmodule Pears.Core.Team do
     |> Map.put(:tracks, Map.delete(team.tracks, track_name))
   end
 
+  def lock_track(team, track_name) do
+    track = find_track(team, track_name)
+    updated_tracks = Map.put(team.tracks, track_name, Track.lock_track(track))
+    Map.put(team, :tracks, updated_tracks)
+  end
+
+  def unlock_track(team, track_name) do
+    track = find_track(team, track_name)
+    updated_tracks = Map.put(team.tracks, track_name, Track.unlock_track(track))
+    Map.put(team, :tracks, updated_tracks)
+  end
+
   def add_pear_to_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
     pear = find_available_pear(team, pear_name)
@@ -120,6 +132,7 @@ defmodule Pears.Core.Team do
       team.tracks
       |> Map.values()
       |> Enum.filter(&Track.incomplete?/1)
+      |> Enum.reject(&Track.locked?/1)
       |> Enum.flat_map(fn track -> Map.keys(track.pears) end)
 
     available = Map.keys(team.available_pears)
@@ -141,8 +154,14 @@ defmodule Pears.Core.Team do
   end
 
   def reset_matches(team) do
-    team.assigned_pears
+    team.tracks
     |> Map.values()
+    |> Enum.reject(&Track.locked?/1)
+    |> Enum.flat_map(fn track ->
+      track.pears
+      |> Map.values()
+      |> Enum.map(&Map.put(&1, :track, track.name))
+    end)
     |> Enum.reduce(team, fn pear, team ->
       remove_pear_from_track(team, pear.name, pear.track)
     end)

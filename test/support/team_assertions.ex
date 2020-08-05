@@ -32,6 +32,16 @@ defmodule TeamAssertions do
     team
   end
 
+  def assert_track_locked(team, track_name) do
+    assert track_locked?(team, track_name)
+    team
+  end
+
+  def refute_track_locked(team, track_name) do
+    refute track_locked?(team, track_name)
+    team
+  end
+
   def refute_history(team, expected_history) do
     refute histrories_are_equal?(team, expected_history)
     team
@@ -48,6 +58,12 @@ defmodule TeamAssertions do
 
   def track_exists?(team, track_name) do
     Team.find_track(team, track_name)
+  end
+
+  def track_locked?(team, track_name) do
+    team
+    |> Team.find_track(track_name)
+    |> Track.locked?()
   end
 
   def pear_available?(team, pear_name) do

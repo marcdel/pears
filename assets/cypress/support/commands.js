@@ -40,6 +40,9 @@ Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
 const findAssignedPear = pearName => cy.get(`[data-cy="assigned-pear ${pearName}"]`)
 const findTrack = (trackName) => cy.get(`[data-cy="track ${trackName}"]`)
+const findLockTrackLink = (trackName) => cy.get(`[data-cy="lock-track ${trackName}"]`)
+const findUnlockTrackLink = (trackName) => cy.get(`[data-cy="unlock-track ${trackName}"]`)
+const findRemoveTrackLink = (trackName) => cy.get(`[data-cy="remove-track ${trackName}"]`)
 
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
@@ -52,6 +55,26 @@ Cypress.Commands.add('findTrack', findTrack)
 
 Cypress.Commands.add('trackExists', (trackName) => {
   return findTrack(trackName).should('visible')
+})
+
+Cypress.Commands.add('removeTrack', (trackName) => {
+  return findRemoveTrackLink(trackName).click()
+})
+
+Cypress.Commands.add('lockTrack', (trackName) => {
+  return findLockTrackLink(trackName).click()
+})
+
+Cypress.Commands.add('unlockTrack', (trackName) => {
+  return findUnlockTrackLink(trackName).click()
+})
+
+Cypress.Commands.add('trackIsLocked', (trackName) => {
+  return findUnlockTrackLink(trackName).should('visible')
+})
+
+Cypress.Commands.add('trackIsUnlocked', (trackName) => {
+  return findLockTrackLink(trackName).should('visible')
 })
 
 Cypress.Commands.add('trackDoesNotExist', (trackName) => {

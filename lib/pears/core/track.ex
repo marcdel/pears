@@ -1,5 +1,5 @@
 defmodule Pears.Core.Track do
-  defstruct name: nil, id: nil, pears: %{}
+  defstruct name: nil, id: nil, locked: false, pears: %{}
 
   def new(fields) do
     struct!(__MODULE__, fields)
@@ -15,7 +15,10 @@ defmodule Pears.Core.Track do
 
   def find_pear(track, pear_name), do: Map.get(track.pears, pear_name, nil)
 
-  def incomplete?(track), do: Enum.count(track.pears) == 1
+  def lock_track(track), do: %{track | locked: true}
+  def unlock_track(track), do: %{track | locked: false}
 
+  def incomplete?(track), do: Enum.count(track.pears) == 1
   def empty?(track), do: Enum.empty?(track.pears)
+  def locked?(track), do: track.locked
 end

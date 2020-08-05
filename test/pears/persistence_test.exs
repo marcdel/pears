@@ -55,6 +55,8 @@ defmodule Pears.PersistenceTest do
       {:ok, track} = Persistence.add_track_to_team("New Team", "Track One")
       track = Repo.preload(track, :team)
       assert track.team == team
+      assert track.name == "Track One"
+      assert track.locked == false
 
       assert {:error, changeset} = Persistence.add_track_to_team("New Team", "Track One")
       assert {"has already been taken", _} = changeset.errors[:name]
@@ -65,6 +67,23 @@ defmodule Pears.PersistenceTest do
       Persistence.add_track_to_team("New Team", "Track One")
 
       assert {:ok, _} = Persistence.remove_track_from_team("New Team", "Track One")
+    end
+
+    test "lock_track/2" do
+      team_factory("New Team")
+      Persistence.add_track_to_team("New Team", "Track One")
+
+      assert {:ok, track} = Persistence.lock_track("New Team", "Track One")
+      assert track.locked == true
+    end
+
+    test "unlock_track/2" do
+      team_factory("New Team")
+      Persistence.add_track_to_team("New Team", "Track One")
+      assert {:ok, _} = Persistence.lock_track("New Team", "Track One")
+
+      assert {:ok, track} = Persistence.unlock_track("New Team", "Track One")
+      assert track.locked == false
     end
   end
 

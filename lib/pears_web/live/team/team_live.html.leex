@@ -51,12 +51,39 @@
               phx-click="track-clicked"
               phx-value-track-name="<%= track.name %>"
               data-cy="<%= "track #{track.name}" %>"
-              class="track">
+              class="track <%= if track.locked, do: "locked" %>">
               <h4 class="track-name">
+                <%= if track.locked do %>
+                  <a
+                    phx-click="unlock-track"
+                    phx-value-track-name="<%= track.name %>"
+                    data-cy="<%= "unlock-track #{track.name}" %>"
+                    href="#">
+                    <img
+                      src="<%= Routes.static_path(@socket, "/images/locked.svg") %>"
+                      class="locked"
+                      alt="unlock track <%= track.name %>"
+                    />
+                  </a>
+                <% else %>
+                  <a
+                    phx-click="lock-track"
+                    phx-value-track-name="<%= track.name %>"
+                    data-cy="<%= "lock-track #{track.name}" %>"
+                    href="#">
+                    <img
+                      src="<%= Routes.static_path(@socket, "/images/unlocked.svg") %>"
+                      class="unlocked"
+                      alt="lock track <%= track.name %>"
+                    />
+                  </a>
+                <% end %>
+
                 <%= track.name %>
                 <a
                   phx-click="remove-track"
                   phx-value-track-name="<%= track.name %>"
+                  data-cy="<%= "remove-track #{track.name}" %>"
                   href="#"
                   class="phx-modal-close">
                   &times;

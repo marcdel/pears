@@ -21,9 +21,11 @@ defmodule TeamBuilders do
         |> Team.add_pear(pear1)
         |> Team.add_pear_to_track(pear1, track)
 
+      {pear1}, team ->
+        Team.add_pear(team, pear1)
+
       pear1, team ->
-        team
-        |> Team.add_pear(pear1)
+        Team.add_pear(team, pear1)
     end)
     |> Team.record_pears()
   end

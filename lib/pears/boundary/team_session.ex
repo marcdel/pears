@@ -41,6 +41,10 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :get_team)
   end
 
+  def update_team(team_name, team) do
+    GenServer.call(via(team_name), {:update_team, team})
+  end
+
   def add_pear(team_name, pear_name) do
     GenServer.call(via(team_name), {:add_pear, pear_name})
   end
@@ -82,6 +86,10 @@ defmodule Pears.Boundary.TeamSession do
 
   def handle_call(:get_team, _from, team) do
     {:reply, {:ok, team}, team}
+  end
+
+  def handle_call({:update_team, updated_team}, _from, _team) do
+    {:reply, {:ok, updated_team}, updated_team}
   end
 
   def handle_call({:add_pear, pear_name}, _from, team) do
