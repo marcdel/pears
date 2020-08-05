@@ -64,6 +64,10 @@ defmodule Pears.Boundary.TeamSession do
     )
   end
 
+  def make_pear_unavailable(team_name, pear_name) do
+    GenServer.call(via(team_name), {:make_pear_unavailable, pear_name})
+  end
+
   def remove_pear_from_track(team_name, pear_name, track_name) do
     GenServer.call(via(team_name), {:remove_pear_from_track, pear_name, track_name})
   end
@@ -139,6 +143,17 @@ defmodule Pears.Boundary.TeamSession do
       {:reply, {:ok, team}, team}
     else
       _ -> {:reply, {:error, :not_found}, team}
+    end
+  end
+
+  def handle_call({:make_pear_unavailable, pear_name}, _from, team) do
+    case Team.find_pear(team, pear_name) do
+      %{name: ^pear_name} ->
+        team = Team.make_pear_unavailable(team, pear_name)
+        {:reply, {:ok, team}, team}
+
+      _ ->
+        {:reply, {:error, :not_found}, team}
     end
   end
 

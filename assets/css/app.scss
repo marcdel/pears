@@ -26,8 +26,8 @@ article {
   grid-column: 2;
 }
 
-.available-pears {
-  height: 75vh;
+.available-pears, .unavailable-pears {
+  height: 40vh;
 }
 
 .tracks-container {

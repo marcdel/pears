@@ -182,6 +182,23 @@ defmodule PearsTest do
     assert {:error, :not_found} = Pears.add_pear_to_track(name, "Fake Pear", "Track One")
   end
 
+  test "can make pear unavailable / available", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_track(name, "Track One")
+
+    {:ok, _} = Pears.make_pear_unavailable(name, "Pear One")
+    {:ok, _} = Pears.add_pear_to_track(name, "Pear One", "Track One")
+    {:ok, _} = Pears.make_pear_unavailable(name, "Pear One")
+    {:ok, _} = Pears.remove_pear_from_track(name, "Pear One", "Track One")
+    {:ok, _} = Pears.make_pear_unavailable(name, "Pear One")
+    {:ok, team} = Pears.remove_pear_from_track(name, "Pear One", nil)
+
+    # TODO: how to handle loading unavailable pears from the database?
+
+    assert_pear_unavailable(team, "Pear One")
+  end
+
   test "can import history from parrit", %{name: name} do
     Pears.add_team(name)
     Pears.add_pear(name, "Mansi")

@@ -17,6 +17,11 @@ defmodule TeamAssertions do
     team
   end
 
+  def assert_pear_unavailable(team, pear_name) do
+    assert Team.pear_unavailable?(team, pear_name)
+    team
+  end
+
   def refute_pear_available(team, pear_name) do
     refute Team.pear_available?(team, pear_name)
     team

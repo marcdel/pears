@@ -83,6 +83,10 @@ defmodule Pears do
     TeamSession.remove_pear_from_track(team_name, pear_name, track_name)
   end
 
+  def make_pear_unavailable(team_name, pear_name) do
+    TeamSession.make_pear_unavailable(team_name, pear_name)
+  end
+
   def recommend_pears(team_name) do
     TeamSession.recommend_pears(team_name)
   end

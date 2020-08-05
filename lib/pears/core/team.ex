@@ -1,6 +1,7 @@
 defmodule Pears.Core.Team do
   defstruct name: nil,
             id: nil,
+            unavailable_pears: %{},
             available_pears: %{},
             assigned_pears: %{},
             tracks: %{},
@@ -73,6 +74,36 @@ defmodule Pears.Core.Team do
     }
   end
 
+  def make_pear_unavailable(team, pear_name) do
+    pear = find_available_pear(team, pear_name)
+
+    updated_unavailable_pears = Map.put(team.unavailable_pears, pear_name, pear)
+    updated_available_pears = Map.delete(team.available_pears, pear_name)
+    updated_assigned_pears = Map.delete(team.assigned_pears, pear_name)
+
+    %{
+      team
+    | unavailable_pears: updated_unavailable_pears,
+      available_pears: updated_available_pears,
+      assigned_pears: updated_assigned_pears
+    }
+  end
+
+  def make_pear_available(team, pear_name) do
+    pear = find_unavailable_pear(team, pear_name)
+
+    updated_unavailable_pears = Map.delete(team.unavailable_pears, pear_name)
+    updated_available_pears = Map.put(team.available_pears, pear_name, pear)
+    updated_assigned_pears = Map.delete(team.assigned_pears, pear_name)
+
+    %{
+      team
+    | unavailable_pears: updated_unavailable_pears,
+      available_pears: updated_available_pears,
+      assigned_pears: updated_assigned_pears
+    }
+  end
+
   def record_pears(team) do
     if any_pears_assigned?(team) do
       %{team | history: [current_matches(team)] ++ team.history}
@@ -84,9 +115,12 @@ defmodule Pears.Core.Team do
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
   def find_pear(team, pear_name) do
-    find_available_pear(team, pear_name) || find_assigned_pear(team, pear_name)
+    find_unavailable_pear(team, pear_name) ||
+    find_available_pear(team, pear_name) ||
+      find_assigned_pear(team, pear_name)
   end
 
+  def find_unavailable_pear(team, pear_name), do: Map.get(team.unavailable_pears, pear_name, nil)
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
   def find_assigned_pear(team, pear_name), do: Map.get(team.assigned_pears, pear_name, nil)
 
@@ -163,6 +197,7 @@ defmodule Pears.Core.Team do
   def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
   def any_pears_available?(team), do: Enum.any?(team.available_pears)
 
+  def pear_unavailable?(team, pear_name), do: Map.has_key?(team.unavailable_pears, pear_name)
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
   def pear_assigned?(team, pear_name), do: Map.has_key?(team.assigned_pears, pear_name)
 

@@ -37,10 +37,12 @@ Cypress.Commands.add('fillInput', (label, value) => {
 Cypress.Commands.add('clickButton', (text) => cy.contains('button', text).click())
 Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
 
+const findUnavailablePear = pearName => cy.get(`[data-cy="unavailable-pear ${pearName}"]`)
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
 const findAssignedPear = pearName => cy.get(`[data-cy="assigned-pear ${pearName}"]`)
 const findTrack = (trackName) => cy.get(`[data-cy="track ${trackName}"]`)
 
+Cypress.Commands.add('findUnavailablePear', findUnavailablePear)
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
 
@@ -48,7 +50,15 @@ Cypress.Commands.add('pearAvailable', (pearName) => {
   return findAvailablePear(pearName).should('visible')
 })
 
+Cypress.Commands.add('pearUnavailable', (pearName) => {
+  return findUnavailablePear(pearName).should('visible')
+})
+
 Cypress.Commands.add('findTrack', findTrack)
+
+  Cypress.Commands.add('removeTrack', (trackName) => {
+  return cy.get(`[data-cy="remove track ${trackName}"]`).click()
+})
 
 Cypress.Commands.add('trackExists', (trackName) => {
   return findTrack(trackName).should('visible')

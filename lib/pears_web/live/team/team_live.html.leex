@@ -22,7 +22,7 @@
       </article>
 
       <article class="available-pears" phx-click="unassign-pear">
-        <h3>Available Pears</h3>
+        <h3><span>Available Pears</span> ✅</h3>
         <p>
           <%= for pear <- Map.values(@team.available_pears) do %>
             <a
@@ -35,6 +35,21 @@
           <% end %>
         </p>
         <%= live_patch "+ Add Pear", to: Routes.team_path(@socket, :add_pear, @team) %>
+      </article>
+
+      <article class="unavailable-pears" phx-click="make-pear-unavailable">
+        <h3>Unavailable Pears 🚫</h3>
+        <p>
+          <%= for pear <- Map.values(@team.unavailable_pears) do %>
+            <a
+             phx-click="pear-selected"
+             phx-value-pear-name="<%= pear.name %>"
+             data-cy="<%= "unavailable-pear #{pear.name}" %>"
+             class="button pill unavailable-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
+             <%= pear.name %>
+            </a>
+          <% end %>
+        </p>
       </article>
     </div>
     <div class="right-column">
@@ -57,6 +72,7 @@
                 <a
                   phx-click="remove-track"
                   phx-value-track-name="<%= track.name %>"
+                  data-cy="<%= "remove track #{track.name}" %>"
                   href="#"
                   class="phx-modal-close">
                   &times;

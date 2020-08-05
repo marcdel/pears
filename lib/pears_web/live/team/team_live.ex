@@ -88,6 +88,18 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  def handle_event("make-pear-unavailable", _params, socket) do
+    team_name = socket.assigns.team.name
+
+    with {:ok, pear_name} <- selected_pear(socket),
+         {:ok, team} <- Pears.make_pear_unavailable(team_name, pear_name) do
+      {:noreply, assign(socket, team: team, selected_pear: nil)}
+    else
+      _ -> {:noreply, unselect_pear(socket)}
+    end
+  end
+
+  @impl true
   def handle_event("track-clicked", %{"track-name" => track_name}, socket) do
     from_track = socket.assigns.selected_pear_track
 
