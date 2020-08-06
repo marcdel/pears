@@ -118,6 +118,16 @@ defmodule Pears do
     TeamSession.recommend_pears(team_name)
   end
 
+  def reset_pears(team_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         team <- Team.reset_matches(team),
+         {:ok, team} <- TeamSession.update_team(team_name, team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
   def record_pears(team_name) do
     with {:ok, team} <- TeamSession.record_pears(team_name),
          {:ok, team} <- persist_changes(team) do

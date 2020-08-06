@@ -28,6 +28,12 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  def handle_event("reset-pears", _params, socket) do
+    {:ok, team} = Pears.reset_pears(socket.assigns.team.name)
+    {:noreply, assign(socket, :team, team)}
+  end
+
+  @impl true
   def handle_event("remove-track", %{"track-name" => track_name}, socket) do
     {:ok, team} = Pears.remove_track(socket.assigns.team.name, track_name)
     {:noreply, assign(socket, team: team)}

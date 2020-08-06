@@ -116,5 +116,12 @@ context('Actions', () => {
 
     cy.clickButton('Record Pears')
     cy.contains('Today\'s assigned pears have been recorded!').should('visible')
+
+    cy.clickButton('Reset Pears')
+    cy.pearAvailable('Second Pear')
+
+    cy.unlockTrack('Feature Track')
+    cy.clickButton('Reset Pears')
+    cy.pearAvailable('First Pear')
   })
 })
