@@ -149,7 +149,17 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  def matches(team), do: Map.values(team.tracks)
+  def available_slot_count(team) do
+    team.tracks
+    |> Map.values()
+    |> Enum.reduce(0, fn track, count ->
+      cond do
+        Track.incomplete?(track) -> count + 1
+        Track.empty?(track) -> count + 2
+        true -> count
+      end
+    end)
+  end
 
   def potential_matches(team) do
     assigned =

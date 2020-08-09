@@ -278,6 +278,23 @@ defmodule Pears.Core.TeamTest do
     |> assert_pear_in_track("pear1", "track two")
   end
 
+  test "can count the available slots (slots with 0 or 1 pear in them", %{team: team} do
+    slot_count =
+    team
+    |> Team.add_track("track zero")
+    |> Team.add_track("track one")
+    |> Team.add_track("track two")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear_to_track("pear1", "track one")
+    |> Team.add_pear_to_track("pear2", "track two")
+    |> Team.add_pear_to_track("pear3", "track two")
+    |> Team.available_slot_count()
+
+    assert slot_count == 3
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end

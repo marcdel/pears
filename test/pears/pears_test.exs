@@ -47,8 +47,26 @@ defmodule PearsTest do
     {:ok, team} = Pears.lookup_team_by(name: name)
 
     Enum.each(team.tracks, fn {_, track} ->
-      assert Enum.count(track.pears) == 2
+      refute Enum.empty?(track.pears)
     end)
+  end
+
+  test "recommending creates new tracks when more available pears than open tracks", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_pear(name, "Pear Two")
+    Pears.add_pear(name, "Pear Three")
+    Pears.add_pear(name, "Pear Four")
+    Pears.add_pear(name, "Pear Five")
+    Pears.add_track(name, "Track One")
+    Pears.recommend_pears(name)
+
+    {:ok, team} = Pears.lookup_team_by(name: name)
+
+    assert Enum.count(team.tracks) == 3
+    assert Enum.count(team.assigned_pears) == 5
+    assert Enum.empty?(team.available_pears)
+    assert Map.keys(team.tracks) == ["Track One", "Untitled Track 1", "Untitled Track 2"]
   end
 
   test "can record pears", %{name: name} do

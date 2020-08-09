@@ -8,6 +8,7 @@ defmodule Pears do
   alias Pears.Boundary.{TeamManager, TeamSession}
   alias Pears.Persistence
   alias Pears.Core.Team
+  alias Pears.Core.Recommendator
 
   def validate_name(team_name) do
     with :ok <- TeamManager.validate_name(team_name),
@@ -126,7 +127,32 @@ defmodule Pears do
   end
 
   def recommend_pears(team_name) do
-    TeamSession.recommend_pears(team_name)
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         team <- maybe_add_empty_tracks(team),
+         team <- Recommendator.assign_pears(team),
+         {:ok, team} <- TeamSession.update_team(team_name, team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  defp maybe_add_empty_tracks(team) do
+    available_slots = Team.available_slot_count(team)
+    available_pears = Enum.count(team.available_pears)
+    pears_without_track = available_pears - available_slots
+    number_to_add = ceil(pears_without_track / 2)
+
+    add_empty_tracks(team, number_to_add: number_to_add)
+  end
+
+  defp add_empty_tracks(team, number_to_add: 0), do: team
+
+  defp add_empty_tracks(team, number_to_add: count) do
+    Enum.reduce(1..count, team, fn i, team ->
+      {:ok, team} = add_track(team.name, "Untitled Track #{i}")
+      team
+    end)
   end
 
   def reset_pears(team_name) do

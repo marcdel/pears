@@ -72,10 +72,6 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), {:remove_pear_from_track, pear_name, track_name})
   end
 
-  def recommend_pears(team_name) do
-    GenServer.call(via(team_name), :recommend_pears)
-  end
-
   def record_pears(team_name) do
     GenServer.call(via(team_name), :record_pears)
   end
@@ -148,11 +144,6 @@ defmodule Pears.Boundary.TeamSession do
     else
       _ -> {:reply, {:error, :not_found}, team}
     end
-  end
-
-  def handle_call(:recommend_pears, _from, team) do
-    team = Recommendator.assign_pears(team)
-    {:reply, {:ok, team}, team}
   end
 
   def handle_call(:record_pears, _from, team) do
