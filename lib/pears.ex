@@ -74,6 +74,17 @@ defmodule Pears do
   def lock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, true)
   def unlock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, false)
 
+  def rename_track(team_name, track_name, new_track_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- Persistence.rename_track(team.name, track_name, new_track_name),
+         team <- Team.rename_track(team, track_name, new_track_name),
+         {:ok, team} <- TeamSession.update_team(team_name, team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
   def toggle_track_locked(team_name, track_name, locked?) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, team} <- lock_or_unlock_track(team, track_name, locked?),
@@ -164,28 +175,31 @@ defmodule Pears do
         Map.get(match_json, "pairingTime")
       end)
 
-    grouped_by_date
-    |> Map.keys()
-    |> Enum.sort(:desc)
-    |> Enum.each(fn date ->
-      snapshot =
-        grouped_by_date
-        |> Map.get(date)
-        |> Enum.map(fn match_json ->
-          track_name = Map.get(match_json, "pairingBoardName")
+    history =
+      grouped_by_date
+      |> Map.keys()
+      |> Enum.sort(:desc)
+      |> Enum.map(fn date ->
+        snapshot =
+          grouped_by_date
+          |> Map.get(date)
+          |> Enum.map(fn match_json ->
+            track_name = Map.get(match_json, "pairingBoardName")
 
-          pear_names =
-            match_json
-            |> Map.get("people")
-            |> Enum.map(&Map.get(&1, "name"))
+            pear_names =
+              match_json
+              |> Map.get("people")
+              |> Enum.map(&Map.get(&1, "name"))
 
-          {track_name, pear_names}
-        end)
+            {track_name, pear_names}
+          end)
 
-      {:ok, _} = Persistence.add_snapshot_to_team(team_name, snapshot)
+        {:ok, _} = Persistence.add_snapshot_to_team(team_name, snapshot)
 
-      snapshot
-    end)
+        snapshot
+      end)
+
+    add_pears_to_tracks(team_name, List.first(history))
 
     TeamManager.remove_team(team_name)
     TeamSession.end_session(team_name)
@@ -209,8 +223,8 @@ defmodule Pears do
     Team.new(name: team_record.name)
     |> add_pears(team_record)
     |> add_tracks(team_record)
+    |> assign_pears(team_record)
     |> add_history(team_record)
-    |> Team.assign_pears_from_history()
   end
 
   defp add_pears(team, team_record) do
@@ -224,6 +238,15 @@ defmodule Pears do
       team
       |> Team.add_track(track_record.name)
       |> maybe_lock_track(track_record)
+    end)
+  end
+
+  defp assign_pears(team, team_record) do
+    Enum.reduce(team_record.pears, team, fn pear_record, team ->
+      case pear_record.track do
+        nil -> team
+        _ -> Team.add_pear_to_track(team, pear_record.name, pear_record.track.name)
+      end
     end)
   end
 
@@ -247,10 +270,19 @@ defmodule Pears do
   defp persist_changes(team) do
     snapshot = Team.current_matches(team)
 
-    case Persistence.add_snapshot_to_team(team.name, snapshot) do
-      {:ok, _} -> {:ok, team}
+    with {:ok, _} <- Persistence.add_snapshot_to_team(team.name, snapshot),
+         :ok <- add_pears_to_tracks(team.name, snapshot) do
+      {:ok, team}
+    else
       error -> error
     end
+  end
+
+  defp add_pears_to_tracks(team_name, snapshot) do
+    Enum.each(snapshot, fn match ->
+      [track_name, pear_names] = Tuple.to_list(match)
+      Enum.each(pear_names, &Persistence.add_pear_to_track(team_name, &1, track_name))
+    end)
   end
 
   defp get_or_start_session(team) do

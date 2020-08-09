@@ -46,6 +46,24 @@ defmodule Pears.PersistenceTest do
       assert {:error, changeset} = Persistence.add_pear_to_team("New Team", "Pear One")
       assert {"has already been taken", _} = changeset.errors[:name]
     end
+
+    test "add_pear_to_track/3" do
+      team_factory("New Team")
+
+      {:ok, _} = Persistence.add_pear_to_team("New Team", "Pear One")
+      {:ok, _} = Persistence.add_track_to_team("New Team", "Track One")
+      {:ok, _} = Persistence.add_pear_to_track("New Team", "Pear One", "Track One")
+
+      {:ok, team} = Persistence.get_team_by_name("New Team")
+      {:ok, track} = Persistence.find_track_by_name(team, "Track One")
+      {:ok, pear} = Persistence.find_pear_by_name(team, "Pear One")
+
+      assert pear.track.id == track.id
+
+      assert track.pears
+             |> Enum.map(& &1.id)
+             |> Enum.member?(pear.id)
+    end
   end
 
   describe "tracks" do
@@ -84,6 +102,13 @@ defmodule Pears.PersistenceTest do
 
       assert {:ok, track} = Persistence.unlock_track("New Team", "Track One")
       assert track.locked == false
+    end
+
+    test "rename_track/3" do
+      team_factory("New Team")
+      Persistence.add_track_to_team("New Team", "Track One")
+      assert {:ok, track} = Persistence.rename_track("New Team", "Track One", "New Track")
+      assert track.name == "New Track"
     end
   end
 

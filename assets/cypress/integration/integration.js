@@ -97,6 +97,10 @@ context('Actions', () => {
     cy.findTrack('Refactor Track').click()
     cy.pearIsInTrack('First Pear', 'Refactor Track')
 
+    cy.changeTrackName('Refactor Track', 'Super Important Track')
+    cy.pearIsInTrack('First Pear', 'Super Important Track')
+    cy.changeTrackName('Super Important Track', 'Refactor Track')
+
     cy.findAvailablePear('Second Pear').click()
     cy.findTrack('Refactor Track').click()
     cy.pearIsInTrack('Second Pear', 'Refactor Track')

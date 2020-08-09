@@ -267,26 +267,15 @@ defmodule Pears.Core.TeamTest do
     |> assert_pear_in_track("pear3", "track one")
   end
 
-  test "can assign pears from history" do
-    [
-      {"pear2", "pear3", "track one"},
-      {"pear1", "track two"}
-    ]
-    |> TeamBuilders.from_matches()
-    |> Team.reset_matches()
-    |> Team.assign_pears_from_history()
+  test "can rename a track", %{team: team} do
+    team
+    |> Team.add_track("track one")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear_to_track("pear1", "track one")
+    |> assert_track_exists("track one")
+    |> Team.rename_track("track one", "track two")
+    |> assert_track_exists("track two")
     |> assert_pear_in_track("pear1", "track two")
-    |> assert_pear_in_track("pear2", "track one")
-    |> assert_pear_in_track("pear3", "track one")
-    |> Team.reset_matches()
-    |> Map.put(:history, [
-      [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3"]}],
-      [{"track one", ["pear2", "pear3"]}, {"track two", ["pear1"]}]
-    ])
-    |> Team.assign_pears_from_history()
-    |> assert_pear_in_track("pear1", "track one")
-    |> assert_pear_in_track("pear2", "track one")
-    |> assert_pear_in_track("pear3", "track two")
   end
 
   defp team(_) do

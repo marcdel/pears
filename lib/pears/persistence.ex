@@ -25,11 +25,25 @@ defmodule Pears.Persistence do
     result =
       TeamRecord
       |> Repo.get_by(name: team_name)
-      |> Repo.preload([:pears, :tracks, {:snapshots, :matches}])
+      |> Repo.preload([{:pears, :track}, {:tracks, :pears}, {:snapshots, :matches}])
 
     case result do
       nil -> {:error, :not_found}
       team -> {:ok, team}
+    end
+  end
+
+  def find_track_by_name(team, track_name) do
+    case Enum.find(team.tracks, fn track -> track.name == track_name end) do
+      nil -> {:error, :track_not_found}
+      track -> {:ok, track}
+    end
+  end
+
+  def find_pear_by_name(team, pear_name) do
+    case Enum.find(team.pears, fn pear -> pear.name == pear_name end) do
+      nil -> {:error, :pear_not_found}
+      pear -> {:ok, pear}
     end
   end
 
@@ -43,9 +57,30 @@ defmodule Pears.Persistence do
   end
 
   defp add_pear(team, pear_name) do
-    %PearRecord{}
-    |> PearRecord.changeset(%{team_id: team.id, name: pear_name})
-    |> Repo.insert()
+    case %PearRecord{}
+         |> PearRecord.changeset(%{team_id: team.id, name: pear_name})
+         |> Repo.insert() do
+      {:ok, pear} -> {:ok, Repo.preload(pear, [:track])}
+      error -> error
+    end
+  end
+
+  def add_pear_to_track(team_name, pear_name, track_name) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, track} <- find_track_by_name(team, track_name),
+         {:ok, pear} <- find_pear_by_name(team, pear_name),
+         {:ok, _} <- do_add_pear_to_track(pear, track) do
+      {:ok, pear}
+    else
+      error -> error
+    end
+  end
+
+  def do_add_pear_to_track(pear, track) do
+    pear
+    |> Repo.preload(:track)
+    |> PearRecord.changeset(%{track_id: track.id})
+    |> Repo.update()
   end
 
   def add_track_to_team(team_name, track_name) do
@@ -58,9 +93,12 @@ defmodule Pears.Persistence do
   end
 
   defp add_track(team, track_name) do
-    %TrackRecord{}
-    |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})
-    |> Repo.insert()
+    case %TrackRecord{}
+         |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})
+         |> Repo.insert() do
+      {:ok, track} -> {:ok, Repo.preload(track, [:pears])}
+      error -> error
+    end
   end
 
   def lock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, true)
@@ -76,11 +114,20 @@ defmodule Pears.Persistence do
     end
   end
 
-  defp find_track_by_name(team, track_name) do
-    case Enum.find(team.tracks, fn track -> track.name == track_name end) do
-      nil -> {:error, :track_not_found}
-      track -> {:ok, track}
+  def rename_track(team_name, track_name, new_track_name) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, track} <- find_track_by_name(team, track_name),
+         {:ok, track} <- do_rename_track(track, new_track_name) do
+      {:ok, track}
+    else
+      error -> error
     end
+  end
+
+  defp do_rename_track(track, new_track_name) do
+    track
+    |> TrackRecord.changeset(%{name: new_track_name})
+    |> Repo.update()
   end
 
   defp do_toggle_track_locked(track, locked?) do

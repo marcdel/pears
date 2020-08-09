@@ -43,6 +43,9 @@ const findTrack = (trackName) => cy.get(`[data-cy="track ${trackName}"]`)
 const findLockTrackLink = (trackName) => cy.get(`[data-cy="lock-track ${trackName}"]`)
 const findUnlockTrackLink = (trackName) => cy.get(`[data-cy="unlock-track ${trackName}"]`)
 const findRemoveTrackLink = (trackName) => cy.get(`[data-cy="remove-track ${trackName}"]`)
+const findTrackNameHeader = (trackName) => cy.get(`[data-cy="edit-track-name ${trackName}"]`)
+const findEditTrackInput = (trackName) => cy.get(`[data-cy="track-name-input ${trackName}"]`)
+const findEditTrackForm = (trackName) => cy.get(`[data-cy="edit-track-name-form ${trackName}"]`)
 
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
@@ -55,6 +58,17 @@ Cypress.Commands.add('findTrack', findTrack)
 
 Cypress.Commands.add('trackExists', (trackName) => {
   return findTrack(trackName).should('visible')
+})
+
+Cypress.Commands.add('changeTrackName', (trackName, newTrackName) => {
+  findTrackNameHeader(trackName).click()
+
+  findEditTrackInput(trackName)
+    .clear()
+    .type(newTrackName)
+    .should('have.value', newTrackName)
+
+  return findEditTrackForm(trackName).submit()
 })
 
 Cypress.Commands.add('removeTrack', (trackName) => {
@@ -82,5 +96,5 @@ Cypress.Commands.add('trackDoesNotExist', (trackName) => {
 })
 
 Cypress.Commands.add('pearIsInTrack', (pearName, trackName) => {
-  return cy.contains(trackName).parent().should('contain', pearName)
+  return cy.findTrack(trackName).should('contain', pearName)
 })

@@ -44,8 +44,8 @@
         <button class="button" phx-click="recommend-pears">Recommend Pears</button>
       </article>
 
+      <h3>Tracks</h3>
       <article class="tracks">
-        <h3>Tracks</h3>
         <div class="tracks-container">
           <%= for track <- list_tracks(@team) do %>
             <div
@@ -54,33 +54,48 @@
               data-cy="<%= "track #{track.name}" %>"
               class="track <%= if track.locked, do: "locked" %>">
               <h4 class="track-name">
-                <%= if track.locked do %>
-                  <a
-                    phx-click="unlock-track"
-                    phx-value-track-name="<%= track.name %>"
-                    data-cy="<%= "unlock-track #{track.name}" %>"
-                    href="#">
-                    <img
-                      src="<%= Routes.static_path(@socket, "/images/locked.svg") %>"
-                      class="locked"
-                      alt="unlock track <%= track.name %>"
-                    />
-                  </a>
+                <span>
+                  <%= if track.locked do %>
+                    <a
+                      phx-click="unlock-track"
+                      phx-value-track-name="<%= track.name %>"
+                      data-cy="<%= "unlock-track #{track.name}" %>"
+                      href="#">
+                      <img
+                        src="<%= Routes.static_path(@socket, "/images/locked.svg") %>"
+                        class="locked"
+                        alt="unlock track <%= track.name %>"
+                      />
+                    </a>
+                  <% else %>
+                    <a
+                      phx-click="lock-track"
+                      phx-value-track-name="<%= track.name %>"
+                      data-cy="<%= "lock-track #{track.name}" %>"
+                      href="#">
+                      <img
+                        src="<%= Routes.static_path(@socket, "/images/unlocked.svg") %>"
+                        class="unlocked"
+                        alt="lock track <%= track.name %>"
+                      />
+                    </a>
+                  <% end %>
+                </span>
+
+                <%= if @editing_track == track.name do %>
+                  <form phx-submit="save-track-name" data-cy="edit-track-name-form <%= track.name %>">
+                    <input autofocus data-cy="<%= "track-name-input #{track.name}" %>" name="new-track-name" type="text" value="<%= track.name %>" />
+                  </form>
                 <% else %>
-                  <a
-                    phx-click="lock-track"
+                  <span
+                    phx-click="edit-track-name"
                     phx-value-track-name="<%= track.name %>"
-                    data-cy="<%= "lock-track #{track.name}" %>"
-                    href="#">
-                    <img
-                      src="<%= Routes.static_path(@socket, "/images/unlocked.svg") %>"
-                      class="unlocked"
-                      alt="lock track <%= track.name %>"
-                    />
-                  </a>
+                    data-cy="<%= "edit-track-name #{track.name}" %>"
+                  >
+                    <%= track.name %>
+                  </span>
                 <% end %>
 
-                <%= track.name %>
                 <a
                   phx-click="remove-track"
                   phx-value-track-name="<%= track.name %>"
@@ -103,8 +118,8 @@
             </div>
           <% end %>
         </div>
-        <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
       </article>
+      <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
     </div>
   </section>
 </div>

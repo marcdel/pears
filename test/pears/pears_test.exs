@@ -70,7 +70,12 @@ defmodule PearsTest do
              ]
            ] = team.history
 
-    {:ok, %{snapshots: [snapshot]}} = Persistence.get_team_by_name(name)
+    {:ok, %{snapshots: [snapshot], tracks: tracks}} = Persistence.get_team_by_name(name)
+
+    Enum.each(tracks, fn %{pears: pears} ->
+      assert Enum.all?(pears, fn pear -> pear.track != nil end)
+      assert Enum.any?(pears)
+    end)
 
     assert [_, _] = snapshot.matches
   end
@@ -125,6 +130,9 @@ defmodule PearsTest do
     {:ok, _} = Persistence.add_track_to_team(name, "track one")
     {:ok, _} = Persistence.add_track_to_team(name, "track two")
     {:ok, _} = Persistence.lock_track(name, "track two")
+    {:ok, _} = Persistence.add_pear_to_track(name, "pear1", "track one")
+    {:ok, _} = Persistence.add_pear_to_track(name, "pear2", "track one")
+    {:ok, _} = Persistence.add_pear_to_track(name, "pear3", "track two")
 
     snapshot = [{"track one", ["pear1", "pear2"]}, {"track two", ["pear3"]}]
     {:ok, _} = Persistence.add_snapshot_to_team(name, snapshot)
@@ -219,6 +227,22 @@ defmodule PearsTest do
     refute Enum.empty?(team.history)
     refute Enum.empty?(team.assigned_pears)
     assert Enum.empty?(team.available_pears)
+  end
+
+  test "can change the name of a track", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_track(name, "Track One")
+    Pears.add_pear_to_track(name, "Pear One", "Track One")
+    Pears.record_pears(name)
+
+    {:ok, team} = Pears.rename_track(name, "Track One", "Track Deux")
+    assert %{"Track Deux" => _} = team.tracks
+
+    Pears.Boundary.TeamManager.remove_team(name)
+    Pears.Boundary.TeamSession.end_session(name)
+    {:ok, team} = Pears.lookup_team_by(name: name)
+    assert %{"Track Deux" => _} = team.tracks
   end
 
   def name(_) do

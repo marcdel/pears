@@ -18,6 +18,8 @@ defmodule Pears.Core.Track do
   def lock_track(track), do: %{track | locked: true}
   def unlock_track(track), do: %{track | locked: false}
 
+  def rename_track(track, new_name), do: %{track | name: new_name}
+
   def incomplete?(track), do: Enum.count(track.pears) == 1
   def empty?(track), do: Enum.empty?(track.pears)
   def locked?(track), do: track.locked

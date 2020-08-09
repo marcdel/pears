@@ -57,7 +57,7 @@ defmodule TeamAssertions do
   end
 
   def track_exists?(team, track_name) do
-    Team.find_track(team, track_name)
+    Team.find_track(team, track_name) != nil
   end
 
   def track_locked?(team, track_name) do
@@ -72,6 +72,7 @@ defmodule TeamAssertions do
 
   def pear_in_track?(team, pear_name, track_name) do
     track = Team.find_track(team, track_name)
-    Track.find_pear(track, pear_name)
+    pear = Team.find_assigned_pear(team, pear_name)
+    Track.find_pear(track, pear_name) != nil && pear.track == track_name
   end
 end

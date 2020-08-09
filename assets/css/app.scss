@@ -12,7 +12,7 @@ article {
 .board {
   display: grid;
   grid-gap: 2rem;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 4fr;
   height: 90vh;
 }
 
@@ -24,6 +24,15 @@ article {
 
 .right-column {
   grid-column: 2;
+
+  article {
+    display: flex;
+    justify-content: flex-end;
+
+    button + button {
+      margin-left: 1rem;
+    }
+  }
 }
 
 .available-pears {
@@ -31,19 +40,43 @@ article {
 }
 
 .tracks-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.track + .track {
+  margin-left: 2rem;
 }
 
 .track {
+  flex-grow: 1;
+
   .track-name {
     border-bottom: 1px solid #EAEAEA;
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    a {
+      text-decoration: none;
+    }
+
+    form {
+      margin-bottom: 0;
+
+      input {
+        width: 25rem;
+        height: 3rem;
+        margin-bottom: 0;
+        font-size: 1.8rem;
+        letter-spacing: -.05rem;
+        line-height: 1.5;
+      }
+    }
   }
 
-  img.locked, img.unlocked {
+  img.locked, img.unlocked, img.edit, img.save {
     width: 2rem;
     height: 2rem;
   }
@@ -53,6 +86,7 @@ article {
   }
 
   border: 1px solid #EAEAEA;
+  border-radius: .4rem;
   margin: 1rem;
   padding: 1rem;
   height: 200px;
@@ -61,8 +95,8 @@ article {
 
 .pill.button, .pill.button:hover {
   border-radius: 500px;
-  color: var(--pill-text-color);
-  background-color: var(--pill-color);
+  color: var(--pill-color);
+  background-color: transparent;
   border-color: var(--pill-color);
 }
 

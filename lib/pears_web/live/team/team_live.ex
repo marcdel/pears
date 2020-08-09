@@ -6,7 +6,7 @@ defmodule PearsWeb.TeamLive do
     {:ok,
      socket
      |> assign_team_or_redirect(params)
-     |> assign(selected_pear: nil, selected_pear_track: nil)
+     |> assign(selected_pear: nil, selected_pear_track: nil, editing_track: nil)
      |> apply_action(socket.assigns.live_action)}
   end
 
@@ -52,6 +52,24 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  def handle_event("edit-track-name", %{"track-name" => track_name}, socket) do
+    {:noreply, assign(socket, :editing_track, track_name)}
+  end
+
+  @impl true
+  def handle_event("save-track-name", %{"new-track-name" => new_track_name}, socket) do
+    track_name = socket.assigns.editing_track
+    {:ok, team} = Pears.rename_track(team_name(socket), track_name, new_track_name)
+
+    {
+      :noreply,
+      socket
+      |> assign(team: team)
+      |> cancel_editing_track()
+    }
+  end
+
+  @impl true
   def handle_event(
         "pear-selected",
         %{"pear-name" => pear_name, "track-name" => track_name},
@@ -67,7 +85,12 @@ defmodule PearsWeb.TeamLive do
 
   @impl true
   def handle_event("unselect-pear", _params, socket) do
-    {:noreply, unselect_pear(socket)}
+    {
+      :noreply,
+      socket
+      |> unselect_pear()
+      |> cancel_editing_track()
+    }
   end
 
   @impl true
@@ -78,6 +101,7 @@ defmodule PearsWeb.TeamLive do
           :noreply,
           socket
           |> unselect_pear()
+          |> cancel_editing_track()
           |> assign(team: team)
           |> put_flash(:info, "Today's assigned pears have been recorded!")
         }
@@ -87,6 +111,7 @@ defmodule PearsWeb.TeamLive do
           :noreply,
           socket
           |> unselect_pear()
+          |> cancel_editing_track()
           |> put_flash(:error, "Sorry! Something went wrong, please try again.")
         }
     end
@@ -101,7 +126,13 @@ defmodule PearsWeb.TeamLive do
          {:ok, team} <- Pears.remove_pear_from_track(team_name, pear_name, track_name) do
       {:noreply, assign(socket, team: team, selected_pear: nil)}
     else
-      _ -> {:noreply, unselect_pear(socket)}
+      _ ->
+        {
+          :noreply,
+          socket
+          |> unselect_pear()
+          |> cancel_editing_track()
+        }
     end
   end
 
@@ -115,12 +146,15 @@ defmodule PearsWeb.TeamLive do
       {:noreply,
        socket
        |> assign(team: team)
-       |> unselect_pear()}
+       |> unselect_pear()
+       |> cancel_editing_track()}
     else
       _ ->
         {:noreply, unselect_pear(socket)}
     end
   end
+
+  defp team_name(socket), do: socket.assigns.team.name
 
   defp selected_pear(socket) do
     case socket.assigns.selected_pear do
@@ -138,6 +172,10 @@ defmodule PearsWeb.TeamLive do
 
   defp unselect_pear(socket) do
     assign(socket, selected_pear: nil, selected_pear_track: nil)
+  end
+
+  defp cancel_editing_track(socket) do
+    assign(socket, :editing_track, nil)
   end
 
   defp assign_team_or_redirect(socket, %{"id" => name}) do
