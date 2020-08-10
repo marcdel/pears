@@ -94,6 +94,13 @@ article {
   width: 400px;
 }
 
+.pill.button {
+  height: 2.8rem;
+  line-height: 2.8rem;
+  padding: 0 2rem;
+  margin: 0.5rem;
+}
+
 .pill.button, .pill.button:hover {
   border-radius: 500px;
   color: var(--pill-color);
@@ -110,28 +117,28 @@ article {
 @keyframes pulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 0 rgba(76, 131, 26, 0.7);
   }
 
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 5px rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 5px rgba(76, 131, 26, 0);
   }
 
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 0 rgba(76, 131, 26, 0);
   }
 }
 
 /* app styles */
 
 html {
-  --cta-color: #588F27;
-  --link-color: #588F27;
-  --logo-color: #588F27;
+  --cta-color: #4C831A;
+  --link-color: #4C831A;
+  --logo-color: #4C831A;
   --bg-color: #FAFAFA;
-  --pill-color: #588F27;
+  --pill-color: #4C831A;
   --pill-text-color: #FFFFFF;
   --selected-shadow: 0px 0px 5px 1px var(--pill-color);
 }
