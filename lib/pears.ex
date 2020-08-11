@@ -257,8 +257,10 @@ defmodule Pears do
 
   defp add_empty_tracks(team, count) do
     Enum.reduce(1..count, team, fn i, team ->
-      {:ok, team} = add_track(team.name, "Untitled Track #{i}")
-      team
+      case add_track(team.name, "Untitled Track #{i}") do
+        {:ok, team} -> team
+        {:error, _} -> team
+      end
     end)
   end
 

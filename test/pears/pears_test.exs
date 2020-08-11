@@ -90,6 +90,24 @@ defmodule PearsTest do
       assert Enum.empty?(team.available_pears)
       assert Map.keys(team.tracks) == ["Track One", "Track Three", "Track Two"]
     end
+
+    test "doesn't create new tracks when there is an existing track with the same name", %{
+      name: name
+    } do
+      Pears.add_team(name)
+      Pears.add_pear(name, "Pear One")
+      Pears.add_pear(name, "Pear Two")
+      Pears.add_pear(name, "Pear Three")
+      Pears.add_track(name, "Untitled Track 1")
+      Pears.recommend_pears(name)
+
+      {:ok, team} = Pears.lookup_team_by(name: name)
+
+      assert Enum.count(team.tracks) == 1
+      assert Enum.count(team.assigned_pears) == 2
+      assert Enum.count(team.available_pears) == 1
+      assert Map.keys(team.tracks) == ["Untitled Track 1"]
+    end
   end
 
   test "can record pears", %{name: name} do
