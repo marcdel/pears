@@ -250,12 +250,12 @@ defmodule Pears do
     pears_without_track = available_pears - available_slots
     number_to_add = ceil(pears_without_track / 2)
 
-    add_empty_tracks(team, number_to_add: number_to_add)
+    add_empty_tracks(team, number_to_add)
   end
 
-  defp add_empty_tracks(team, number_to_add: 0), do: team
+  defp add_empty_tracks(team, count) when count <= 0, do: team
 
-  defp add_empty_tracks(team, number_to_add: count) do
+  defp add_empty_tracks(team, count) do
     Enum.reduce(1..count, team, fn i, team ->
       {:ok, team} = add_track(team.name, "Untitled Track #{i}")
       team
