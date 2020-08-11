@@ -10,6 +10,12 @@ defmodule Pears do
   alias Pears.Core.Team
   alias Pears.Core.Recommendator
 
+  @topic inspect(__MODULE__)
+
+  def subscribe(team_name) do
+    Phoenix.PubSub.subscribe(Pears.PubSub, @topic <> "#{team_name}")
+  end
+
   def validate_name(team_name) do
     with :ok <- TeamManager.validate_name(team_name),
          {:error, :not_found} <- Persistence.get_team_by_name(team_name) do
@@ -47,7 +53,8 @@ defmodule Pears do
 
   def add_pear(team_name, pear_name) do
     with {:ok, _} <- Persistence.add_pear_to_team(team_name, pear_name),
-         {:ok, team} <- TeamSession.add_pear(team_name, pear_name) do
+         {:ok, team} <- TeamSession.add_pear(team_name, pear_name),
+         {:ok, team} <- update_subscribers(team) do
       {:ok, team}
     else
       error -> error
@@ -56,7 +63,8 @@ defmodule Pears do
 
   def add_track(team_name, track_name) do
     with {:ok, _} <- Persistence.add_track_to_team(team_name, track_name),
-         {:ok, team} <- TeamSession.add_track(team_name, track_name) do
+         {:ok, team} <- TeamSession.add_track(team_name, track_name),
+         {:ok, team} <- update_subscribers(team) do
       {:ok, team}
     else
       error -> error
@@ -64,8 +72,11 @@ defmodule Pears do
   end
 
   def remove_track(team_name, track_name) do
-    with {:ok, _} <- Persistence.remove_track_from_team(team_name, track_name),
-         {:ok, team} <- TeamSession.remove_track(team_name, track_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- validate_track_exists(team, track_name),
+         {:ok, _} <- Persistence.remove_track_from_team(team_name, track_name),
+         {:ok, team} <- TeamSession.remove_track(team_name, track_name),
+         {:ok, team} <- update_subscribers(team) do
       {:ok, team}
     else
       error -> error
@@ -77,9 +88,11 @@ defmodule Pears do
 
   def rename_track(team_name, track_name, new_track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- validate_track_exists(team, track_name),
          {:ok, _} <- Persistence.rename_track(team.name, track_name, new_track_name),
          team <- Team.rename_track(team, track_name, new_track_name),
-         {:ok, team} <- TeamSession.update_team(team_name, team) do
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
       {:ok, team}
     else
       error -> error
@@ -88,8 +101,10 @@ defmodule Pears do
 
   def toggle_track_locked(team_name, track_name, locked?) do
     with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- validate_track_exists(team, track_name),
          {:ok, team} <- lock_or_unlock_track(team, track_name, locked?),
-         {:ok, team} <- TeamSession.update_team(team_name, team) do
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
       {:ok, team}
     else
       error -> error
@@ -115,25 +130,117 @@ defmodule Pears do
   end
 
   def add_pear_to_track(team_name, pear_name, track_name) do
-    TeamSession.add_pear_to_track(team_name, pear_name, track_name)
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- validate_pear_available(team, pear_name),
+         {:ok, _} <- validate_track_exists(team, track_name),
+         team <- Team.add_pear_to_track(team, pear_name, track_name),
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  def move_pear_to_track(team_name, pear_name, nil, to_track_name) do
+    add_pear_to_track(team_name, pear_name, to_track_name)
   end
 
   def move_pear_to_track(team_name, pear_name, from_track_name, to_track_name) do
-    TeamSession.move_pear_to_track(team_name, pear_name, from_track_name, to_track_name)
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- validate_pear_on_team(team, pear_name),
+         {:ok, _} <- validate_track_exists(team, from_track_name),
+         {:ok, _} <- validate_track_exists(team, to_track_name),
+         team <- Team.move_pear_to_track(team, pear_name, from_track_name, to_track_name),
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
   end
 
   def remove_pear_from_track(team_name, pear_name, track_name) do
-    TeamSession.remove_pear_from_track(team_name, pear_name, track_name)
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _} <- validate_pear_assigned(team, pear_name),
+         {:ok, _} <- validate_track_exists(team, track_name),
+         team <- Team.remove_pear_from_track(team, pear_name, track_name),
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
   end
 
   def recommend_pears(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          team <- maybe_add_empty_tracks(team),
          team <- Recommendator.assign_pears(team),
-         {:ok, team} <- TeamSession.update_team(team_name, team) do
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
       {:ok, team}
     else
       error -> error
+    end
+  end
+
+  def reset_pears(team_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         team <- Team.reset_matches(team),
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team} <- update_subscribers(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  def record_pears(team_name) do
+    with {:ok, team} <- TeamSession.record_pears(team_name),
+         {:ok, team} <- persist_changes(team),
+         {:ok, team} <- update_subscribers(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  def lookup_team_by(name: name) do
+    with {:ok, team} <- maybe_fetch_team_from_db(name),
+         {:ok, team} <- get_or_start_session(team),
+         {:ok, team} <- update_subscribers(team) do
+      {:ok, team}
+    else
+      error -> error
+    end
+  end
+
+  defp validate_pear_available(team, pear_name) do
+    case Team.find_available_pear(team, pear_name) do
+      %{name: ^pear_name} = pear -> {:ok, pear}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  defp validate_pear_assigned(team, pear_name) do
+    case Team.find_assigned_pear(team, pear_name) do
+      %{name: ^pear_name} = pear -> {:ok, pear}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  defp validate_pear_on_team(team, pear_name) do
+    case Team.find_pear(team, pear_name) do
+      %{name: ^pear_name} = pear -> {:ok, pear}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  defp validate_track_exists(team, track_name) do
+    case Team.find_track(team, track_name) do
+      %{name: ^track_name} = track -> {:ok, track}
+      nil -> {:error, :not_found}
     end
   end
 
@@ -155,35 +262,7 @@ defmodule Pears do
     end)
   end
 
-  def reset_pears(team_name) do
-    with {:ok, team} <- TeamSession.get_team(team_name),
-         team <- Team.reset_matches(team),
-         {:ok, team} <- TeamSession.update_team(team_name, team) do
-      {:ok, team}
-    else
-      error -> error
-    end
-  end
-
-  def record_pears(team_name) do
-    with {:ok, team} <- TeamSession.record_pears(team_name),
-         {:ok, team} <- persist_changes(team) do
-      {:ok, team}
-    else
-      error -> error
-    end
-  end
-
-  def lookup_team_by(name: name) do
-    with {:ok, team} <- maybe_fetch_team_from_db(name),
-         {:ok, team} <- get_or_start_session(team) do
-      {:ok, team}
-    else
-      error -> error
-    end
-  end
-
-  def maybe_fetch_team_from_db(team_name) do
+  defp maybe_fetch_team_from_db(team_name) do
     case TeamManager.lookup_team_by_name(team_name) do
       {:ok, team} ->
         {:ok, team}
@@ -321,5 +400,15 @@ defmodule Pears do
 
   defp get_or_start_session(%{name: team_name}, session_started?: true) do
     TeamSession.get_team(team_name)
+  end
+
+  defp update_subscribers(team) do
+    Phoenix.PubSub.broadcast(
+      Pears.PubSub,
+      @topic <> "#{team.name}",
+      {__MODULE__, [:team, :updated], team}
+    )
+
+    {:ok, team}
   end
 end

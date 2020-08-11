@@ -12,6 +12,8 @@ defmodule PearsWeb.TeamLive do
 
   @impl true
   def handle_params(_params, _url, socket) do
+    if connected?(socket), do: Pears.subscribe(team_name(socket))
+
     {:noreply, apply_action(socket, socket.assigns.live_action)}
   end
 
@@ -152,6 +154,11 @@ defmodule PearsWeb.TeamLive do
       _ ->
         {:noreply, unselect_pear(socket)}
     end
+  end
+
+  @impl true
+  def handle_info({Pears, [:team, :updated], team}, socket) do
+    {:noreply, assign(socket, team: team)}
   end
 
   defp team_name(socket), do: socket.assigns.team.name

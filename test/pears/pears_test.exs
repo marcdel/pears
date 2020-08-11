@@ -21,7 +21,7 @@ defmodule PearsTest do
     Pears.add_track(name, "Track Two")
 
     Pears.add_pear_to_track(name, "Pear Three", "Track Two")
-    Pears.add_pear_to_track(name, "Pear Four", "Track Two")
+    Pears.move_pear_to_track(name, "Pear Four", nil, "Track Two")
     Pears.remove_pear_from_track(name, "Pear Four", "Track Two")
     Pears.move_pear_to_track(name, "Pear Two", "Track One", "Track Two")
 
