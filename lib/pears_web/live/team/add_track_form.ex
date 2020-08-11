@@ -20,7 +20,7 @@ defmodule PearsWeb.TeamLive.AddTrackForm do
       {:error, _} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Sorry, a Pear with the name '#{track_name}' already exists")
+         |> put_flash(:error, "Sorry, a track with the name '#{track_name}' already exists")
          |> push_redirect(to: socket.assigns.return_to)}
     end
   end
