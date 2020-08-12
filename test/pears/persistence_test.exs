@@ -28,6 +28,19 @@ defmodule Pears.PersistenceTest do
       {:ok, _} = Persistence.delete_team("New Team")
       {:error, :not_found} = Persistence.get_team_by_name("New Team")
     end
+
+    test "count_teams" do
+      {:ok, _} = Persistence.create_team("Team 1")
+      {:ok, _} = Persistence.create_team("Team 2")
+
+      count = Persistence.count_teams()
+      assert count == 2
+
+      {:ok, _} = Persistence.create_team("Team 3")
+
+      count = Persistence.count_teams()
+      assert count == 3
+    end
   end
 
   def team_factory(name) do

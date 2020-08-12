@@ -2,6 +2,8 @@ defmodule PearsWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
+  alias Pears.Boundary.Instrumentation
+
   def start_link(arg) do
     Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
   end
@@ -10,10 +12,10 @@ defmodule PearsWeb.Telemetry do
   def init(_arg) do
     children = [
       # Telemetry poller will execute the given period measurements
-      # every 10_000ms. Learn more here: https://hexdocs.pm/telemetry_metrics
-      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000}
+      # every 60_000ms, or 1 minute. Learn more here: https://hexdocs.pm/telemetry_metrics
+      {:telemetry_poller, measurements: periodic_measurements(), period: 60_000},
       # Add reporters as children of your supervision tree.
-      # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
+      {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -41,7 +43,10 @@ defmodule PearsWeb.Telemetry do
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),
       summary("vm.total_run_queue_lengths.cpu"),
-      summary("vm.total_run_queue_lengths.io")
+      summary("vm.total_run_queue_lengths.io"),
+
+      # App Metrics
+      summary("pears.teams.count")
     ]
   end
 
@@ -49,7 +54,7 @@ defmodule PearsWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {PearsWeb, :count_users, []}
+      {Instrumentation, :count_teams, []}
     ]
   end
 end

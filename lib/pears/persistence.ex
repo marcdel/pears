@@ -33,6 +33,10 @@ defmodule Pears.Persistence do
     end
   end
 
+  def count_teams do
+    Repo.aggregate(TeamRecord, :count, :id)
+  end
+
   def find_track_by_name(team, track_name) do
     case Enum.find(team.tracks, fn track -> track.name == track_name end) do
       nil -> {:error, :track_not_found}
