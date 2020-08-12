@@ -216,6 +216,13 @@ defmodule Pears do
     end
   end
 
+  def add_pears_to_tracks(team_name, snapshot) do
+    Enum.each(snapshot, fn match ->
+      [track_name, pear_names] = Tuple.to_list(match)
+      Enum.each(pear_names, &Persistence.add_pear_to_track(team_name, &1, track_name))
+    end)
+  end
+
   defp validate_pear_available(team, pear_name) do
     case Team.find_available_pear(team, pear_name) do
       %{name: ^pear_name} = pear -> {:ok, pear}
@@ -272,48 +279,6 @@ defmodule Pears do
       {:error, :not_found} ->
         fetch_team_from_db(team_name)
     end
-  end
-
-  def import_history_from_parrit_json(team_name, json) do
-    grouped_by_date =
-      json
-      |> Jason.decode!()
-      |> Enum.group_by(fn match_json ->
-        Map.get(match_json, "pairingTime")
-      end)
-
-    history =
-      grouped_by_date
-      |> Map.keys()
-      |> Enum.sort(:desc)
-      |> Enum.map(fn date ->
-        snapshot =
-          grouped_by_date
-          |> Map.get(date)
-          |> Enum.map(fn match_json ->
-            track_name = Map.get(match_json, "pairingBoardName")
-
-            pear_names =
-              match_json
-              |> Map.get("people")
-              |> Enum.map(&Map.get(&1, "name"))
-
-            {track_name, pear_names}
-          end)
-
-        {:ok, _} = Persistence.add_snapshot_to_team(team_name, snapshot)
-
-        snapshot
-      end)
-
-    add_pears_to_tracks(team_name, List.first(history))
-
-    TeamManager.remove_team(team_name)
-    TeamSession.end_session(team_name)
-
-    {:ok, team} = lookup_team_by(name: team_name)
-
-    team
   end
 
   defp fetch_team_from_db(team_name) do
@@ -383,13 +348,6 @@ defmodule Pears do
     else
       error -> error
     end
-  end
-
-  defp add_pears_to_tracks(team_name, snapshot) do
-    Enum.each(snapshot, fn match ->
-      [track_name, pear_names] = Tuple.to_list(match)
-      Enum.each(pear_names, &Persistence.add_pear_to_track(team_name, &1, track_name))
-    end)
   end
 
   defp get_or_start_session(team) do
