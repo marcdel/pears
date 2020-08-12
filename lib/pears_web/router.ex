@@ -1,9 +1,6 @@
 defmodule PearsWeb.Router do
   use PearsWeb, :router
 
-  import Plug.BasicAuth
-  import Phoenix.LiveDashboard.Router
-
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -13,14 +10,15 @@ defmodule PearsWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :admins_only do
-    if Mix.env() in [:test, :e2e] do
-      plug :basic_auth, username: "admin", password: "password"
-    else
-      admin_user = Map.fetch!(System.get_env(), "ADMIN_USER")
-      admin_password = Map.fetch!(System.get_env(), "ADMIN_PASSWORD")
+  import Plug.BasicAuth
 
-      plug :basic_auth, username: admin_user, password: admin_password
+  pipeline :admins_only do
+    if Mix.env() in [:dev, :prod, :e2e] do
+      plug :basic_auth,
+        username: Map.fetch!(System.get_env(), "ADMIN_USER"),
+        password: Map.fetch!(System.get_env(), "ADMIN_PASSWORD")
+    else
+      plug :basic_auth, username: "admin", password: "admin"
     end
   end
 
@@ -53,6 +51,8 @@ defmodule PearsWeb.Router do
   # If your application does not have an admins-only section yet,
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
+  import Phoenix.LiveDashboard.Router
+
   scope "/" do
     pipe_through [:browser, :admins_only]
     live_dashboard "/dashboard"
