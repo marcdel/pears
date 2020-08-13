@@ -30,7 +30,7 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def end_session(name) do
-    GenServer.stop(via(name))
+    if session_started?(name), do: GenServer.stop(via(name))
   end
 
   def session_started?(name) do

@@ -233,6 +233,11 @@ defmodule PearsTest do
     {:error, _} = Pears.lookup_team_by(name: name)
   end
 
+  test "removing a team that doesn't exist does nothing", %{name: name} do
+    {:ok, _} = Pears.remove_team(name)
+    {:error, _} = Pears.lookup_team_by(name: name)
+  end
+
   test "adding a pear to the team adds it to the database", %{name: name} do
     {:ok, _} = Pears.add_team(name)
 

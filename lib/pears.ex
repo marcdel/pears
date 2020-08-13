@@ -41,14 +41,9 @@ defmodule Pears do
   end
 
   def remove_team(name) do
-    case Persistence.delete_team(name) do
-      {:ok, _} ->
-        TeamSession.end_session(name)
-        TeamManager.remove_team(name)
-
-      error ->
-        error
-    end
+    Persistence.delete_team(name)
+    TeamSession.end_session(name)
+    TeamManager.remove_team(name)
   end
 
   def add_pear(team_name, pear_name) do
