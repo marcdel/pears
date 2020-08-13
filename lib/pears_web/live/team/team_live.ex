@@ -1,15 +1,15 @@
 defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
 
-  alias Pears.Boundary.Instrumentation
-
   @impl true
   def mount(params, _session, socket) do
-    {:ok,
-     socket
-     |> assign_team_or_redirect(params)
-     |> assign(selected_pear: nil, selected_pear_track: nil, editing_track: nil)
-     |> apply_action(socket.assigns.live_action)}
+    {
+      :ok,
+      socket
+      |> assign_team_or_redirect(params)
+      |> assign(selected_pear: nil, selected_pear_track: nil, editing_track: nil)
+      |> apply_action(socket.assigns.live_action)
+    }
   end
 
   @impl true
@@ -128,7 +128,13 @@ defmodule PearsWeb.TeamLive do
     with {:ok, pear_name} <- selected_pear(socket),
          {:ok, track_name} <- selected_track(socket),
          {:ok, team} <- Pears.remove_pear_from_track(team_name, pear_name, track_name) do
-      {:noreply, assign(socket, team: team, selected_pear: nil)}
+      {
+        :noreply,
+        socket
+        |> unselect_pear()
+        |> cancel_editing_track()
+        |> assign(team: team)
+      }
     else
       _ ->
         {
@@ -193,8 +199,6 @@ defmodule PearsWeb.TeamLive do
         assign(socket, :team, team)
 
       {:error, :not_found} ->
-        Instrumentation.team_not_found(name)
-
         socket
         |> push_redirect(to: Routes.page_path(socket, :index))
         |> put_flash(:error, "Sorry, that team was not found")
