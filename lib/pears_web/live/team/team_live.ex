@@ -1,6 +1,8 @@
 defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
 
+  alias Pears.Boundary.Instrumentation
+
   @impl true
   def mount(params, _session, socket) do
     {:ok,
@@ -191,6 +193,8 @@ defmodule PearsWeb.TeamLive do
         assign(socket, :team, team)
 
       {:error, :not_found} ->
+        Instrumentation.team_not_found(name)
+
         socket
         |> push_redirect(to: Routes.page_path(socket, :index))
         |> put_flash(:error, "Sorry, that team was not found")

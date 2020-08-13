@@ -27,7 +27,8 @@ defmodule PearsWeb.Telemetry do
 
   defp app_metrics do
     [
-      summary("pears.teams.count")
+      summary("pears.teams.count"),
+      counter("pears.team.not_found.count")
     ]
   end
 
