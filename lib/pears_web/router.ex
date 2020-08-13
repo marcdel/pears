@@ -55,6 +55,6 @@ defmodule PearsWeb.Router do
 
   scope "/" do
     pipe_through [:browser, :admins_only]
-    live_dashboard "/dashboard"
+    live_dashboard "/dashboard", metrics: PearsWeb.Telemetry
   end
 end
