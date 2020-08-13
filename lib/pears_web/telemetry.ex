@@ -28,16 +28,25 @@ defmodule PearsWeb.Telemetry do
   defp app_metrics do
     [
       summary("pears.teams.count"),
-      counter("pears.team.not_found.count")
+      summary(
+        "pears.team.lookup_by_name.stop.duration",
+        unit: {:native, :millisecond}
+      ),
+      summary(
+        "pears.team.add_pear_to_track.stop.duration",
+        unit: {:native, :millisecond}
+      )
     ]
   end
 
   defp phoenix_metrics do
     [
-      summary("phoenix.endpoint.stop.duration",
+      summary(
+        "phoenix.endpoint.stop.duration",
         unit: {:native, :millisecond}
       ),
-      summary("phoenix.router_dispatch.stop.duration",
+      summary(
+        "phoenix.router_dispatch.stop.duration",
         tags: [:route],
         unit: {:native, :millisecond}
       )

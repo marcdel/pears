@@ -5,7 +5,9 @@ defmodule Pears do
   been assigned to a track.
   """
 
-  alias Pears.Boundary.{TeamManager, TeamSession}
+  alias Pears.Boundary.Instrumentation
+  alias Pears.Boundary.TeamManager
+  alias Pears.Boundary.TeamSession
   alias Pears.Persistence
   alias Pears.Core.Team
   alias Pears.Core.Recommendator
@@ -125,16 +127,18 @@ defmodule Pears do
   end
 
   def add_pear_to_track(team_name, pear_name, track_name) do
-    with {:ok, team} <- TeamSession.get_team(team_name),
-         {:ok, _} <- validate_pear_available(team, pear_name),
-         {:ok, _} <- validate_track_exists(team, track_name),
-         team <- Team.add_pear_to_track(team, pear_name, track_name),
-         {:ok, team} <- TeamSession.update_team(team_name, team),
-         {:ok, team} <- update_subscribers(team) do
-      {:ok, team}
-    else
-      error -> error
-    end
+    Instrumentation.add_pear_to_track(team_name, pear_name, track_name, fn ->
+      with {:ok, team} <- TeamSession.get_team(team_name),
+           {:ok, _} <- validate_pear_available(team, pear_name),
+           {:ok, _} <- validate_track_exists(team, track_name),
+           team <- Team.add_pear_to_track(team, pear_name, track_name),
+           {:ok, team} <- TeamSession.update_team(team_name, team),
+           {:ok, team} <- update_subscribers(team) do
+        {:ok, team}
+      else
+        error -> error
+      end
+    end)
   end
 
   def move_pear_to_track(team_name, pear_name, nil, to_track_name) do
@@ -202,13 +206,16 @@ defmodule Pears do
   end
 
   def lookup_team_by(name: name) do
-    with {:ok, team} <- maybe_fetch_team_from_db(name),
-         {:ok, team} <- get_or_start_session(team),
-         {:ok, team} <- update_subscribers(team) do
-      {:ok, team}
-    else
-      error -> error
-    end
+    Instrumentation.lookup_team_by_name(
+      name,
+      fn ->
+        with {:ok, team} <- maybe_fetch_team_from_db(name),
+             {:ok, team} <- get_or_start_session(team),
+             {:ok, team} <- update_subscribers(team) do
+          {:ok, team}
+        end
+      end
+    )
   end
 
   def add_pears_to_tracks(team_name, snapshot) do
