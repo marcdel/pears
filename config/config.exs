@@ -26,6 +26,18 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Telemetry
+config :opentelemetry,
+       :processors,
+       ot_batch_processor: %{
+         exporter:
+           {:opentelemetry_zipkin,
+            %{
+              address: 'http://localhost:9411/api/v2/spans',
+              local_endpoint: %{service_name: "pears"}
+            }}
+       }
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

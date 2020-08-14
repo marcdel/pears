@@ -1,4 +1,7 @@
 defmodule Pears.Boundary.Instrumentation do
+  require OpenTelemetry.Span
+  require OpenTelemetry.Tracer
+
   alias Pears.Persistence
 
   def count_teams do
@@ -6,31 +9,33 @@ defmodule Pears.Boundary.Instrumentation do
     :telemetry.execute([:pears, :teams], %{count: count})
   end
 
-  def lookup_team_by_name(name, callback) do
-    start_metadata = %{team_name: name}
-    event_name = [:pears, :team, :lookup_by_name]
+  def lookup_team_by_name(team_name, callback) do
+    OpenTelemetry.Tracer.with_span "lookup_team_by_name" do
+      OpenTelemetry.Span.set_attributes(team_name: team_name)
 
-    :telemetry.span(
-      event_name,
-      start_metadata,
-      fn ->
-        result = callback.()
-        {result, Map.merge(start_metadata, %{result: result})}
-      end
-    )
+      call(callback)
+    end
   end
 
   def add_pear_to_track(team_name, pear_name, track_name, callback) do
-    start_metadata = %{team_name: team_name, pear_name: pear_name, track_name: track_name}
-    event_name = [:pears, :team, :add_pear_to_track]
+    OpenTelemetry.Tracer.with_span "add_pear_to_track" do
+      OpenTelemetry.Span.set_attributes([
+        {"team_name", team_name},
+        {"pear_name", pear_name},
+        {"track_name", track_name}
+      ])
 
-    :telemetry.span(
-      event_name,
-      start_metadata,
-      fn ->
-        updated_team = callback.()
-        {updated_team, Map.merge(start_metadata, %{updated_team: updated_team})}
-      end
-    )
+      call(callback)
+    end
+  end
+
+  defp call(callback) do
+    span_ctx = OpenTelemetry.Tracer.current_span_ctx()
+
+    result = callback.(span_ctx)
+
+    OpenTelemetry.Span.set_attributes([{"result", inspect(result)}])
+
+    result
   end
 end

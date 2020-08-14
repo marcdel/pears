@@ -6,6 +6,8 @@ defmodule Pears.Application do
   use Application
 
   def start(_type, _args) do
+    OpenTelemetry.register_application_tracer(:pears)
+
     children = [
       # Start the Ecto repository
       Pears.Repo,

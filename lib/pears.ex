@@ -42,6 +42,16 @@ defmodule Pears do
     end
   end
 
+  def lookup_team_by(name: name) do
+    Instrumentation.lookup_team_by_name(name, fn _ ->
+      with {:ok, team} <- maybe_fetch_team_from_db(name),
+           {:ok, team} <- get_or_start_session(team),
+           {:ok, team} <- update_subscribers(team) do
+        {:ok, team}
+      end
+    end)
+  end
+
   def remove_team(name) do
     Persistence.delete_team(name)
     TeamSession.end_session(name)
@@ -127,7 +137,7 @@ defmodule Pears do
   end
 
   def add_pear_to_track(team_name, pear_name, track_name) do
-    Instrumentation.add_pear_to_track(team_name, pear_name, track_name, fn ->
+    Instrumentation.add_pear_to_track(team_name, pear_name, track_name, fn _ ->
       with {:ok, team} <- TeamSession.get_team(team_name),
            {:ok, _} <- validate_pear_available(team, pear_name),
            {:ok, _} <- validate_track_exists(team, track_name),
@@ -203,19 +213,6 @@ defmodule Pears do
     else
       error -> error
     end
-  end
-
-  def lookup_team_by(name: name) do
-    Instrumentation.lookup_team_by_name(
-      name,
-      fn ->
-        with {:ok, team} <- maybe_fetch_team_from_db(name),
-             {:ok, team} <- get_or_start_session(team),
-             {:ok, team} <- update_subscribers(team) do
-          {:ok, team}
-        end
-      end
-    )
   end
 
   def add_pears_to_tracks(team_name, snapshot) do

@@ -20,7 +20,7 @@ defmodule Pears.MixProject do
   def application do
     [
       mod: {Pears.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon]
+      extra_applications: [:logger, :runtime_tools, :os_mon, :opentelemetry]
     ]
   end
 
@@ -47,7 +47,9 @@ defmodule Pears.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:opentelemetry_api, "~> 0.3.2"},
+      {:opentelemetry_zipkin, "~> 0.3.0"}
     ]
   end
 
