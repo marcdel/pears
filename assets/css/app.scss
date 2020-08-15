@@ -112,6 +112,9 @@ article {
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
   transform: scale(1);
   animation: pulse 2s infinite;
+  color: var(--pill-text-color);
+  background-color: var(--pill-color);
+  border-color: var(--pill-color);
 }
 
 @keyframes pulse {
