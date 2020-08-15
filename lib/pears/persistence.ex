@@ -25,7 +25,12 @@ defmodule Pears.Persistence do
     result =
       TeamRecord
       |> Repo.get_by(name: team_name)
-      |> Repo.preload([{:pears, :track}, {:tracks, :pears}, {:snapshots, :matches}])
+      |> Repo.preload([
+        {:pears, :track},
+        {:tracks, :pears},
+        {:snapshots, :matches},
+        snapshots: from(s in SnapshotRecord, order_by: [desc: s.inserted_at])
+      ])
 
     case result do
       nil -> {:error, :not_found}
