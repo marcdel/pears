@@ -5,6 +5,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto|Titan+One');
 
 /* Team Page styles */
+
 article {
   padding: 1rem;
 }
@@ -52,6 +53,10 @@ article {
 
 .track {
   flex-grow: 1;
+
+  &:hover {
+    background-color: var(--track-hover);
+  }
 
   .track-name {
     border-bottom: 1px solid #EAEAEA;
@@ -109,29 +114,9 @@ article {
 }
 
 .pill.button:hover, .pill.selected {
-  box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
-  transform: scale(1);
-  animation: pulse 2s infinite;
   color: var(--pill-text-color);
   background-color: var(--pill-color);
   border-color: var(--pill-color);
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(76, 131, 26, 0.7);
-  }
-
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 5px rgba(76, 131, 26, 0);
-  }
-
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(76, 131, 26, 0);
-  }
 }
 
 /* app styles */
@@ -142,7 +127,8 @@ html {
   --logo-color: #4C831A;
   --bg-color: #FAFAFA;
   --pill-color: #4C831A;
-  --pill-text-color: #FFFFFF;
+  --track-hover: #E7F7D8;
+  --pill-text-color: #FFFFFF; // lighten(#4C831A, 60%)
   --selected-shadow: 0px 0px 5px 1px var(--pill-color);
 }
 
