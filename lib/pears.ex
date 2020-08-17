@@ -184,6 +184,7 @@ defmodule Pears do
 
   def recommend_pears(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, team} <- load_history(team),
          team <- maybe_add_empty_tracks(team),
          team <- Recommendator.assign_pears(team),
          {:ok, team} <- TeamSession.update_team(team_name, team),
@@ -287,6 +288,13 @@ defmodule Pears do
     |> add_tracks(team_record)
     |> assign_pears(team_record)
     |> add_history(team_record)
+  end
+
+  defp load_history(team) do
+    with {:ok, team_record} <- Persistence.get_team_by_name(team.name),
+         team <- add_history(team, team_record) do
+      {:ok, team}
+    end
   end
 
   defp add_pears(team, team_record) do

@@ -3,15 +3,25 @@ defmodule Pears.O11y.Team do
 
   def add_pear(team, pear_name, callback) do
     event_name = [:pears, :team, :add_pear]
-    metadata = %{team_name: team.name, pear_name: pear_name}
+    metadata = %{pear_name: pear_name}
 
-    Tracer.trace(event_name, metadata, callback)
+    Tracer.trace_team_event(
+      event_name: event_name,
+      metadata: metadata,
+      team: team,
+      callback: callback
+    )
   end
 
   def add_pear_to_track(team, pear_name, track_name, callback) do
     event_name = [:pears, :team, :add_pear_to_track]
-    metadata = %{team_name: team.name, pear_name: pear_name, track_name: track_name}
+    metadata = %{pear_name: pear_name, track_name: track_name}
 
-    Tracer.trace(event_name, metadata, callback)
+    Tracer.trace_team_event(
+      event_name: event_name,
+      metadata: metadata,
+      team: team,
+      callback: callback
+    )
   end
 end

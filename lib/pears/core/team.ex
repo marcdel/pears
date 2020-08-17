@@ -184,8 +184,8 @@ defmodule Pears.Core.Team do
 
   def current_matches(team) do
     team.tracks
-    |> Enum.map(fn {_, track} ->
-      {track.name, Enum.map(track.pears, fn {name, _} -> name end)}
+    |> Enum.map(fn {track_name, track} ->
+      {track_name, Enum.map(track.pears, fn {name, _} -> name end)}
     end)
   end
 
