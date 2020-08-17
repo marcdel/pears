@@ -24,6 +24,13 @@ config :pears, PearsWeb.Endpoint,
   secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE"),
   server: true
 
+config :logger,
+  backends: [Timber.LoggerBackends.HTTP]
+
+config :timber,
+  api_key: Map.fetch!(System.get_env(), "TIMBER_KEY"),
+  source_id: Map.fetch!(System.get_env(), "TIMBER_SOURCE_ID")
+
 # ## Using releases (Elixir v1.9+)
 #
 # If you are doing OTP releases, you need to instruct Phoenix

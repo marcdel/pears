@@ -48,6 +48,7 @@ defmodule Pears.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:timber, "~> 3.0"},
       {:opentelemetry_api, "~> 0.3.2"},
       {:opentelemetry_zipkin, "~> 0.3.0"}
     ]
