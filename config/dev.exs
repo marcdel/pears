@@ -74,3 +74,15 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Telemetry
+config :opentelemetry,
+       :processors,
+       ot_batch_processor: %{
+         exporter:
+           {:opentelemetry_zipkin,
+           %{
+             address: 'http://localhost:9411/api/v2/spans',
+             local_endpoint: %{service_name: "pears"}
+           }}
+       }
