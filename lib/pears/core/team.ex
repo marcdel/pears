@@ -6,7 +6,9 @@ defmodule Pears.Core.Team do
             tracks: %{},
             history: []
 
-  alias Pears.Core.{Pear, Track}
+  alias Pears.O11y.Team, as: O11y
+  alias Pears.Core.Pear
+  alias Pears.Core.Track
 
   def new(fields) do
     team = struct!(__MODULE__, fields)
@@ -14,8 +16,10 @@ defmodule Pears.Core.Team do
   end
 
   def add_pear(team, pear_name) do
-    pear = Pear.new(name: pear_name)
-    Map.put(team, :available_pears, Map.put(team.available_pears, pear_name, pear))
+    O11y.add_pear(team, pear_name, fn ->
+      pear = Pear.new(name: pear_name)
+      Map.put(team, :available_pears, Map.put(team.available_pears, pear_name, pear))
+    end)
   end
 
   def remove_pear(team, pear_name) do
@@ -72,19 +76,23 @@ defmodule Pears.Core.Team do
   end
 
   def add_pear_to_track(team, pear_name, track_name) do
-    track = find_track(team, track_name)
-    pear = find_available_pear(team, pear_name)
+    O11y.add_pear_to_track(team, pear_name, track_name, fn ->
+      track = find_track(team, track_name)
+      pear = find_available_pear(team, pear_name)
 
-    updated_tracks = Map.put(team.tracks, track_name, Track.add_pear(track, pear))
-    updated_available_pears = Map.delete(team.available_pears, pear_name)
-    updated_assigned_pears = Map.put(team.assigned_pears, pear_name, Pear.add_track(pear, track))
+      updated_tracks = Map.put(team.tracks, track_name, Track.add_pear(track, pear))
+      updated_available_pears = Map.delete(team.available_pears, pear_name)
 
-    %{
-      team
-      | tracks: updated_tracks,
-        available_pears: updated_available_pears,
-        assigned_pears: updated_assigned_pears
-    }
+      updated_assigned_pears =
+        Map.put(team.assigned_pears, pear_name, Pear.add_track(pear, track))
+
+      %{
+        team
+        | tracks: updated_tracks,
+          available_pears: updated_available_pears,
+          assigned_pears: updated_assigned_pears
+      }
+    end)
   end
 
   def move_pear_to_track(team, pear_name, from_track_name, to_track_name) do
@@ -220,6 +228,15 @@ defmodule Pears.Core.Team do
   def find_empty_track(team) do
     {_, track} = Enum.find(team.tracks, {nil, nil}, fn {_name, track} -> Track.empty?(track) end)
     track
+  end
+
+  def metadata(team) do
+    %{
+      team_name: team.name,
+      available_pears: Map.keys(team.available_pears),
+      current_matches: current_matches(team),
+      recent_history: Enum.take(team.history, 5)
+    }
   end
 
   defp next_track_id(team), do: Enum.count(team.tracks) + 1

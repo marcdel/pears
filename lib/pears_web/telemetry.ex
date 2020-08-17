@@ -11,9 +11,9 @@ defmodule PearsWeb.Telemetry do
     children = [
       # Telemetry poller will execute the given period measurements
       # every 60_000ms, or 1 minute. Learn more here: https://hexdocs.pm/telemetry_metrics
-      {:telemetry_poller, measurements: periodic_measurements(), period: 60_000}
+      {:telemetry_poller, measurements: periodic_measurements(), period: 60_000},
       # Add reporters as children of your supervision tree.
-      # {Telemetry.Metrics.ConsoleReporter, metrics: app_metrics()}
+      {Telemetry.Metrics.ConsoleReporter, metrics: app_metrics()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -24,7 +24,17 @@ defmodule PearsWeb.Telemetry do
   end
 
   defp app_metrics do
-    []
+    [
+      summary("pears.team.add_pear.start.system_time", unit: {:native, :millisecond}),
+      summary("pears.team.add_pear.stop.duration", unit: {:native, :millisecond}),
+      summary("pears.team.add_pear.exception.duration", unit: {:native, :millisecond}),
+      summary("pears.team.add_pear_to_track.start.system_time", unit: {:native, :millisecond}),
+      summary("pears.team.add_pear_to_track.stop.duration", unit: {:native, :millisecond}),
+      summary("pears.team.add_pear_to_track.exception.duration", unit: {:native, :millisecond}),
+      summary("pears.recommendator.assign_pears.start.system_time", unit: {:native, :millisecond}),
+      summary("pears.recommendator.assign_pears.stop.duration", unit: {:native, :millisecond}),
+      summary("pears.recommendator.assign_pears.exception.duration", unit: {:native, :millisecond})
+    ]
   end
 
   defp phoenix_metrics do

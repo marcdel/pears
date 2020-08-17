@@ -271,22 +271,13 @@ defmodule Pears do
   end
 
   defp maybe_fetch_team_from_db(team_name) do
-    case TeamManager.lookup_team_by_name(team_name) do
-      {:ok, team} ->
-        {:ok, team}
-
-      {:error, :not_found} ->
-        fetch_team_from_db(team_name)
-    end
-  end
-
-  defp fetch_team_from_db(team_name) do
-    case Persistence.get_team_by_name(team_name) do
-      {:ok, team_record} ->
-        {:ok, map_to_team(team_record)}
-
-      error ->
-        error
+    with {:error, :not_found} <- TeamManager.lookup_team_by_name(team_name),
+         {:ok, team_record} <- Persistence.get_team_by_name(team_name),
+         team <- map_to_team(team_record) do
+      {:ok, team}
+    else
+      {:ok, team} -> {:ok, team}
+      error -> error
     end
   end
 
