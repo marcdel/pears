@@ -47,11 +47,6 @@ article {
 }
 
 .track {
-  flex-grow: 1;
-  height: 20rem;
-  max-width: 50rem;
-  min-width: 30rem;
-
   &:hover {
     background-color: var(--track-hover);
   }
@@ -93,8 +88,8 @@ article {
   border-radius: .4rem;
   margin: 1rem;
   padding: 1rem;
-  height: 200px;
-  width: 400px;
+  height: 20rem;
+  width: 40rem;
 }
 
 .pill.button {
