@@ -25,6 +25,23 @@ defmodule Pears.O11y.Team do
     )
   end
 
+  def move_pear_to_track(team, pear_name, from_track_name, to_track_name, callback) do
+    event_name = [:pears, :team, :move_pear_to_track]
+
+    metadata = %{
+      pear_name: pear_name,
+      from_track_name: from_track_name,
+      to_track_name: to_track_name
+    }
+
+    Tracer.trace_team_event(
+      event_name: event_name,
+      metadata: metadata,
+      team: team,
+      callback: callback
+    )
+  end
+
   def remove_pear_from_track(team, pear_name, track_name, callback) do
     event_name = [:pears, :team, :remove_pear_from_track]
     metadata = %{pear_name: pear_name, track_name: track_name}

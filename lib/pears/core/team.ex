@@ -96,9 +96,11 @@ defmodule Pears.Core.Team do
   end
 
   def move_pear_to_track(team, pear_name, from_track_name, to_track_name) do
-    team
-    |> remove_pear_from_track(pear_name, from_track_name)
-    |> add_pear_to_track(pear_name, to_track_name)
+    O11y.move_pear_to_track(team, pear_name, from_track_name, to_track_name, fn ->
+      team
+      |> remove_pear_from_track(pear_name, from_track_name)
+      |> add_pear_to_track(pear_name, to_track_name)
+    end)
   end
 
   def remove_pear_from_track(team, pear_name, track_name) do
