@@ -24,7 +24,7 @@ defmodule Pears.O11y.Tracer do
     metadata = Keyword.get(opts, :metadata, %{})
     callback = Keyword.fetch!(opts, :callback)
 
-    start_metadata = Map.merge(metadata, %{team_after: Team.metadata(team)})
+    start_metadata = Map.merge(metadata, %{team_before: Team.metadata(team)})
 
     wrapped_callback = fn ->
       updated_team = callback.()
