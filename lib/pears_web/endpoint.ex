@@ -50,5 +50,10 @@ defmodule PearsWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  # Timber logging
+  plug(Timber.Plug.HTTPContext)
+  plug(Timber.Plug.Event)
+
   plug PearsWeb.Router
 end

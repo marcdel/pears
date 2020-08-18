@@ -49,6 +49,9 @@ defmodule Pears.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:timber, "~> 3.0"},
+      {:timber_ecto, "~> 2.0"},
+      {:timber_plug, "~> 1.0"},
+      {:timber_exceptions, "~> 2.0"},
       {:opentelemetry_api, "~> 0.3.2"},
       {:opentelemetry_zipkin, "~> 0.3.0"}
     ]
