@@ -44,15 +44,13 @@ article {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.track + .track {
-  margin-left: 2rem;
 }
 
 .track {
   flex-grow: 1;
+  height: 20rem;
+  max-width: 50rem;
+  min-width: 30rem;
 
   &:hover {
     background-color: var(--track-hover);
