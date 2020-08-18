@@ -102,19 +102,21 @@ defmodule Pears.Core.Team do
   end
 
   def remove_pear_from_track(team, pear_name, track_name) do
-    track = find_track(team, track_name)
-    pear = find_assigned_pear(team, pear_name)
+    O11y.remove_pear_from_track(team, pear_name, track_name, fn ->
+      track = find_track(team, track_name)
+      pear = find_assigned_pear(team, pear_name)
 
-    updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
-    updated_available_pears = Map.put(team.available_pears, pear_name, Pear.remove_track(pear))
-    updated_assigned_pears = Map.delete(team.assigned_pears, pear_name)
+      updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
+      updated_available_pears = Map.put(team.available_pears, pear_name, Pear.remove_track(pear))
+      updated_assigned_pears = Map.delete(team.assigned_pears, pear_name)
 
-    %{
-      team
-      | tracks: updated_tracks,
-        available_pears: updated_available_pears,
-        assigned_pears: updated_assigned_pears
-    }
+      %{
+        team
+        | tracks: updated_tracks,
+          available_pears: updated_available_pears,
+          assigned_pears: updated_assigned_pears
+      }
+    end)
   end
 
   def record_pears(team) do
