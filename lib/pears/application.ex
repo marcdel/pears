@@ -40,12 +40,13 @@ defmodule Pears.Application do
   end
 
   defp attach_timber_events do
-    :ok = :telemetry.attach(
-      "timber-ecto-query-handler",
-      [:pears, :repo, :query],
-      &Timber.Ecto.handle_event/4,
-      []
-    )
+    :ok =
+      :telemetry.attach(
+        "timber-ecto-query-handler",
+        [:pears, :repo, :query],
+        &Timber.Ecto.handle_event/4,
+        []
+      )
 
     :ok = Logger.add_translator({Timber.Exceptions.Translator, :translate})
   end
