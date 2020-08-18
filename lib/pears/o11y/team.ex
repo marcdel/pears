@@ -24,4 +24,14 @@ defmodule Pears.O11y.Team do
       callback: callback
     )
   end
+
+  def record_pears(team, callback) do
+    event_name = [:pears, :team, :record_pears]
+
+    Tracer.trace_team_event(
+      event_name: event_name,
+      team: team,
+      callback: callback
+    )
+  end
 end

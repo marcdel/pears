@@ -118,11 +118,13 @@ defmodule Pears.Core.Team do
   end
 
   def record_pears(team) do
-    if any_pears_assigned?(team) do
-      %{team | history: [current_matches(team)] ++ team.history}
-    else
-      team
-    end
+    O11y.record_pears(team, fn ->
+      if any_pears_assigned?(team) do
+        %{team | history: [current_matches(team)] ++ team.history}
+      else
+        team
+      end
+    end)
   end
 
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
