@@ -26,30 +26,42 @@ defmodule PearsWeb.Telemetry do
 
   defp app_metrics do
     [
-      summary("pears.team.add_pear.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_pear.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_track.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.remove_track.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.remove_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.rename_track.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.rename_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_pear_to_track.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.move_pear_to_track.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.move_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.remove_pear_from_track.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.remove_pear_from_track.exception.duration",
-        unit: {:native, :millisecond}
-      ),
-      summary("pears.team.record_pears.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.record_pears.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.potential_matches.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.team.potential_matches.exception.duration", unit: {:native, :millisecond}),
-    ] ++ [
-      summary("pears.recommendator.assign_pears.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.recommendator.assign_pears.exception.duration", unit: {:native, :millisecond})
-    ]
+      summary("pears.ui.recommend_pears.start.duration", unit: {:native, :millisecond}),
+      summary("pears.ui.recommend_pears.stop.duration", unit: {:native, :millisecond}),
+      summary("pears.ui.recommend_pears.exception.duration", unit: {:native, :millisecond})
+    ] ++
+      [
+        summary("pears.recommend_pears.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.recommend_pears.exception.duration", unit: {:native, :millisecond})
+      ] ++
+      [
+        summary("pears.team.add_pear.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.add_pear.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.add_track.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.add_track.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.remove_track.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.remove_track.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.rename_track.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.rename_track.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.add_pear_to_track.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.add_pear_to_track.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.move_pear_to_track.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.move_pear_to_track.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.remove_pear_from_track.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.remove_pear_from_track.exception.duration",
+          unit: {:native, :millisecond}
+        ),
+        summary("pears.team.record_pears.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.record_pears.exception.duration", unit: {:native, :millisecond}),
+        summary("pears.team.potential_matches.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.team.potential_matches.exception.duration", unit: {:native, :millisecond})
+      ] ++
+      [
+        summary("pears.recommendator.assign_pears.stop.duration", unit: {:native, :millisecond}),
+        summary("pears.recommendator.assign_pears.exception.duration",
+          unit: {:native, :millisecond}
+        )
+      ]
   end
 
   defp phoenix_metrics do

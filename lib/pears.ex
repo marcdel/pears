@@ -8,9 +8,10 @@ defmodule Pears do
   alias Pears.Boundary.Instrumentation
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
-  alias Pears.Persistence
   alias Pears.Core.Team
   alias Pears.Core.Recommendator
+  alias Pears.O11y
+  alias Pears.Persistence
 
   @topic inspect(__MODULE__)
 
@@ -183,16 +184,18 @@ defmodule Pears do
   end
 
   def recommend_pears(team_name) do
-    with {:ok, team} <- TeamSession.get_team(team_name),
-         {:ok, team} <- load_history(team),
-         team <- maybe_add_empty_tracks(team),
-         team <- Recommendator.assign_pears(team),
-         {:ok, team} <- TeamSession.update_team(team_name, team),
-         {:ok, team} <- update_subscribers(team) do
-      {:ok, team}
-    else
-      error -> error
-    end
+    O11y.recommend_pears(team_name, fn ->
+      with {:ok, team} <- TeamSession.get_team(team_name),
+           {:ok, team} <- load_history(team),
+           team <- maybe_add_empty_tracks(team),
+           team <- Recommendator.assign_pears(team),
+           {:ok, team} <- TeamSession.update_team(team_name, team),
+           {:ok, team} <- update_subscribers(team) do
+        {:ok, team}
+      else
+        error -> error
+      end
+    end)
   end
 
   def reset_pears(team_name) do
