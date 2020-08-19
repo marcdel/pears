@@ -56,27 +56,29 @@ defmodule Pears.Core.Team do
   end
 
   def rename_track(team, track_name, new_track_name) do
-    track = find_track(team, track_name)
+    O11y.rename_track(team, track_name, new_track_name, fn ->
+      track = find_track(team, track_name)
 
-    updated_assigned_pears =
-      team.assigned_pears
-      |> Enum.map(fn
-        {pear_name, %{track: ^track_name} = pear} ->
-          {pear_name, Map.put(pear, :track, new_track_name)}
+      updated_assigned_pears =
+        team.assigned_pears
+        |> Enum.map(fn
+          {pear_name, %{track: ^track_name} = pear} ->
+            {pear_name, Map.put(pear, :track, new_track_name)}
 
-        pear ->
-          pear
-      end)
-      |> Enum.into(%{})
+          pear ->
+            pear
+        end)
+        |> Enum.into(%{})
 
-    updated_tracks =
-      team.tracks
-      |> Map.delete(track_name)
-      |> Map.put(new_track_name, Track.rename_track(track, new_track_name))
+      updated_tracks =
+        team.tracks
+        |> Map.delete(track_name)
+        |> Map.put(new_track_name, Track.rename_track(track, new_track_name))
 
-    team
-    |> Map.put(:tracks, updated_tracks)
-    |> Map.put(:assigned_pears, updated_assigned_pears)
+      team
+      |> Map.put(:tracks, updated_tracks)
+      |> Map.put(:assigned_pears, updated_assigned_pears)
+    end)
   end
 
   def add_pear_to_track(team, pear_name, track_name) do
