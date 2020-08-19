@@ -34,11 +34,13 @@ defmodule Pears.Core.Team do
   end
 
   def remove_track(team, track_name) do
-    track = find_track(team, track_name)
+    O11y.remove_track(team, track_name, fn ->
+      track = find_track(team, track_name)
 
-    team
-    |> Map.put(:available_pears, Map.merge(team.available_pears, track.pears))
-    |> Map.put(:tracks, Map.delete(team.tracks, track_name))
+      team
+      |> Map.put(:available_pears, Map.merge(team.available_pears, track.pears))
+      |> Map.put(:tracks, Map.delete(team.tracks, track_name))
+    end)
   end
 
   def lock_track(team, track_name) do
