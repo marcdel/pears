@@ -27,8 +27,10 @@ defmodule Pears.Core.Team do
   end
 
   def add_track(team, track_name) do
-    track = Track.new(name: track_name, id: next_track_id(team))
-    Map.put(team, :tracks, Map.put(team.tracks, track_name, track))
+    O11y.add_track(team, track_name, fn ->
+      track = Track.new(name: track_name, id: next_track_id(team))
+      Map.put(team, :tracks, Map.put(team.tracks, track_name, track))
+    end)
   end
 
   def remove_track(team, track_name) do
