@@ -105,14 +105,6 @@ defmodule Pears.O11y.Team do
     event_name = [:pears, :team, :potential_matches]
     metadata = %{team: Team.metadata(team)}
 
-    wrapped_callback = fn ->
-      potential_matches = callback.()
-
-      updated_metadata = Map.merge(metadata, %{potential_matches: potential_matches})
-
-      %{result: potential_matches, metadata: updated_metadata}
-    end
-
-    Tracer.trace(event_name, metadata, wrapped_callback)
+    Tracer.trace(event_name, metadata, callback)
   end
 end

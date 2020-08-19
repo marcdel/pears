@@ -7,7 +7,7 @@ defmodule Pears.O11y.Tracer do
           {result, Map.merge(start_metadata, metadata)}
 
         result ->
-          {result, Map.merge(start_metadata, %{result: inspect(result)})}
+          {result, Map.merge(start_metadata, %{result: result})}
       end
     end)
   end
