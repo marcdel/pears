@@ -26,36 +26,27 @@ defmodule PearsWeb.Telemetry do
 
   defp app_metrics do
     [
-      summary("pears.team.add_pear.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.add_pear.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.add_pear.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_track.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.add_track.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.add_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.remove_track.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.remove_track.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.remove_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.rename_track.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.rename_track.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.rename_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.add_pear_to_track.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.add_pear_to_track.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.add_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.move_pear_to_track.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.move_pear_to_track.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.move_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.remove_pear_from_track.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.remove_pear_from_track.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.remove_pear_from_track.exception.duration",
         unit: {:native, :millisecond}
       ),
-      summary("pears.team.record_pears.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.record_pears.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.record_pears.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.team.potential_matches.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.potential_matches.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.potential_matches.exception.duration", unit: {:native, :millisecond}),
-      summary("pears.recommendator.assign_pears.start.system_time", unit: {:native, :millisecond}),
+    ] ++ [
       summary("pears.recommendator.assign_pears.stop.duration", unit: {:native, :millisecond}),
       summary("pears.recommendator.assign_pears.exception.duration", unit: {:native, :millisecond})
     ]
@@ -63,12 +54,8 @@ defmodule PearsWeb.Telemetry do
 
   defp phoenix_metrics do
     [
-      summary(
-        "phoenix.endpoint.stop.duration",
-        unit: {:native, :millisecond}
-      ),
-      summary(
-        "phoenix.router_dispatch.stop.duration",
+      summary("phoenix.endpoint.stop.duration", unit: {:native, :millisecond}),
+      summary("phoenix.router_dispatch.stop.duration",
         tags: [:route],
         unit: {:native, :millisecond}
       )
