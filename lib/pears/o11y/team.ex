@@ -1,4 +1,5 @@
 defmodule Pears.O11y.Team do
+  alias Pears.Core.Team
   alias Pears.O11y.Tracer
 
   def add_pear(team, pear_name, callback) do
@@ -98,5 +99,20 @@ defmodule Pears.O11y.Team do
       team: team,
       callback: callback
     )
+  end
+
+  def potential_matches(team, callback) do
+    event_name = [:pears, :team, :potential_matches]
+    metadata = %{team: Team.metadata(team)}
+
+    wrapped_callback = fn ->
+      potential_matches = callback.()
+
+      updated_metadata = Map.merge(metadata, %{potential_matches: potential_matches})
+
+      %{result: potential_matches, metadata: updated_metadata}
+    end
+
+    Tracer.trace(event_name, metadata, wrapped_callback)
   end
 end

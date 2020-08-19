@@ -182,16 +182,18 @@ defmodule Pears.Core.Team do
   end
 
   def potential_matches(team) do
-    assigned =
-      team.tracks
-      |> Map.values()
-      |> Enum.filter(&Track.incomplete?/1)
-      |> Enum.reject(&Track.locked?/1)
-      |> Enum.flat_map(fn track -> Map.keys(track.pears) end)
+    O11y.potential_matches(team, fn ->
+      assigned =
+        team.tracks
+        |> Map.values()
+        |> Enum.filter(&Track.incomplete?/1)
+        |> Enum.reject(&Track.locked?/1)
+        |> Enum.flat_map(fn track -> Map.keys(track.pears) end)
 
-    available = Map.keys(team.available_pears)
+      available = Map.keys(team.available_pears)
 
-    %{available: available, assigned: assigned}
+      %{available: available, assigned: assigned}
+    end)
   end
 
   def current_matches(team) do

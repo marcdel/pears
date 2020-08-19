@@ -52,6 +52,9 @@ defmodule PearsWeb.Telemetry do
       summary("pears.team.record_pears.start.system_time", unit: {:native, :millisecond}),
       summary("pears.team.record_pears.stop.duration", unit: {:native, :millisecond}),
       summary("pears.team.record_pears.exception.duration", unit: {:native, :millisecond}),
+      summary("pears.team.potential_matches.start.system_time", unit: {:native, :millisecond}),
+      summary("pears.team.potential_matches.stop.duration", unit: {:native, :millisecond}),
+      summary("pears.team.potential_matches.exception.duration", unit: {:native, :millisecond}),
       summary("pears.recommendator.assign_pears.start.system_time", unit: {:native, :millisecond}),
       summary("pears.recommendator.assign_pears.stop.duration", unit: {:native, :millisecond}),
       summary("pears.recommendator.assign_pears.exception.duration", unit: {:native, :millisecond})
