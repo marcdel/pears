@@ -84,7 +84,12 @@
 
                 <%= if @editing_track == track.name do %>
                   <form phx-submit="save-track-name" data-cy="edit-track-name-form <%= track.name %>">
-                    <input autofocus data-cy="<%= "track-name-input #{track.name}" %>" name="new-track-name" type="text" value="<%= track.name %>" />
+                    <input
+                      id="<%= track.name %>"
+                      phx-hook="FocusInput"
+                      data-cy="<%= "track-name-input #{track.name}" %>"
+                      name="new-track-name" type="text"
+                      value="<%= track.name %>" />
                   </form>
                 <% else %>
                   <span

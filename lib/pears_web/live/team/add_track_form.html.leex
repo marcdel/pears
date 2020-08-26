@@ -3,7 +3,14 @@
 <form phx-submit="add_track" phx-target="<%= @myself %>">
   <label>
     Name
-    <input type="text" name="track-name" value="<%= @track_name %>" placeholder="What's this track's name?" autocomplete="off" autofocus/>
+    <input
+      id="add-track-input"
+      phx-hook="FocusInput"
+      type="text"
+      name="track-name"
+      value="<%= @track_name %>"
+      placeholder="What's this track's name?"
+      autocomplete="off"/>
   </label>
   <button type="submit" phx-disable-with="Add...">Add</button>
 </form>
