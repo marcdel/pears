@@ -35,19 +35,12 @@ defmodule PearsWeb.Telemetry do
         summary("pears.recommend_pears.exception.duration", unit: {:native, :millisecond})
       ] ++
       [
-        summary("pears.team.add_pear.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.add_pear.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.add_track.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.add_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.remove_track.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.remove_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.rename_track.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.rename_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.add_pear_to_track.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.add_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.move_pear_to_track.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.move_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.remove_pear_from_track.stop.duration", unit: {:native, :millisecond}),
         summary("pears.team.remove_pear_from_track.exception.duration",
           unit: {:native, :millisecond}
         ),
