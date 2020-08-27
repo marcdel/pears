@@ -151,8 +151,42 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  def handle_event("move-pear", %{"from" => "Unassigned", "to" => "Unassigned"}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event("move-pear", %{"from" => track, "to" => "Unassigned", "pear" => pear}, socket) do
+    socket
+    |> team_name()
+    |> Pears.remove_pear_from_track(pear, track)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("move-pear", %{"from" => "Unassigned", "to" => track, "pear" => pear}, socket) do
+    socket
+    |> team_name()
+    |> Pears.add_pear_to_track(pear, track)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("move-pear", %{"from" => from_track, "to" => to_track, "pear" => pear}, socket) do
+    socket
+    |> team_name()
+    |> Pears.move_pear_to_track(pear, from_track, to_track)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("track-clicked", %{"track-name" => track_name}, socket) do
-    from_track = socket.assigns.selected_pear_track
+    from_track =
+      if socket.assigns.selected_pear_track == "Unassigned" do
+        nil
+      else
+        socket.assigns.selected_pear_track
+      end
 
     with {:ok, pear_name} <- selected_pear(socket),
          {:ok, team} <-

@@ -20,12 +20,55 @@ import {LiveSocket} from "phoenix_live_view"
 let Hooks = {}
 Hooks.FocusInput = {
   mounted(){
-    this.el.focus();
+    this.el.focus()
 
     // Put cursor at the end of the text content
     this.el.setSelectionRange(-1, -1)
   }
-};
+}
+
+Hooks.Pear = {
+  mounted(){
+    this.el.addEventListener("dragstart", e => {
+      e.dataTransfer.effectAllowed = "move"
+      e.dataTransfer.setData("from-track", e.target.dataset.trackName)
+      e.dataTransfer.setData("pear-name", e.target.dataset.pearName)
+    })
+
+    this.el.addEventListener("dragover", e => {
+      e.preventDefault()
+    })
+  }
+}
+
+Hooks.Destination = {
+  mounted() {
+    this.el.addEventListener("dragenter", e => {
+      e.target.classList.add("dragged-over")
+    })
+
+    this.el.addEventListener("dragleave", e => {
+      e.target.classList.remove("dragged-over")
+    })
+
+    this.el.addEventListener("dragover", e => {
+      e.preventDefault()
+    })
+
+    this.el.addEventListener("drop", e => {
+      e.preventDefault()
+      e.target.classList.remove("dragged-over")
+
+      let from = event.dataTransfer.getData("from-track") || "Unassigned"
+      let to = e.target.dataset.trackName || "Unassigned"
+      let pear = event.dataTransfer.getData("pear-name")
+
+      console.debug({from, to, pear})
+
+      this.pushEvent("move-pear", {from, to, pear})
+    })
+  }
+}
 
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

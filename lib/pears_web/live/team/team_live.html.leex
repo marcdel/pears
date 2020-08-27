@@ -16,7 +16,11 @@
 
 <div phx-click="unselect-pear">
   <section class="board">
-    <div class="left-column" phx-click="unassign-pear">
+    <div
+      id="unassigned"
+      class="left-column"
+      phx-hook="Destination"
+      phx-click="unassign-pear">
       <article>
         <h1><%= @team.name %></h1>
       </article>
@@ -26,11 +30,18 @@
         <p>
           <%= for pear <- Map.values(@team.available_pears) do %>
             <a
-             phx-click="pear-selected"
-             phx-value-pear-name="<%= pear.name %>"
-             data-cy="<%= "available-pear #{pear.name}" %>"
-             class="button pill available-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
-             <%= pear.name %>
+              id="<%= pear.name %>"
+              phx-hook="Pear"
+              draggable="true"
+              data-pear-name="<%= pear.name %>"
+              data-track-name="Unassigned"
+              data-current-track="Unassigned"
+              phx-value-pear-name="<%= pear.name %>"
+              phx-value-track-name="Unassigned"
+              phx-click="pear-selected"
+              data-cy="<%= "available-pear #{pear.name}" %>"
+              class="button pill available-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
+              <%= pear.name %>
             </a>
           <% end %>
         </p>
@@ -49,6 +60,9 @@
         <div class="tracks-container">
           <%= for track <- list_tracks(@team) do %>
             <div
+              id="<%= track.name %>"
+              data-track-name="<%= track.name %>"
+              phx-hook="Destination"
               phx-click="track-clicked"
               phx-value-track-name="<%= track.name %>"
               data-cy="<%= "track #{track.name}" %>"
@@ -112,6 +126,11 @@
               </h4>
               <%= for pear <- Map.values(track.pears) do %>
                 <a
+                  id="<%= pear.name %>"
+                  phx-hook="Pear"
+                  draggable="true"
+                  data-pear-name="<%= pear.name %>"
+                  data-track-name="<%= track.name %>"
                   phx-click="pear-selected"
                   phx-value-pear-name="<%= pear.name %>"
                   phx-value-track-name="<%= track.name %>"
