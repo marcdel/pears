@@ -1,30 +1,13 @@
 /// <reference types="cypress" />
 
-context('Actions', () => {
-  const existingTeamName = 'Existing Team'
+context('Full Journey', () => {
   const teamName = 'Team Cypress'
 
   beforeEach(() => {
-    cy.createTeam(existingTeamName)
     cy.deleteTeam(teamName)
 
     cy.visit('/')
   })
-
-  function testInvalidNameValidation() {
-    cy.fillInput('Create Team', existingTeamName)
-    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-
-    cy.get('[name="team-name"]').clear()
-    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-      .should('not.visible')
-  }
-
-  function testInvalidPearNameValidation() {
-    addPear('Second Pear')
-    cy.contains(`Sorry, a Pear with the name 'Second Pear' already exists`)
-      .should('visible')
-  }
 
   function addPear(pearName) {
     cy.clickLink('Add Pear')
@@ -34,7 +17,7 @@ context('Actions', () => {
     cy.fillInput('Name', pearName)
     cy.clickButton('Add')
 
-    cy.pearAvailable(pearName)
+    cy.pearIsAvailable(pearName)
 
     cy.get('.phx-modal')
       .should('not.visible')
@@ -54,14 +37,7 @@ context('Actions', () => {
       .should('not.visible')
   }
 
-  it('redirects to root for teams that dont exist', () => {
-    cy.visit('/teams/fake-team')
-    cy.location('pathname').should('equal', '/')
-  })
-
   it('create team, add pears, add tracks, and recommend pears', () => {
-    testInvalidNameValidation()
-
     cy.fillInput('Create Team', teamName)
 
     cy.clickButton('Create')
@@ -72,8 +48,6 @@ context('Actions', () => {
 
     addPear('First Pear')
     addPear('Second Pear')
-
-    testInvalidPearNameValidation()
 
     addTrack('Feature Track')
 
@@ -88,8 +62,8 @@ context('Actions', () => {
     cy.removeTrack('Feature Track')
     cy.trackDoesNotExist('Feature Track')
 
-    cy.pearAvailable('First Pear')
-    cy.pearAvailable('Second Pear')
+    cy.pearIsAvailable('First Pear')
+    cy.pearIsAvailable('Second Pear')
 
     addTrack('Refactor Track')
 
@@ -107,7 +81,7 @@ context('Actions', () => {
 
     cy.findAssignedPear('Second Pear').click()
     cy.get('.available-pears').click()
-    cy.pearAvailable('Second Pear')
+    cy.pearIsAvailable('Second Pear')
 
     addTrack('Feature Track')
     cy.findAssignedPear('First Pear').click()
@@ -122,10 +96,10 @@ context('Actions', () => {
     cy.contains('Today\'s assigned pears have been recorded!').should('visible')
 
     cy.clickButton('Reset Pears')
-    cy.pearAvailable('Second Pear')
+    cy.pearIsAvailable('Second Pear')
 
     cy.unlockTrack('Feature Track')
     cy.clickButton('Reset Pears')
-    cy.pearAvailable('First Pear')
+    cy.pearIsAvailable('First Pear')
   })
 })

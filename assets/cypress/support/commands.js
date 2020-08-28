@@ -24,6 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+require('@4tw/cypress-drag-drop')
+
 Cypress.Commands.add('createTeam', (name) => cy.request('POST', `e2e/teams?name=${name}`))
 Cypress.Commands.add('deleteTeam', (id) => cy.request('DELETE', `e2e/teams/${id}`))
 
@@ -39,18 +41,20 @@ Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
 
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
 const findAssignedPear = pearName => cy.get(`[data-cy="assigned-pear ${pearName}"]`)
-const findTrack = (trackName) => cy.get(`[data-cy="track ${trackName}"]`)
+const trackSelector = trackName => `[data-cy="track ${trackName}"]`
+const findTrack = (trackName) => cy.get(trackSelector(trackName))
 const findLockTrackLink = (trackName) => cy.get(`[data-cy="lock-track ${trackName}"]`)
 const findUnlockTrackLink = (trackName) => cy.get(`[data-cy="unlock-track ${trackName}"]`)
 const findRemoveTrackLink = (trackName) => cy.get(`[data-cy="remove-track ${trackName}"]`)
 const findTrackNameHeader = (trackName) => cy.get(`[data-cy="edit-track-name ${trackName}"]`)
 const findEditTrackInput = (trackName) => cy.get(`[data-cy="track-name-input ${trackName}"]`)
 const findEditTrackForm = (trackName) => cy.get(`[data-cy="edit-track-name-form ${trackName}"]`)
+const pearIsInTrack = (pearName, trackName) => findTrack(trackName).should('contain', pearName)
 
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
 
-Cypress.Commands.add('pearAvailable', (pearName) => {
+Cypress.Commands.add('pearIsAvailable', (pearName) => {
   return findAvailablePear(pearName).should('visible')
 })
 
@@ -58,6 +62,23 @@ Cypress.Commands.add('findTrack', findTrack)
 
 Cypress.Commands.add('trackExists', (trackName) => {
   return findTrack(trackName).should('visible')
+})
+
+Cypress.Commands.add('dragPearToUnassigned', (pearName) => {
+  findAssignedPear(pearName)
+    .drag('#unassigned')
+})
+
+Cypress.Commands.add('dragPearToTrack', (pearName, trackName) => {
+  findAvailablePear(pearName)
+    .drag(trackSelector(trackName))
+})
+
+Cypress.Commands.add('dragPearFromTrackToTrack', (pearName, fromTrack, toTrack) => {
+  pearIsInTrack(pearName, fromTrack)
+
+  findAssignedPear(pearName)
+    .drag(trackSelector(toTrack))
 })
 
 Cypress.Commands.add('changeTrackName', (trackName, newTrackName) => {
@@ -96,5 +117,5 @@ Cypress.Commands.add('trackDoesNotExist', (trackName) => {
 })
 
 Cypress.Commands.add('pearIsInTrack', (pearName, trackName) => {
-  return cy.findTrack(trackName).should('contain', pearName)
+  return pearIsInTrack(pearName, trackName)
 })

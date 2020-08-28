@@ -67,14 +67,17 @@ defmodule PearsWeb.TeamLive do
   @impl true
   def handle_event("save-track-name", %{"new-track-name" => new_track_name}, socket) do
     track_name = socket.assigns.editing_track
-    {:ok, team} = Pears.rename_track(team_name(socket), track_name, new_track_name)
 
-    {
-      :noreply,
-      socket
-      |> assign(team: team)
-      |> cancel_editing_track()
-    }
+    case Pears.rename_track(team_name(socket), track_name, new_track_name) do
+      {:ok, _team} ->
+        {:noreply, socket}
+
+      {:error, _changeset} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Sorry, a track with the name '#{new_track_name}' already exists")
+         |> cancel_editing_track()}
+    end
   end
 
   @impl true
