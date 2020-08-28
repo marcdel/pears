@@ -76,13 +76,28 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 # Telemetry
+# config :opentelemetry,
+#       :processors,
+#       ot_batch_processor: %{
+#         exporter:
+#           {:opentelemetry_zipkin,
+#            %{
+#              address: 'http://localhost:9411/api/v2/spans',
+#              local_endpoint: %{service_name: "pears_dev"}
+#            }}
+#       }
+
+config :opentelemetry, :resource,
+  service: [
+    name: "pears_dev",
+    namespace: "pears"
+  ]
+
 config :opentelemetry,
-       :processors,
-       ot_batch_processor: %{
-         exporter:
-           {:opentelemetry_zipkin,
-            %{
-              address: 'http://localhost:9411/api/v2/spans',
-              local_endpoint: %{service_name: "pears"}
-            }}
-       }
+  processors: [
+    ot_batch_processor: %{
+      exporter:
+        {OpenTelemetry.Honeycomb.Exporter,
+         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY")}
+    }
+  ]

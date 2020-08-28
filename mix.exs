@@ -52,8 +52,12 @@ defmodule Pears.MixProject do
       {:timber_ecto, "~> 2.0"},
       {:timber_plug, "~> 1.0"},
       {:timber_exceptions, "~> 2.0"},
+      {:opentelemetry, "~> 0.4.0"},
       {:opentelemetry_api, "~> 0.3.2"},
-      {:opentelemetry_zipkin, "~> 0.3.0"}
+      {:opentelemetry_zipkin, "~> 0.3.0"},
+      {:opentelemetry_honeycomb, "~> 0.3.0-rc.0"},
+      {:hackney, ">= 1.11.0"},
+      {:poison, ">= 1.5.0"}
     ]
   end
 
