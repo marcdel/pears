@@ -45,7 +45,7 @@ article {
   display: flex;
   flex-wrap: wrap;
 
-  .dragged-over {
+  div.dragged-over {
     background-color: var(--track-hover);
   }
 }
