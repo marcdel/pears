@@ -2,8 +2,8 @@ defmodule Pears.Core.Recommendator do
   alias Pears.Core.{MatchValidator, Team}
   alias Pears.O11y.Recommendator, as: O11y
 
-  def assign_pears(team) do
-    O11y.assign_pears(team, fn ->
+  def assign_pears(team, parent_ctx \\ nil) do
+    O11y.assign_pears(team, parent_ctx, fn _ctx ->
       team
       |> potential_matches_by_score()
       |> assign_matches(team)

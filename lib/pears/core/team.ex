@@ -245,11 +245,23 @@ defmodule Pears.Core.Team do
   end
 
   def metadata(team) do
+    current_matches =
+      team
+      |> current_matches()
+      |> Enum.into(%{})
+
+    recent_history =
+      team.history
+      |> Enum.take(5)
+      |> Enum.with_index()
+      |> Enum.map(fn {matches, index} -> {index, Enum.into(matches, %{})} end)
+      |> Enum.into(%{})
+
     %{
       team_name: team.name,
       available_pears: Map.keys(team.available_pears),
-      current_matches: current_matches(team),
-      recent_history: Enum.take(team.history, 5)
+      current_matches: current_matches,
+      recent_history: recent_history
     }
   end
 

@@ -15,8 +15,8 @@ defmodule Pears.O11y.Tracer do
   alias Pears.Core.Team
 
   @doc """
-  Trace events that take a team and return a team and
-  automatically add before and after team metadata
+  Trace events that take a team or team name and returns
+  a team and automatically adds before and after team metadata
   """
   def trace_team_event(opts) do
     event_name = Keyword.fetch!(opts, :event_name)

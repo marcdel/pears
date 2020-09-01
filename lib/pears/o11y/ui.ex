@@ -1,11 +1,15 @@
 defmodule Pears.O11y.UI do
-  alias Pears.Core.Team
-  alias Pears.O11y.Tracer
+  alias Pears.O11y
 
-  def recommend_pears(team, callback) do
-    event_name = [:pears, :ui, :recommend_pears]
-    metadata = %{team: Team.metadata(team)}
+  require OpenTelemetry.Span
+  require OpenTelemetry.Tracer
 
-    Tracer.trace(event_name, metadata, callback)
+  def recommend_pears(team, socket, callback) do
+    O11y.trace(%{
+      event_name: "ui.recommend_pears",
+      team: team,
+      attrs: %{socket_id: socket.id},
+      callback: callback
+    })
   end
 end

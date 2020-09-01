@@ -10,7 +10,7 @@ defmodule Pears do
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Team
   alias Pears.Core.Recommendator
-  alias Pears.O11y
+  alias Pears.O11y.Pears, as: O11y
   alias Pears.Persistence
 
   @topic inspect(__MODULE__)
@@ -44,7 +44,7 @@ defmodule Pears do
   end
 
   def lookup_team_by(name: name) do
-    Instrumentation.lookup_team_by_name(name, fn _ ->
+    O11y.lookup_team_by_name(name, nil, fn _ ->
       with {:ok, team} <- maybe_fetch_team_from_db(name),
            {:ok, team} <- get_or_start_session(team),
            {:ok, team} <- update_subscribers(team) do
@@ -137,8 +137,8 @@ defmodule Pears do
     end
   end
 
-  def add_pear_to_track(team_name, pear_name, track_name) do
-    Instrumentation.add_pear_to_track(team_name, pear_name, track_name, fn _ ->
+  def add_pear_to_track(team_name, pear_name, track_name, parent_ctx \\ nil) do
+    O11y.add_pear_to_track(team_name, pear_name, track_name, parent_ctx, fn _ ->
       with {:ok, team} <- TeamSession.get_team(team_name),
            {:ok, _} <- validate_pear_available(team, pear_name),
            {:ok, _} <- validate_track_exists(team, track_name),
@@ -183,12 +183,12 @@ defmodule Pears do
     end
   end
 
-  def recommend_pears(team_name) do
-    O11y.recommend_pears(team_name, fn ->
+  def recommend_pears(team_name, parent_ctx \\ nil) do
+    O11y.recommend_pears(team_name, parent_ctx, fn ctx ->
       with {:ok, team} <- TeamSession.get_team(team_name),
            {:ok, team} <- load_history(team),
-           team <- maybe_add_empty_tracks(team),
-           team <- Recommendator.assign_pears(team),
+           team <- maybe_add_empty_tracks(team, ctx),
+           team <- Recommendator.assign_pears(team, ctx),
            {:ok, team} <- TeamSession.update_team(team_name, team),
            {:ok, team} <- update_subscribers(team) do
         {:ok, team}
@@ -254,13 +254,15 @@ defmodule Pears do
     end
   end
 
-  defp maybe_add_empty_tracks(team) do
-    available_slots = Team.available_slot_count(team)
-    available_pears = Enum.count(team.available_pears)
-    pears_without_track = available_pears - available_slots
-    number_to_add = ceil(pears_without_track / 2)
+  defp maybe_add_empty_tracks(team, parent_ctx) do
+    O11y.maybe_add_empty_tracks(team, parent_ctx, fn _ctx ->
+      available_slots = Team.available_slot_count(team)
+      available_pears = Enum.count(team.available_pears)
+      pears_without_track = available_pears - available_slots
+      number_to_add = ceil(pears_without_track / 2)
 
-    add_empty_tracks(team, number_to_add)
+      add_empty_tracks(team, number_to_add)
+    end)
   end
 
   defp add_empty_tracks(team, count) when count <= 0, do: team
