@@ -5,7 +5,6 @@ defmodule Pears do
   been assigned to a track.
   """
 
-  alias Pears.Boundary.Instrumentation
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Team

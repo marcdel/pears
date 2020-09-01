@@ -4,8 +4,6 @@ defmodule Pears.O11y.Recommendator do
   require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
-  alias Pears.O11y.Tracer
-
   def assign_pears(team, parent_ctx, callback) do
     O11y.trace(%{
       event_name: "recommendator.recommend_pears",
