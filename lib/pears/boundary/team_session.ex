@@ -2,8 +2,6 @@ defmodule Pears.Boundary.TeamSession do
   use GenServer
   use Pears.O11y.Decorator
 
-  alias Pears.Core.Team
-
   def start_link(team) do
     GenServer.start_link(__MODULE__, team, name: via(team.name))
   end

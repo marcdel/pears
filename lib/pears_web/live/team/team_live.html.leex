@@ -30,7 +30,7 @@
         <p>
           <%= for pear <- Map.values(@team.available_pears) do %>
             <a
-              id="<%= pear.name %>"
+              id="<%= pear.id %>"
               phx-hook="Pear"
               draggable="true"
               data-pear-name="<%= pear.name %>"
@@ -126,7 +126,7 @@
               </h4>
               <%= for pear <- Map.values(track.pears) do %>
                 <a
-                  id="<%= pear.name %>"
+                  id="<%= pear.id %>"
                   phx-hook="Pear"
                   draggable="true"
                   data-pear-name="<%= pear.name %>"

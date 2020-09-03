@@ -18,8 +18,8 @@ defmodule Pears.Core.Team do
   end
 
   @decorate trace([:team, :add_pear], [:team, :pear_name])
-  def add_pear(team, pear_name) do
-    pear = Pear.new(name: pear_name)
+  def add_pear(team, pear_name, pear_id \\ nil) do
+    pear = Pear.new(name: pear_name, id: pear_id)
     Map.put(team, :available_pears, Map.put(team.available_pears, pear_name, pear))
   end
 
@@ -29,8 +29,9 @@ defmodule Pears.Core.Team do
   end
 
   @decorate trace([:team, :add_track], [:team, :track_name, :track])
-  def add_track(team, track_name) do
-    track = Track.new(name: track_name, id: next_track_id(team))
+  def add_track(team, track_name, track_id \\ nil) do
+    track_id = track_id || next_track_id(team)
+    track = Track.new(name: track_name, id: track_id)
     Map.put(team, :tracks, Map.put(team.tracks, track_name, track))
   end
 

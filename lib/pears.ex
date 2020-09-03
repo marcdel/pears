@@ -64,8 +64,8 @@ defmodule Pears do
   @decorate trace([:pears, :add_pear], [:team_name, :pear_name, :updated_team, :error])
   def add_pear(team_name, pear_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
-         {:ok, _track_record} <- Persistence.add_pear_to_team(team_name, pear_name),
-         updated_team <- Team.add_pear(team, pear_name),
+         {:ok, pear_record} <- Persistence.add_pear_to_team(team_name, pear_name),
+         updated_team <- Team.add_pear(team, pear_name, pear_record.id),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
@@ -77,8 +77,8 @@ defmodule Pears do
   @decorate trace([:pears, :add_track], [:team_name, :track_name, :updated_team, :error])
   def add_track(team_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
-         {:ok, _team_record} <- Persistence.add_track_to_team(team_name, track_name),
-         updated_team <- Team.add_track(team, track_name),
+         {:ok, track_record} <- Persistence.add_track_to_team(team_name, track_name),
+         updated_team <- Team.add_track(team, track_name, track_record.id),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
@@ -94,7 +94,7 @@ defmodule Pears do
   def remove_track(team_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
-         {:ok, _team_record} <- Persistence.remove_track_from_team(team_name, track_name),
+         {:ok, _track_record} <- Persistence.remove_track_from_team(team_name, track_name),
          updated_team <- Team.remove_track(team, track_name),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
@@ -117,7 +117,7 @@ defmodule Pears do
   def rename_track(team_name, track_name, new_track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
-         {:ok, _team_record} <- Persistence.rename_track(team.name, track_name, new_track_name),
+         {:ok, _track_record} <- Persistence.rename_track(team.name, track_name, new_track_name),
          updated_team <- Team.rename_track(team, track_name, new_track_name),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
@@ -150,7 +150,7 @@ defmodule Pears do
   defp lock_or_unlock_track(team, track_name, locked?)
 
   defp lock_or_unlock_track(team, track_name, true) do
-    with {:ok, _} <- Persistence.lock_track(team.name, track_name),
+    with {:ok, _track_record} <- Persistence.lock_track(team.name, track_name),
          updated_team <- Team.lock_track(team, track_name) do
       {:ok, updated_team}
     else
@@ -159,7 +159,7 @@ defmodule Pears do
   end
 
   defp lock_or_unlock_track(team, track_name, false) do
-    with {:ok, _} <- Persistence.unlock_track(team.name, track_name),
+    with {:ok, _track_record} <- Persistence.unlock_track(team.name, track_name),
          updated_team <- Team.unlock_track(team, track_name) do
       {:ok, updated_team}
     else
@@ -377,7 +377,7 @@ defmodule Pears do
   @decorate trace([:pears, :add_pears], [:team, :team_record])
   defp add_pears(team, team_record) do
     Enum.reduce(team_record.pears, team, fn pear_record, team ->
-      Team.add_pear(team, pear_record.name)
+      Team.add_pear(team, pear_record.name, pear_record.id)
     end)
   end
 
@@ -385,7 +385,7 @@ defmodule Pears do
   defp add_tracks(team, team_record) do
     Enum.reduce(team_record.tracks, team, fn track_record, team ->
       team
-      |> Team.add_track(track_record.name)
+      |> Team.add_track(track_record.name, track_record.id)
       |> maybe_lock_track(track_record)
     end)
   end
