@@ -89,8 +89,8 @@ config :phoenix, :plug_init_mode, :runtime
 
 config :opentelemetry, :resource,
   service: [
-    name: "pears_dev",
-    namespace: "pears"
+    name: "pears",
+    namespace: "pears_dev"
   ]
 
 config :opentelemetry,

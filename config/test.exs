@@ -23,8 +23,8 @@ config :logger, level: :warn
 
 config :opentelemetry, :resource,
   service: [
-    name: "pears_test",
-    namespace: "pears"
+    name: "pears",
+    namespace: "pears_test"
   ]
 
 config :opentelemetry,
