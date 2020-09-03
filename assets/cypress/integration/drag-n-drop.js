@@ -23,7 +23,7 @@ context('Drag-n-drop', () => {
     cy.pearIsAvailable(pearName)
 
     cy.get('.phx-modal')
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   function addTrack(trackName) {
@@ -37,7 +37,7 @@ context('Drag-n-drop', () => {
     cy.trackExists(trackName)
 
     cy.get('.phx-modal')
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   it('supports drag and drop', () => {

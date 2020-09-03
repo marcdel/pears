@@ -55,13 +55,13 @@ Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
 
 Cypress.Commands.add('pearIsAvailable', (pearName) => {
-  return findAvailablePear(pearName).should('visible')
+  return findAvailablePear(pearName).should('be.visible')
 })
 
 Cypress.Commands.add('findTrack', findTrack)
 
 Cypress.Commands.add('trackExists', (trackName) => {
-  return findTrack(trackName).should('visible')
+  return findTrack(trackName).should('be.visible')
 })
 
 Cypress.Commands.add('dragPearToUnassigned', (pearName) => {
@@ -105,15 +105,15 @@ Cypress.Commands.add('unlockTrack', (trackName) => {
 })
 
 Cypress.Commands.add('trackIsLocked', (trackName) => {
-  return findUnlockTrackLink(trackName).should('visible')
+  return findUnlockTrackLink(trackName).should('be.visible')
 })
 
 Cypress.Commands.add('trackIsUnlocked', (trackName) => {
-  return findLockTrackLink(trackName).should('visible')
+  return findLockTrackLink(trackName).should('be.visible')
 })
 
 Cypress.Commands.add('trackDoesNotExist', (trackName) => {
-  return cy.contains(trackName).should('not.visible')
+  return cy.contains(trackName).should('not.be.visible')
 })
 
 Cypress.Commands.add('pearIsInTrack', (pearName, trackName) => {

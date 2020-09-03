@@ -17,7 +17,7 @@ context('Validation', () => {
 
     cy.get('[name="team-name"]').clear()
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   function addPear(pearName) {
@@ -31,7 +31,7 @@ context('Validation', () => {
     cy.pearIsAvailable(pearName)
 
     cy.get('.phx-modal')
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   function addTrack(trackName) {
@@ -45,7 +45,7 @@ context('Validation', () => {
     cy.trackExists(trackName)
 
     cy.get('.phx-modal')
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   it('redirects to root for teams that dont exist', () => {
@@ -58,22 +58,22 @@ context('Validation', () => {
 
     cy.fillInput('Create Team', teamName)
     cy.clickButton('Create')
-    cy.contains('Congratulations, your team has been created!').should('visible')
+    cy.contains('Congratulations, your team has been created!').should('be.visible')
 
     addPear('Second Pear')
     addPear('Second Pear')
     cy.contains(`Sorry, a Pear with the name 'Second Pear' already exists`)
-      .should('visible')
+      .should('be.visible')
 
     addTrack('Feature 1')
     addTrack('Feature 1')
     cy.contains(`Sorry, a track with the name 'Feature 1' already exists`)
-      .should('visible')
+      .should('be.visible')
 
     addTrack('Feature 2')
     cy.changeTrackName('Feature 2', 'Feature 1')
     cy.trackExists('Feature 2')
     cy.contains(`Sorry, a track with the name 'Feature 1' already exists`)
-      .should('visible')
+      .should('be.visible')
   })
 })

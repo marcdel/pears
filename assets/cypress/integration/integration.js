@@ -20,7 +20,7 @@ context('Full Journey', () => {
     cy.pearIsAvailable(pearName)
 
     cy.get('.phx-modal')
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   function addTrack(trackName) {
@@ -34,7 +34,7 @@ context('Full Journey', () => {
     cy.trackExists(trackName)
 
     cy.get('.phx-modal')
-      .should('not.visible')
+      .should('not.be.visible')
   }
 
   it('create team, add pears, add tracks, and recommend pears', () => {
@@ -42,7 +42,7 @@ context('Full Journey', () => {
 
     cy.clickButton('Create')
 
-    cy.contains('Congratulations, your team has been created!').should('visible')
+    cy.contains('Congratulations, your team has been created!').should('be.visible')
     cy.location('pathname').should('include', '/teams/')
     cy.contains('h1', teamName)
 
@@ -57,7 +57,7 @@ context('Full Journey', () => {
     cy.pearIsInTrack('Second Pear', 'Feature Track')
 
     cy.clickButton('Record Pears')
-    cy.contains('Today\'s assigned pears have been recorded!').should('visible')
+    cy.contains('Today\'s assigned pears have been recorded!').should('be.visible')
 
     cy.removeTrack('Feature Track')
     cy.trackDoesNotExist('Feature Track')
@@ -93,7 +93,7 @@ context('Full Journey', () => {
     cy.pearIsInTrack('Second Pear', 'Refactor Track')
 
     cy.clickButton('Record Pears')
-    cy.contains('Today\'s assigned pears have been recorded!').should('visible')
+    cy.contains('Today\'s assigned pears have been recorded!').should('be.visible')
 
     cy.clickButton('Reset Pears')
     cy.pearIsAvailable('Second Pear')
