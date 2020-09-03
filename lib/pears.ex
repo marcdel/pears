@@ -63,8 +63,10 @@ defmodule Pears do
 
   @decorate trace([:pears, :add_pear], [:team_name, :pear_name, :updated_team, :error])
   def add_pear(team_name, pear_name) do
-    with {:ok, _track_record} <- Persistence.add_pear_to_team(team_name, pear_name),
-         {:ok, updated_team} <- TeamSession.add_pear(team_name, pear_name),
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _track_record} <- Persistence.add_pear_to_team(team_name, pear_name),
+         updated_team <- Team.add_pear(team, pear_name),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
     else
@@ -74,8 +76,10 @@ defmodule Pears do
 
   @decorate trace([:pears, :add_track], [:team_name, :track_name, :updated_team, :error])
   def add_track(team_name, track_name) do
-    with {:ok, _team_record} <- Persistence.add_track_to_team(team_name, track_name),
-         {:ok, updated_team} <- TeamSession.add_track(team_name, track_name),
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _team_record} <- Persistence.add_track_to_team(team_name, track_name),
+         updated_team <- Team.add_track(team, track_name),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
     else
@@ -91,7 +95,8 @@ defmodule Pears do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
          {:ok, _team_record} <- Persistence.remove_track_from_team(team_name, track_name),
-         {:ok, updated_team} <- TeamSession.remove_track(team_name, track_name),
+         updated_team <- Team.remove_track(team, track_name),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
     else
@@ -239,9 +244,9 @@ defmodule Pears do
   @decorate trace([:pears, :reset_pears], [:team_name, :updated_team, :error])
   def reset_pears(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
-         team <- Team.reset_matches(team),
-         {:ok, team} <- TeamSession.update_team(team_name, team),
-         {:ok, updated_team} <- update_subscribers(team) do
+         updated_team <- Team.reset_matches(team),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
+         {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
     else
       error -> error
@@ -250,9 +255,11 @@ defmodule Pears do
 
   @decorate trace([:pears, :record_pears], [:team_name, :updated_team, :error])
   def record_pears(team_name) do
-    with {:ok, team} <- TeamSession.record_pears(team_name),
-         {:ok, team} <- persist_changes(team),
-         {:ok, updated_team} <- update_subscribers(team) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         updated_team <- Team.record_pears(team),
+         {:ok, updated_team} <- persist_changes(updated_team),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
+         {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
     else
       error -> error
