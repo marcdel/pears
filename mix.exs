@@ -57,7 +57,8 @@ defmodule Pears.MixProject do
       {:opentelemetry_zipkin, "~> 0.3.0"},
       {:opentelemetry_honeycomb, "~> 0.3.0-rc.0"},
       {:hackney, ">= 1.11.0"},
-      {:poison, ">= 1.5.0"}
+      {:poison, ">= 1.5.0"},
+      {:decorator, "~> 1.3.2"}
     ]
   end
 

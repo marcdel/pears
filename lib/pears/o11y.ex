@@ -2,7 +2,8 @@ defmodule Pears.O11y do
   require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
-  def pretty_inspect(thing) do
+  def pretty_inspect(thing)
+      when is_map(thing) or is_struct(thing) or is_list(thing) do
     inspect(
       thing,
       pretty: true,
@@ -11,6 +12,8 @@ defmodule Pears.O11y do
       width: :infinity
     )
   end
+
+  def pretty_inspect(thing), do: thing
 
   @doc """
   Trace events that take a team or team name and returns
