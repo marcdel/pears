@@ -22,6 +22,7 @@ defmodule PearsWeb.TeamLive do
     {:noreply, apply_action(socket, socket.assigns.live_action)}
   end
 
+  @decorate trace_decorator([:team_live, :view_helper, :list_tracks], [:team])
   def list_tracks(team) do
     team.tracks
     |> Enum.sort_by(fn {_, %{id: id}} -> id end)
@@ -232,6 +233,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  @decorate trace_decorator([:team_live, :team_updated], [:team])
   def handle_info({Pears, [:team, :updated], team}, socket) do
     {:noreply, assign(socket, team: team)}
   end

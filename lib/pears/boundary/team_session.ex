@@ -20,6 +20,7 @@ defmodule Pears.Boundary.TeamSession do
     {:ok, team}
   end
 
+  @decorate trace_decorator([:team_session, :start_session], [:team])
   def start_session(team) do
     GenServer.whereis(via(team.name)) ||
       DynamicSupervisor.start_child(
@@ -30,12 +31,14 @@ defmodule Pears.Boundary.TeamSession do
     {:ok, team}
   end
 
-  def end_session(name) do
-    if session_started?(name), do: GenServer.stop(via(name))
+  @decorate trace_decorator([:team_session, :end_session], [:team_name])
+  def end_session(team_name) do
+    if session_started?(team_name), do: GenServer.stop(via(team_name))
   end
 
-  def session_started?(name) do
-    GenServer.whereis(via(name)) != nil
+  @decorate trace_decorator([:team_session, :session_started?], [:team_name])
+  def session_started?(team_name) do
+    GenServer.whereis(via(team_name)) != nil
   end
 
   @decorate trace_decorator([:team_session, :get_team], [:team_name])

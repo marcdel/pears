@@ -13,48 +13,23 @@ defmodule PearsWeb.Telemetry do
       # every 60_000ms, or 1 minute. Learn more here: https://hexdocs.pm/telemetry_metrics
       {:telemetry_poller, measurements: periodic_measurements(), period: 60_000},
       # Add reporters as children of your supervision tree.
-      # {Telemetry.Metrics.ConsoleReporter, metrics: app_metrics()},
-      {Pears.O11y.LogReporter, metrics: app_metrics()}
+      # {Telemetry.Metrics.ConsoleReporter, metrics: metrics_to_log()},
+      {Pears.O11y.TelemetryLogReporter, metrics: metrics_to_log()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def metrics do
+  defp metrics_to_log do
+    if Mix.env() == :prod, do: all_metrics(), else: []
+  end
+
+  defp all_metrics do
     app_metrics() ++ phoenix_metrics() ++ database_metrics() ++ vm_metrics()
   end
 
   defp app_metrics do
-    [
-      summary("pears.ui.recommend_pears.start.duration", unit: {:native, :millisecond}),
-      summary("pears.ui.recommend_pears.stop.duration", unit: {:native, :millisecond}),
-      summary("pears.ui.recommend_pears.exception.duration", unit: {:native, :millisecond})
-    ] ++
-      [
-        summary("pears.recommend_pears.stop.duration", unit: {:native, :millisecond}),
-        summary("pears.recommend_pears.exception.duration", unit: {:native, :millisecond})
-      ] ++
-      [
-        summary("pears.team.add_pear.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.add_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.remove_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.rename_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.add_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.move_pear_to_track.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.remove_pear_from_track.exception.duration",
-          unit: {:native, :millisecond}
-        ),
-        summary("pears.team.record_pears.stop.duration", unit: {:native, :millisecond}),
-        summary("pears.team.record_pears.exception.duration", unit: {:native, :millisecond}),
-        summary("pears.team.potential_matches.stop.duration", unit: {:native, :millisecond}),
-        summary("pears.team.potential_matches.exception.duration", unit: {:native, :millisecond})
-      ] ++
-      [
-        summary("pears.recommendator.assign_pears.stop.duration", unit: {:native, :millisecond}),
-        summary("pears.recommendator.assign_pears.exception.duration",
-          unit: {:native, :millisecond}
-        )
-      ]
+    []
   end
 
   defp phoenix_metrics do

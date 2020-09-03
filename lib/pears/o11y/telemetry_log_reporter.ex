@@ -1,4 +1,4 @@
-defmodule Pears.O11y.LogReporter do
+defmodule Pears.O11y.TelemetryLogReporter do
   @moduledoc """
   A reporter that prints events and metrics to the terminal.
 
@@ -15,7 +15,7 @@ defmodule Pears.O11y.LogReporter do
   A log reporter can be started as a child of your your supervision
   tree as:
 
-      {Pears.O11y.LogReporter, metrics: metrics}
+      {Pears.O11y.TelemetryLogReporter, metrics: metrics}
 
   Now when the "vm.memory" telemetry event is dispatched, we will see
   reports like this:
