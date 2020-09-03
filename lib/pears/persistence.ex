@@ -9,14 +9,14 @@ defmodule Pears.Persistence do
   alias Pears.Repo
   alias Pears.Persistence.{PearRecord, SnapshotRecord, TeamRecord, TrackRecord}
 
-  @decorate trace_decorator([:persistence, :create_team], [:team_name])
+  @decorate trace([:persistence, :create_team], [:team_name])
   def create_team(team_name) do
     %TeamRecord{}
     |> TeamRecord.changeset(%{name: team_name})
     |> Repo.insert()
   end
 
-  @decorate trace_decorator([:persistence, :delete_team], [:team_name])
+  @decorate trace([:persistence, :delete_team], [:team_name])
   def delete_team(team_name) do
     case get_team_by_name(team_name) do
       {:error, :not_found} -> nil
@@ -24,7 +24,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :get_team_by_name], [:team_name, :team])
+  @decorate trace([:persistence, :get_team_by_name], [:team_name, :team])
   def get_team_by_name(team_name) do
     result =
       TeamRecord
@@ -46,7 +46,7 @@ defmodule Pears.Persistence do
     Repo.aggregate(TeamRecord, :count, :id)
   end
 
-  @decorate trace_decorator([:persistence, :find_track_by_name], [:team, :track_name, :track])
+  @decorate trace([:persistence, :find_track_by_name], [:team, :track_name, :track])
   def find_track_by_name(team, track_name) do
     case Enum.find(team.tracks, fn track -> track.name == track_name end) do
       nil -> {:error, :track_not_found}
@@ -54,7 +54,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :find_pear_by_name], [:team, :pear_name, :pear])
+  @decorate trace([:persistence, :find_pear_by_name], [:team, :pear_name, :pear])
   def find_pear_by_name(team, pear_name) do
     case Enum.find(team.pears, fn pear -> pear.name == pear_name end) do
       nil -> {:error, :pear_not_found}
@@ -62,7 +62,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:persistence, :add_pear_to_team],
               [:team_name, :pear_name, :team, :pear, :error]
             )
@@ -75,7 +75,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :add_pear], [:team, :pear_name, :pear, :error])
+  @decorate trace([:persistence, :add_pear], [:team, :pear_name, :pear, :error])
   defp add_pear(team, pear_name) do
     case %PearRecord{}
          |> PearRecord.changeset(%{team_id: team.id, name: pear_name})
@@ -85,7 +85,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:persistence, :add_pear_to_track],
               [:team, :pear_name, :track_name, :error]
             )
@@ -100,7 +100,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :do_add_pear_to_track], [:pear, :track])
+  @decorate trace([:persistence, :do_add_pear_to_track], [:pear, :track])
   def do_add_pear_to_track(pear, track) do
     pear
     |> Repo.preload(:track)
@@ -108,7 +108,7 @@ defmodule Pears.Persistence do
     |> Repo.update()
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:persistence, :add_track_to_team],
               [:team_name, :track_name, :track, :error]
             )
@@ -121,7 +121,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :add_track], [:team, :track_name, :track, :error])
+  @decorate trace([:persistence, :add_track], [:team, :track_name, :track, :error])
   defp add_track(team, track_name) do
     case %TrackRecord{}
          |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})
@@ -131,10 +131,10 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :lock_track], [:team, :track_name])
+  @decorate trace([:persistence, :lock_track], [:team, :track_name])
   def lock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, true)
 
-  @decorate trace_decorator([:persistence, :unlock_track], [:team, :track_name])
+  @decorate trace([:persistence, :unlock_track], [:team, :track_name])
   def unlock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, false)
 
   defp toggle_track_locked(team_name, track_name, locked?) do
@@ -147,7 +147,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:persistence, :rename_track],
               [:team_name, :track_name, :new_track_name, :updated_track, :error]
             )
@@ -161,7 +161,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator([:persistence, :do_rename_track], [:track, :new_track_name])
+  @decorate trace([:persistence, :do_rename_track], [:track, :new_track_name])
   defp do_rename_track(track, new_track_name) do
     track
     |> TrackRecord.changeset(%{name: new_track_name})
@@ -174,7 +174,7 @@ defmodule Pears.Persistence do
     |> Repo.update()
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:persistence, :remove_track_from_team],
               [:team_name, :track_name, :team, :error]
             )
@@ -189,7 +189,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:persistence, :add_snapshot_to_team],
               [:team_name, :snapshot, :snapshot_record, :error]
             )

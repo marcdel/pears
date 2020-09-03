@@ -1,7 +1,7 @@
 defmodule Pears.O11y.Decorator do
-  use Decorator.Define, trace_decorator: 1, trace_decorator: 2
+  use Decorator.Define, trace: 1, trace: 2
 
-  def trace_decorator(event_name, attr_keys \\ [], body, context) do
+  def trace(event_name, attr_keys \\ [], body, context) do
     validate_args(event_name, attr_keys)
     event_name = Enum.join(event_name, ".")
 

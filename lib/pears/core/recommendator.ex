@@ -3,14 +3,14 @@ defmodule Pears.Core.Recommendator do
 
   alias Pears.Core.{MatchValidator, Team}
 
-  @decorate trace_decorator([:recommendator, :assign_pears], [:team])
+  @decorate trace([:recommendator, :assign_pears], [:team])
   def assign_pears(team) do
     team
     |> potential_matches_by_score()
     |> assign_matches(team)
   end
 
-  @decorate trace_decorator([:recommendator, :assign_matches], [:team, :potential_matches])
+  @decorate trace([:recommendator, :assign_matches], [:team, :potential_matches])
   defp assign_matches(potential_matches, team) do
     Enum.reduce_while(potential_matches, team, fn match, team ->
       if Team.any_pears_available?(team) do
@@ -21,18 +21,18 @@ defmodule Pears.Core.Recommendator do
     end)
   end
 
-  @decorate trace_decorator([:recommendator, :assign_match], [:team, :match])
+  @decorate trace([:recommendator, :assign_match], [:team, :match])
   defp assign_match(match, team) do
     if MatchValidator.valid?(match, team), do: do_assign_match(match, team), else: team
   end
 
-  @decorate trace_decorator([:recommendator, :do_assign_match], [:team, :p1, :empty_track])
+  @decorate trace([:recommendator, :do_assign_match], [:team, :p1, :empty_track])
   defp do_assign_match({p1}, team) do
     empty_track = Team.find_empty_track(team)
     Team.add_pear_to_track(team, p1, empty_track.name)
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:recommendator, :do_assign_match],
               [:team, :p1, :pear1, :p2, :pear2, :empty_track]
             )
@@ -57,7 +57,7 @@ defmodule Pears.Core.Recommendator do
     end
   end
 
-  @decorate trace_decorator(
+  @decorate trace(
               [:recommendator, :potential_matches_by_score],
               [:team, :potential_matches, :primary, :secondary, :scored_matches, :solo_pears]
             )
