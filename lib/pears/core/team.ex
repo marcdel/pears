@@ -1,4 +1,6 @@
 defmodule Pears.Core.Team do
+  use Pears.O11y.Decorator
+
   defstruct name: nil,
             id: nil,
             available_pears: %{},
@@ -81,6 +83,19 @@ defmodule Pears.Core.Team do
     end)
   end
 
+  @decorate trace_decorator(
+              [:team, :add_pear_to_track],
+              [
+                :team,
+                :pear_name,
+                :track_name,
+                :pear,
+                :track,
+                :updated_tracks,
+                :updated_available_pears,
+                :updated_assigned_pears
+              ]
+            )
   def add_pear_to_track(team, pear_name, track_name) do
     O11y.add_pear_to_track(team, pear_name, track_name, fn ->
       track = find_track(team, track_name)
@@ -139,11 +154,15 @@ defmodule Pears.Core.Team do
 
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
+  @decorate trace_decorator([:team, :find_pear], [:team, :pear_name])
   def find_pear(team, pear_name) do
     find_available_pear(team, pear_name) || find_assigned_pear(team, pear_name)
   end
 
+  @decorate trace_decorator([:team, :find_available_pear], [:team, :pear_name])
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
+
+  @decorate trace_decorator([:team, :find_assigned_pear], [:team, :pear_name])
   def find_assigned_pear(team, pear_name), do: Map.get(team.assigned_pears, pear_name, nil)
 
   def match_in_history?(team, potential_match) do
@@ -236,9 +255,13 @@ defmodule Pears.Core.Team do
   def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
   def any_pears_available?(team), do: Enum.any?(team.available_pears)
 
+  @decorate trace_decorator([:team, :pear_available?], [:team, :pear_name])
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
+
+  @decorate trace_decorator([:team, :pear_assigned?], [:team, :pear_name])
   def pear_assigned?(team, pear_name), do: Map.has_key?(team.assigned_pears, pear_name)
 
+  @decorate trace_decorator([:team, :find_empty_track], [:team, :track])
   def find_empty_track(team) do
     {_, track} = Enum.find(team.tracks, {nil, nil}, fn {_name, track} -> Track.empty?(track) end)
     track

@@ -15,6 +15,8 @@ defmodule Pears.O11y do
 
   def pretty_inspect(thing), do: thing
 
+  def parent_ctx, do: OpenTelemetry.Tracer.current_span_ctx()
+
   @doc """
   Trace events that take a team or team name and returns
   a team and automatically adds before and after team metadata

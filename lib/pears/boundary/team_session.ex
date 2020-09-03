@@ -1,5 +1,6 @@
 defmodule Pears.Boundary.TeamSession do
   use GenServer
+  use Pears.O11y.Decorator
 
   alias Pears.Core.Team
 
@@ -37,10 +38,12 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.whereis(via(name)) != nil
   end
 
+  @decorate trace_decorator([:team_session, :get_team], [:team_name])
   def get_team(team_name) do
     GenServer.call(via(team_name), :get_team)
   end
 
+  @decorate trace_decorator([:team_session, :update_team], [:team_name, :team])
   def update_team(team_name, team) do
     GenServer.call(via(team_name), {:update_team, team})
   end

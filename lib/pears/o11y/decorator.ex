@@ -9,9 +9,9 @@ defmodule Pears.O11y.Decorator do
       require OpenTelemetry.Span
       require OpenTelemetry.Tracer
 
-      OpenTelemetry.Tracer.with_span unquote(event_name) do
-        parent_ctx = OpenTelemetry.Tracer.current_span_ctx()
+      parent_ctx = OpenTelemetry.Tracer.current_span_ctx()
 
+      OpenTelemetry.Tracer.with_span unquote(event_name), %{parent: parent_ctx} do
         result = unquote(body)
 
         maybe_add_team_name = fn attrs ->

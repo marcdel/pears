@@ -2,8 +2,6 @@ defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
   use Pears.O11y.Decorator
 
-  alias Pears.O11y.UI, as: O11y
-
   @impl true
   @decorate trace_decorator([:team_live, :mount], [:team_name])
   def mount(%{"id" => team_name}, _session, socket) do
@@ -31,14 +29,11 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace_decorator([:team_live, :recommend_pears], [:_params, :team, :_updated_team])
+  @decorate trace_decorator([:team_live, :recommend_pears], [:_params, :_team, :_updated_team])
   def handle_event("recommend-pears", _params, socket) do
-    team = socket.assigns.team
-
-    O11y.recommend_pears(team, socket, fn ctx ->
-      {_, _updated_team} = Pears.recommend_pears(team_name(socket), ctx)
-      {:noreply, socket}
-    end)
+    _team = socket.assigns.team
+    {_, _updated_team} = Pears.recommend_pears(team_name(socket))
+    {:noreply, socket}
   end
 
   @impl true

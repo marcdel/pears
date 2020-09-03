@@ -4,6 +4,7 @@ defmodule Pears do
   pairs to those tracks of work. It can recommend pairings for pairs that haven't
   been assigned to a track.
   """
+  use Pears.O11y.Decorator
 
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
@@ -182,19 +183,18 @@ defmodule Pears do
     end
   end
 
-  def recommend_pears(team_name, parent_ctx \\ nil) do
-    O11y.recommend_pears(team_name, parent_ctx, fn ctx ->
-      with {:ok, team} <- TeamSession.get_team(team_name),
-           {:ok, team} <- load_history(team),
-           team <- maybe_add_empty_tracks(team, ctx),
-           team <- Recommendator.assign_pears(team, ctx),
-           {:ok, team} <- TeamSession.update_team(team_name, team),
-           {:ok, team} <- update_subscribers(team) do
-        {:ok, team}
-      else
-        error -> error
-      end
-    end)
+  @decorate trace_decorator([:pears, :recommend_pears], [:team_name, :team_before, :team_after])
+  def recommend_pears(team_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, team_before} <- load_history(team),
+         team <- maybe_add_empty_tracks(team_before),
+         team <- Recommendator.assign_pears(team),
+         {:ok, team} <- TeamSession.update_team(team_name, team),
+         {:ok, team_after} <- update_subscribers(team) do
+      {:ok, team_after}
+    else
+      error -> error
+    end
   end
 
   def reset_pears(team_name) do
@@ -253,15 +253,24 @@ defmodule Pears do
     end
   end
 
-  defp maybe_add_empty_tracks(team, parent_ctx) do
-    O11y.maybe_add_empty_tracks(team, parent_ctx, fn _ctx ->
-      available_slots = Team.available_slot_count(team)
-      available_pears = Enum.count(team.available_pears)
-      pears_without_track = available_pears - available_slots
-      number_to_add = ceil(pears_without_track / 2)
+  @decorate trace_decorator(
+              [:pears, :maybe_add_empty_tracks],
+              [
+                :team,
+                :team_record,
+                :available_slots,
+                :available_pears,
+                :pears_without_track,
+                :number_to_add
+              ]
+            )
+  defp maybe_add_empty_tracks(team) do
+    available_slots = Team.available_slot_count(team)
+    available_pears = Enum.count(team.available_pears)
+    pears_without_track = available_pears - available_slots
+    number_to_add = ceil(pears_without_track / 2)
 
-      add_empty_tracks(team, number_to_add)
-    end)
+    add_empty_tracks(team, number_to_add)
   end
 
   defp add_empty_tracks(team, count) when count <= 0, do: team
@@ -294,6 +303,7 @@ defmodule Pears do
     |> add_history(team_record)
   end
 
+  @decorate trace_decorator([:pears, :load_history], [:team, :team_record])
   defp load_history(team) do
     with {:ok, team_record} <- Persistence.get_team_by_name(team.name),
          team <- add_history(team, team_record) do
@@ -364,13 +374,10 @@ defmodule Pears do
     TeamSession.get_team(team_name)
   end
 
+  @decorate trace_decorator([:pears, :update_subscribers], [:team])
   defp update_subscribers(team) do
-    Phoenix.PubSub.broadcast(
-      Pears.PubSub,
-      @topic <> "#{team.name}",
-      {__MODULE__, [:team, :updated], team}
-    )
-
+    topic = @topic <> "#{team.name}"
+    Phoenix.PubSub.broadcast(Pears.PubSub, topic, {__MODULE__, [:team, :updated], team})
     {:ok, team}
   end
 end
