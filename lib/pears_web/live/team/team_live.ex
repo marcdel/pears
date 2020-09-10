@@ -22,7 +22,6 @@ defmodule PearsWeb.TeamLive do
     {:noreply, apply_action(socket, socket.assigns.live_action)}
   end
 
-  @decorate trace([:team_live, :view_helper, :list_tracks], [:team])
   def list_tracks(team) do
     team.tracks
     |> Enum.sort_by(fn {_, %{id: id}} -> id end)
@@ -30,15 +29,15 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace([:team_live, :recommend_pears], [:_params, :_team, :_updated_team])
+  @decorate trace([:team_live, :recommend_pears], [:team_name])
   def handle_event("recommend-pears", _params, socket) do
-    _team = socket.assigns.team
-    {_, _updated_team} = Pears.recommend_pears(team_name(socket))
+    team_name = team_name(socket)
+    {_, _updated_team} = Pears.recommend_pears(team_name)
     {:noreply, socket}
   end
 
   @impl true
-  @decorate trace([:team_live, :reset_pears], [:team_name, :_updated_team])
+  @decorate trace([:team_live, :reset_pears], [:team_name])
   def handle_event("reset-pears", _params, socket) do
     team_name = team_name(socket)
     {:ok, _updated_team} = Pears.reset_pears(team_name)
@@ -46,7 +45,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace([:team_live, :remove_track], [:team_name, :track_name, :_updated_team])
+  @decorate trace([:team_live, :remove_track], [:team_name, :track_name])
   def handle_event("remove-track", %{"track-name" => track_name}, socket) do
     team_name = team_name(socket)
     {:ok, _updated_team} = Pears.remove_track(team_name, track_name)
@@ -54,7 +53,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace([:team_live, :lock_track], [:team_name, :track_name, :_updated_team])
+  @decorate trace([:team_live, :lock_track], [:team_name, :track_name])
   def handle_event("lock-track", %{"track-name" => track_name}, socket) do
     team_name = team_name(socket)
     {:ok, _updated_team} = Pears.lock_track(team_name, track_name)
@@ -62,7 +61,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace([:team_live, :unlock_track], [:team_name, :track_name, :_updated_team])
+  @decorate trace([:team_live, :unlock_track], [:team_name, :track_name])
   def handle_event("unlock-track", %{"track-name" => track_name}, socket) do
     team_name = team_name(socket)
     {:ok, _updated_team} = Pears.unlock_track(team_name, track_name)
@@ -70,16 +69,14 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace([:team_live, :edit_track_name], [:team_name, :track_name])
+  @decorate trace([:team_live, :edit_track_name], [:_team_name, :track_name])
   def handle_event("edit-track-name", %{"track-name" => track_name}, socket) do
+    _team_name = team_name(socket)
     {:noreply, assign(socket, :editing_track, track_name)}
   end
 
   @impl true
-  @decorate trace(
-              [:team_live, :save_track_name],
-              [:team_name, :track_name, :new_track_name, :_updated_team, :_changeset]
-            )
+  @decorate trace([:team_live, :save_track_name], [:team_name, :track_name, :new_track_name])
   def handle_event("save-track-name", %{"new-track-name" => new_track_name}, socket) do
     team_name = team_name(socket)
     track_name = socket.assigns.editing_track
@@ -99,25 +96,29 @@ defmodule PearsWeb.TeamLive do
   @impl true
   @decorate trace(
               [:team_live, :assigned_pear_selected],
-              [:team_name, :pear_name, :track_name]
+              [:_team_name, :pear_name, :track_name]
             )
   def handle_event(
         "pear-selected",
         %{"pear-name" => pear_name, "track-name" => track_name},
         socket
       ) do
+    _team_name = team_name(socket)
     {:noreply, assign(socket, selected_pear: pear_name, selected_pear_track: track_name)}
   end
 
   @impl true
-  @decorate trace([:team_live, :available_pear_selected], [:team_name, :pear_name])
+  @decorate trace([:team_live, :available_pear_selected], [:_team_name, :pear_name])
   def handle_event("pear-selected", %{"pear-name" => pear_name}, socket) do
+    _team_name = team_name(socket)
     {:noreply, assign(socket, selected_pear: pear_name)}
   end
 
   @impl true
-  @decorate trace([:team_live, :unselect_pear], [:team_name, :_params])
+  @decorate trace([:team_live, :unselect_pear], [:_team_name, :_params])
   def handle_event("unselect-pear", _params, socket) do
+    _team_name = team_name(socket)
+
     {
       :noreply,
       socket
@@ -127,10 +128,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace(
-              [:team_live, :record_pears],
-              [:team_name, :_params, :_updated_team, :_changeset]
-            )
+  @decorate trace([:team_live, :record_pears], [:team_name])
   def handle_event("record-pears", _params, socket) do
     team_name = team_name(socket)
 
@@ -144,10 +142,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace(
-              [:team_live, :unassign_pear],
-              [:team_name, :_params, :pear_name, :track_name, :_error]
-            )
+  @decorate trace([:team_live, :unassign_pear], [:team_name, :pear_name, :track_name])
   def handle_event("unassign-pear", _params, socket) do
     team_name = team_name(socket)
 
@@ -208,10 +203,7 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace(
-              [:team_live, :track_clicked],
-              [:team_name, :to_track, :pear_name, :_updated_team, :_error]
-            )
+  @decorate trace([:team_live, :track_clicked], [:team_name, :to_track, :pear_name, :_error])
   def handle_event("track-clicked", %{"track-name" => to_track}, socket) do
     team_name = team_name(socket)
 
@@ -233,7 +225,6 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace([:team_live, :team_updated], [:team])
   def handle_info({Pears, [:team, :updated], team}, socket) do
     {:noreply, assign(socket, team: team)}
   end

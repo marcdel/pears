@@ -17,6 +17,7 @@ defmodule Pears do
   @decorate trace([:pears, :subscribe], [:team_name])
   def subscribe(team_name) do
     Phoenix.PubSub.subscribe(Pears.PubSub, @topic <> "#{team_name}")
+    {:ok, team_name}
   end
 
   @decorate trace([:pears, :validate_name], [:team_name])
@@ -29,7 +30,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :add_team], [:team_name, :_team_record, :team, :error])
+  @decorate trace([:pears, :add_team], [:team_name, :error])
   def add_team(team_name) do
     with :ok <- TeamManager.validate_name(team_name),
          {:ok, _team_record} <- Persistence.create_team(team_name),
@@ -45,7 +46,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :lookup_team_by], [:team_name, :team])
+  @decorate trace([:pears, :lookup_team_by], [:team_name])
   def lookup_team_by(name: team_name) do
     with {:ok, team} <- maybe_fetch_team_from_db(team_name),
          {:ok, team} <- get_or_start_session(team),
@@ -61,7 +62,7 @@ defmodule Pears do
     TeamManager.remove_team(team_name)
   end
 
-  @decorate trace([:pears, :add_pear], [:team_name, :pear_name, :updated_team, :error])
+  @decorate trace([:pears, :add_pear], [:team_name, :pear_name, :error])
   def add_pear(team_name, pear_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, pear_record} <- Persistence.add_pear_to_team(team_name, pear_name),
@@ -74,7 +75,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :add_track], [:team_name, :track_name, :updated_team, :error])
+  @decorate trace([:pears, :add_track], [:team_name, :track_name, :error])
   def add_track(team_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, track_record} <- Persistence.add_track_to_team(team_name, track_name),
@@ -87,10 +88,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              [:pears, :remove_track],
-              [:team_name, :track_name, :updated_team, :error]
-            )
+  @decorate trace([:pears, :remove_track], [:team_name, :track_name, :error])
   def remove_track(team_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
@@ -110,10 +108,7 @@ defmodule Pears do
   @decorate trace([:pears, :unlock_track], [:team_name, :track_name])
   def unlock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, false)
 
-  @decorate trace(
-              [:pears, :rename_track],
-              [:team_name, :track_name, :new_track_name, :updated_team, :error]
-            )
+  @decorate trace([:pears, :rename_track], [:team_name, :track_name, :new_track_name, :error])
   def rename_track(team_name, track_name, new_track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
@@ -127,10 +122,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              [:pears, :toggle_track_locked],
-              [:team, :track_name, :locked?, :updated_team, :error]
-            )
+  @decorate trace([:pears, :toggle_track_locked], [:team, :track_name, :locked?, :error])
   def toggle_track_locked(team_name, track_name, locked?) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _} <- validate_track_exists(team, track_name),
@@ -143,14 +135,9 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              [:pears, :lock_or_unlock_track],
-              [:team, :track_name, :locked?, :updated_team, :error]
-            )
-  defp lock_or_unlock_track(team, track_name, locked?)
-
-  defp lock_or_unlock_track(team, track_name, true) do
-    with {:ok, _track_record} <- Persistence.lock_track(team.name, track_name),
+  @decorate trace([:pears, :lock_or_unlock_track], [:team_name, :track_name, :locked?, :error])
+  defp lock_or_unlock_track(%{name: team_name} = team, track_name, true) do
+    with {:ok, _track_record} <- Persistence.lock_track(team_name, track_name),
          updated_team <- Team.lock_track(team, track_name) do
       {:ok, updated_team}
     else
@@ -158,8 +145,9 @@ defmodule Pears do
     end
   end
 
-  defp lock_or_unlock_track(team, track_name, false) do
-    with {:ok, _track_record} <- Persistence.unlock_track(team.name, track_name),
+  @decorate trace([:pears, :lock_or_unlock_track], [:team_name, :track_name, :locked?, :error])
+  defp lock_or_unlock_track(%{name: team_name} = team, track_name, false) do
+    with {:ok, _track_record} <- Persistence.unlock_track(team_name, track_name),
          updated_team <- Team.unlock_track(team, track_name) do
       {:ok, updated_team}
     else
@@ -167,10 +155,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              [:pears, :add_pear_to_track],
-              [:team_name, :pear_name, :track_name, :updated_team, :error]
-            )
+  @decorate trace([:pears, :add_pear_to_track], [:team_name, :pear_name, :track_name, :error])
   def add_pear_to_track(team_name, pear_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _pear} <- validate_pear_available(team, pear_name),
@@ -184,17 +169,14 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              [:pears, :move_pear_to_track],
-              [:team_name, :pear_name, :_from_track_name, :to_track_name]
-            )
-  def move_pear_to_track(team_name, pear_name, nil = _from_track_name, to_track_name) do
-    add_pear_to_track(team_name, pear_name, to_track_name)
+  @decorate trace([:pears, :add_pear_to_track], [:team_name, :pear_name, :track_name])
+  def move_pear_to_track(team_name, pear_name, nil = _from_track_name, track_name) do
+    add_pear_to_track(team_name, pear_name, track_name)
   end
 
   @decorate trace(
               [:pears, :move_pear_to_track],
-              [:team_name, :pear_name, :from_track_name, :to_track_name, :updated_team, :error]
+              [:team_name, :pear_name, :from_track_name, :to_track_name, :error]
             )
   def move_pear_to_track(team_name, pear_name, from_track_name, to_track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
@@ -210,10 +192,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              [:pears, :remove_pear_from_track],
-              [:team_name, :pear_name, :track_name, :updated_team, :error]
-            )
+  @decorate trace([:pears, :remove_pear_from_track], [:team_name, :pear_name, :track_name, :error])
   def remove_pear_from_track(team_name, pear_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _pear} <- validate_pear_assigned(team, pear_name),
@@ -227,7 +206,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :recommend_pears], [:team_name, :team, :updated_team, :error])
+  @decorate trace([:pears, :recommend_pears], [:team_name, :result])
   def recommend_pears(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, team_with_history} <- load_history(team),
@@ -241,7 +220,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :reset_pears], [:team_name, :updated_team, :error])
+  @decorate trace([:pears, :reset_pears], [:team_name, :error])
   def reset_pears(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          updated_team <- Team.reset_matches(team),
@@ -253,7 +232,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :record_pears], [:team_name, :updated_team, :error])
+  @decorate trace([:pears, :record_pears], [:team_name, :error])
   def record_pears(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          updated_team <- Team.record_pears(team),
@@ -274,7 +253,7 @@ defmodule Pears do
     end)
   end
 
-  @decorate trace([:pears, :validate_pear_available], [:team_name, :pear_name])
+  @decorate trace([:pears, :validate_pear_available], [:team, :pear_name])
   defp validate_pear_available(team, pear_name) do
     case Team.find_available_pear(team, pear_name) do
       %{name: ^pear_name} = pear -> {:ok, pear}
@@ -282,7 +261,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :validate_pear_assigned], [:team_name, :pear_name])
+  @decorate trace([:pears, :validate_pear_assigned], [:team, :pear_name])
   defp validate_pear_assigned(team, pear_name) do
     case Team.find_assigned_pear(team, pear_name) do
       %{name: ^pear_name} = pear -> {:ok, pear}
@@ -308,14 +287,7 @@ defmodule Pears do
 
   @decorate trace(
               [:pears, :maybe_add_empty_tracks],
-              [
-                :team,
-                :team_record,
-                :available_slots,
-                :available_pears,
-                :pears_without_track,
-                :number_to_add
-              ]
+              [:team, :available_slots, :available_pears, :pears_without_track, :number_to_add]
             )
   defp maybe_add_empty_tracks(team) do
     available_slots = Team.available_slot_count(team)
@@ -340,10 +312,7 @@ defmodule Pears do
     end)
   end
 
-  @decorate trace(
-              [:pears, :maybe_fetch_team_from_db],
-              [:team_name, :team_record, :team, :error]
-            )
+  @decorate trace([:pears, :maybe_fetch_team_from_db], [:team_name, :error])
   defp maybe_fetch_team_from_db(team_name) do
     with {:error, :not_found} <- TeamManager.lookup_team_by_name(team_name),
          {:ok, team_record} <- Persistence.get_team_by_name(team_name),
@@ -355,9 +324,9 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :map_to_team], [:team_record, :team])
-  defp map_to_team(team_record) do
-    team = Team.new(name: team_record.name)
+  @decorate trace([:pears, :map_to_team], [:team_name])
+  defp map_to_team(%{name: team_name} = team_record) do
+    team = Team.new(name: team_name)
 
     team
     |> add_pears(team_record)
@@ -366,7 +335,7 @@ defmodule Pears do
     |> add_history(team_record)
   end
 
-  @decorate trace([:pears, :load_history], [:team, :team_record, :updated_team])
+  @decorate trace([:pears, :load_history], [:team])
   defp load_history(team) do
     with {:ok, team_record} <- Persistence.get_team_by_name(team.name),
          updated_team <- add_history(team, team_record) do
@@ -374,14 +343,14 @@ defmodule Pears do
     end
   end
 
-  @decorate trace([:pears, :add_pears], [:team, :team_record])
+  @decorate trace([:pears, :add_pears], [:team])
   defp add_pears(team, team_record) do
     Enum.reduce(team_record.pears, team, fn pear_record, team ->
       Team.add_pear(team, pear_record.name, pear_record.id)
     end)
   end
 
-  @decorate trace([:pears, :add_tracks], [:team, :team_record])
+  @decorate trace([:pears, :add_tracks], [:team])
   defp add_tracks(team, team_record) do
     Enum.reduce(team_record.tracks, team, fn track_record, team ->
       team
@@ -390,7 +359,7 @@ defmodule Pears do
     end)
   end
 
-  @decorate trace([:pears, :assign_pears], [:team, :team_record])
+  @decorate trace([:pears, :assign_pears], [:team])
   defp assign_pears(team, team_record) do
     Enum.reduce(team_record.pears, team, fn pear_record, team ->
       case pear_record.track do
@@ -406,7 +375,7 @@ defmodule Pears do
     Team.lock_track(team, track_name)
   end
 
-  @decorate trace([:pears, :add_history], [:team, :team_record, :history])
+  @decorate trace([:pears, :add_history], [:team])
   defp add_history(team, team_record) do
     history =
       Enum.map(team_record.snapshots, fn snapshot ->
@@ -418,7 +387,7 @@ defmodule Pears do
     Map.put(team, :history, history)
   end
 
-  @decorate trace([:pears, :persist_changes], [:team, :snapshot, :_team_record, :error])
+  @decorate trace([:pears, :persist_changes], [:team, :snapshot, :error])
   defp persist_changes(team) do
     snapshot = Team.current_matches(team)
 
@@ -442,7 +411,7 @@ defmodule Pears do
     TeamSession.get_team(team_name)
   end
 
-  @decorate trace([:pears, :update_subscribers], [:team, :topic])
+  @decorate trace([:pears, :update_subscribers], [:team])
   defp update_subscribers(team) do
     topic = @topic <> "#{team.name}"
     Phoenix.PubSub.broadcast(Pears.PubSub, topic, {__MODULE__, [:team, :updated], team})

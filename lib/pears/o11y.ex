@@ -4,7 +4,7 @@ defmodule Pears.O11y do
 
   def pretty_inspect(thing)
       when is_map(thing) or is_struct(thing) or is_list(thing) do
-    inspect(
+    Kernel.inspect(
       thing,
       pretty: true,
       structs: false,
@@ -14,4 +14,11 @@ defmodule Pears.O11y do
   end
 
   def pretty_inspect(thing), do: thing
+
+  def inspect(thing)
+      when is_map(thing) or is_struct(thing) or is_list(thing) do
+    Kernel.inspect(thing)
+  end
+
+  def inspect(thing), do: thing
 end

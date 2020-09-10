@@ -44,7 +44,7 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :get_team)
   end
 
-  @decorate trace([:team_session, :update_team], [:team_name, :team])
+  @decorate trace([:team_session, :update_team], [:team_name])
   def update_team(team_name, team) do
     GenServer.call(via(team_name), {:update_team, team})
   end

@@ -11,7 +11,7 @@ defmodule Pears.Core.Team do
   alias Pears.Core.Pear
   alias Pears.Core.Track
 
-  @decorate trace([:team, :new], [:fields])
+  @decorate trace([:team, :new], [:team, :fields])
   def new(fields) do
     team = struct!(__MODULE__, fields)
     Map.put(team, :id, team.name)

@@ -9,29 +9,55 @@ defmodule Pears.O11y.Decorator do
       require OpenTelemetry.Span
       require OpenTelemetry.Tracer
 
+      maybe_add_team_name = fn attrs ->
+        if Keyword.has_key?(attrs, :team) do
+          Keyword.put_new(attrs, :team_name, attrs[:team].name)
+        else
+          attrs
+        end
+      end
+
+      maybe_add_result = fn attrs, attr_keys, result ->
+        if Enum.member?(attr_keys, :result) do
+          Keyword.put_new(attrs, :result, result)
+        else
+          attrs
+        end
+      end
+
+      remove_underscores = fn attrs ->
+        Enum.map(attrs, fn {k, v} ->
+          k =
+            k
+            |> Atom.to_string()
+            |> String.trim_leading("_")
+            |> String.to_existing_atom()
+
+          {k, v}
+        end)
+      end
+
+      pretty_print = fn attrs ->
+        Enum.map(attrs, fn {key, value} -> {key, Pears.O11y.pretty_inspect(value)} end)
+      end
+
+      not_so_pretty_print = fn attrs ->
+        Enum.map(attrs, fn {key, value} -> {key, Pears.O11y.inspect(value)} end)
+      end
+
       parent_ctx = OpenTelemetry.Tracer.current_span_ctx()
 
       OpenTelemetry.Tracer.with_span unquote(event_name), %{parent: parent_ctx} do
         result = unquote(body)
 
-        maybe_add_team_name = fn attrs ->
-          if Keyword.has_key?(attrs, :team) do
-            Keyword.put_new(attrs, :team_name, attrs[:team].name)
-          else
-            attrs
-          end
-        end
-
-        pretty_print = fn attrs ->
-          Enum.map(attrs, fn {key, value} -> {key, Pears.O11y.pretty_inspect(value)} end)
-        end
-
         reportable_attrs =
           Kernel.binding()
           |> Keyword.take(unquote(attr_keys))
-          |> Keyword.put_new(:result, result)
           |> maybe_add_team_name.()
-          |> pretty_print.()
+          # |> Keyword.put_new(:result, result)
+          |> maybe_add_result.(unquote(attr_keys), result)
+          |> remove_underscores.()
+          |> not_so_pretty_print.()
           |> Enum.into([])
 
         OpenTelemetry.Span.set_attributes(reportable_attrs)
