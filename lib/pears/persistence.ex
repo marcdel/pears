@@ -46,17 +46,17 @@ defmodule Pears.Persistence do
     Repo.aggregate(TeamRecord, :count, :id)
   end
 
-  @decorate trace([:persistence, :find_track_by_name], [:_team_name, :track_name])
-  def find_track_by_name(%{name: _team_name, tracks: tracks}, track_name) do
-    case Enum.find(tracks, fn track -> track.name == track_name end) do
+  @decorate trace([:persistence, :find_track_by_name], [[:team, :name], :track_name])
+  def find_track_by_name(team, track_name) do
+    case Enum.find(team.tracks, fn track -> track.name == track_name end) do
       nil -> {:error, :track_not_found}
       track_record -> {:ok, track_record}
     end
   end
 
-  @decorate trace([:persistence, :find_pear_by_name], [:_team_name, :pear_name, :pear])
-  def find_pear_by_name(%{name: _team_name, pears: pears}, pear_name) do
-    case Enum.find(pears, fn pear -> pear.name == pear_name end) do
+  @decorate trace([:persistence, :find_pear_by_name], [[:team, :name], :pear_name, :pear])
+  def find_pear_by_name(team, pear_name) do
+    case Enum.find(team.pears, fn pear -> pear.name == pear_name end) do
       nil -> {:error, :pear_not_found}
       pear -> {:ok, pear}
     end
@@ -72,10 +72,10 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace([:persistence, :add_pear], [:_team_name, :pear_name, :error])
-  defp add_pear(%{id: team_id, name: _team_name}, pear_name) do
+  @decorate trace([:persistence, :add_pear], [[:team, :name], :pear_name, :error])
+  defp add_pear(team, pear_name) do
     case %PearRecord{}
-         |> PearRecord.changeset(%{team_id: team_id, name: pear_name})
+         |> PearRecord.changeset(%{team_id: team.id, name: pear_name})
          |> Repo.insert() do
       {:ok, pear} -> {:ok, Repo.preload(pear, [:track])}
       error -> error
@@ -115,10 +115,10 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace([:persistence, :add_track], [:_team_name, :track_name, :error])
-  defp add_track(%{id: team_id, name: _team_name}, track_name) do
+  @decorate trace([:persistence, :add_track], [[:team, :name], :track_name, :error])
+  defp add_track(team, track_name) do
     case %TrackRecord{}
-         |> TrackRecord.changeset(%{team_id: team_id, name: track_name, locked: false})
+         |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})
          |> Repo.insert() do
       {:ok, track} -> {:ok, Repo.preload(track, [:pears])}
       error -> error

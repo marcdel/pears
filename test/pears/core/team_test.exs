@@ -240,6 +240,9 @@ defmodule Pears.Core.TeamTest do
     refute Team.matched_yesterday?(team, ["pear1", "pear3"])
     refute Team.matched_yesterday?(team, ["pear3", "pear1"])
     refute Team.matched_yesterday?(team, ["pear2", "pear3"])
+
+    team = Map.put(team, :history, [])
+    refute Team.matched_yesterday?(team, ["pear2", "pear3"])
   end
 
   test "can reset matches" do
