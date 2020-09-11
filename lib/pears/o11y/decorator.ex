@@ -55,11 +55,24 @@ defmodule Pears.O11y.Decorator do
       Enum.map(nested_keys, fn key_list ->
         key = key_list |> Enum.join("_") |> String.to_atom()
         {obj_key, other_keys} = List.pop_at(key_list, 0)
-        value = get_in(bound_values, [obj_key | Enum.map(other_keys, &Access.key(&1, nil))])
-        {key, value}
+
+        with {:ok, obj} <- Keyword.fetch(bound_values, obj_key),
+             {:ok, value} <- take_nested_attr(obj, other_keys) do
+          {key, value}
+        else
+          _ -> nil
+        end
       end)
+      |> Enum.reject(&is_nil/1)
 
     Keyword.merge(nested_attrs, attrs)
+  end
+
+  def take_nested_attr(obj, keys) do
+    case get_in(obj, Enum.map(keys, &Access.key(&1, nil))) do
+      nil -> {:error, :not_found}
+      value -> {:ok, value}
+    end
   end
 
   def maybe_add_result(attrs, attr_keys, result) do

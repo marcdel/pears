@@ -60,6 +60,14 @@ defmodule Pears.O11y.DecoratorTest do
 
       assert attrs == [team_pear_track_id: 3]
     end
+
+    test "does not add attribute if missing" do
+      attrs = Decorator.take_attrs([team: %{}], [[:team, :id]])
+      assert attrs == []
+
+      attrs = Decorator.take_attrs([], [[:team, :id]])
+      assert attrs == []
+    end
   end
 
   describe "maybe_add_result" do
