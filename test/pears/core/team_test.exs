@@ -9,13 +9,17 @@ defmodule Pears.Core.TeamTest do
   test "can add and remove pears from the team", %{team: team} do
     team
     |> Team.add_pear("pear1")
-    |> Team.add_pear("pear2")
     |> assert_pear_available("pear1")
-    |> assert_pear_available("pear2")
     |> Team.remove_pear("pear1")
-    |> Team.remove_pear("pear2")
     |> refute_pear_available("pear1")
+    |> Team.add_pear("pear2")
+    |> assert_pear_available("pear2")
+    |> Team.add_track("refactor track")
+    |> Team.add_pear_to_track("pear2", "refactor track")
+    |> assert_pear_in_track("pear2", "refactor track")
+    |> Team.remove_pear("pear2")
     |> refute_pear_available("pear2")
+    |> refute_pear_in_track("pear2", "refactor track")
   end
 
   test "can add and remove a track of work", %{team: team} do

@@ -179,6 +179,18 @@ defmodule Pears.Persistence do
     end
   end
 
+  @decorate trace([:persistence, :remove_pear_from_team], [:team_name, :pear_name, :error])
+  def remove_pear_from_team(team_name, pear_name) do
+    case get_team_by_name(team_name) do
+      {:ok, team} ->
+        pear = Repo.get_by(PearRecord, team_id: team.id, name: pear_name)
+        Repo.delete(pear)
+
+      error ->
+        error
+    end
+  end
+
   @decorate trace([:persistence, :add_snapshot_to_team], [:team_name, :snapshot, :error])
   def add_snapshot_to_team(team_name, snapshot) do
     with {:ok, team} <- get_team_by_name(team_name),
