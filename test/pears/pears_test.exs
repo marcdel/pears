@@ -229,7 +229,11 @@ defmodule PearsTest do
     assert Enum.empty?(saved_team.available_pears)
     assert Enum.count(saved_team.assigned_pears) == 3
     assert Enum.count(saved_team.tracks) == 2
-    assert saved_team.history == [[{"track two", ["pear3"]}, {"track one", ["pear1", "pear2"]}]]
+
+    assert Enum.count(saved_team.history) == 1
+
+    assert Enum.member?(hd(saved_team.history), {"track two", ["pear3"]})
+    assert Enum.member?(hd(saved_team.history), {"track one", ["pear1", "pear2"]})
 
     saved_team
     |> assert_pear_in_track("pear1", "track one")
