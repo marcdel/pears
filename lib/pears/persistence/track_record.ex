@@ -2,8 +2,8 @@ defmodule Pears.Persistence.TrackRecord do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Pears.Persistence.TeamRecord
   alias Pears.Persistence.PearRecord
+  alias Pears.Persistence.TeamRecord
 
   schema "tracks" do
     field :name, :string

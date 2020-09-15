@@ -1,7 +1,7 @@
 defmodule ImportHistory do
-  alias Pears.Persistence
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
+  alias Pears.Persistence
 
   def add_latest_tracks_and_import do
     name = "team name"

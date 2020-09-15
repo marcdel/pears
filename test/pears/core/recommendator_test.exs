@@ -2,7 +2,8 @@ defmodule Pears.Core.RecommendatorTest do
   use ExUnit.Case, async: true
 
   import TeamAssertions
-  alias Pears.Core.{Team, Recommendator}
+  alias Pears.Core.Recommendator
+  alias Pears.Core.Team
 
   test "does not modify team when there are no unassigned pears" do
     before_team =

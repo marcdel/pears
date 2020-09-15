@@ -2,6 +2,8 @@ defmodule PearsTest do
   use Pears.DataCase, async: true
 
   import TeamAssertions
+  alias Pears.Boundary.TeamManager
+  alias Pears.Boundary.TeamSession
   alias Pears.Persistence
 
   setup [:name]
@@ -308,8 +310,8 @@ defmodule PearsTest do
     {:ok, team} = Pears.rename_track(name, "Track One", "Track Deux")
     assert %{"Track Deux" => _} = team.tracks
 
-    Pears.Boundary.TeamManager.remove_team(name)
-    Pears.Boundary.TeamSession.end_session(name)
+    TeamManager.remove_team(name)
+    TeamSession.end_session(name)
     {:ok, team} = Pears.lookup_team_by(name: name)
     assert %{"Track Deux" => _} = team.tracks
   end

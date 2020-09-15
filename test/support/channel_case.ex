@@ -16,6 +16,7 @@ defmodule PearsWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -29,10 +30,10 @@ defmodule PearsWeb.ChannelCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Pears.Repo)
+    :ok = Sandbox.checkout(Pears.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Pears.Repo, {:shared, self()})
+      Sandbox.mode(Pears.Repo, {:shared, self()})
     end
 
     :ok

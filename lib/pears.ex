@@ -8,8 +8,8 @@ defmodule Pears do
 
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
-  alias Pears.Core.Team
   alias Pears.Core.Recommendator
+  alias Pears.Core.Team
   alias Pears.Persistence
 
   @topic inspect(__MODULE__)

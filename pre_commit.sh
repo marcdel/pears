@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 mix format &&
-mix credo &&
+mix credo --strict &&
 mix test &&
 (cd assets && npx cypress run) &&
 cat << EOF

@@ -2,7 +2,9 @@ defmodule Pears.Persistence.TeamRecord do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Pears.Persistence.{SnapshotRecord, PearRecord, TrackRecord}
+  alias Pears.Persistence.PearRecord
+  alias Pears.Persistence.SnapshotRecord
+  alias Pears.Persistence.TrackRecord
 
   schema "teams" do
     field :name, :string
