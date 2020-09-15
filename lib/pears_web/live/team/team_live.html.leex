@@ -60,7 +60,7 @@
         <div class="tracks-container">
           <%= for track <- list_tracks(@team) do %>
             <div
-              id="<%= track.id %>"
+              id="<%= track.id %> <%= track.name %>"
               data-track-name="<%= track.name %>"
               phx-hook="Destination"
               phx-click="track-clicked"

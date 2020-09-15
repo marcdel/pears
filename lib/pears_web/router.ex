@@ -13,7 +13,7 @@ defmodule PearsWeb.Router do
   import Plug.BasicAuth
 
   pipeline :admins_only do
-    if Mix.env() in [:dev, :prod, :e2e] do
+    if Mix.env() in [:dev, :prod, :e2e, :ci] do
       plug :basic_auth,
         username: Map.fetch!(System.get_env(), "ADMIN_USER"),
         password: Map.fetch!(System.get_env(), "ADMIN_PASSWORD")
@@ -40,7 +40,7 @@ defmodule PearsWeb.Router do
   #   pipe_through :api
   # end
 
-  if Mix.env() in [:e2e] do
+  if Mix.env() in [:e2e, :ci] do
     forward("/e2e", PearsWeb.Plug.TestEndToEnd)
   end
 

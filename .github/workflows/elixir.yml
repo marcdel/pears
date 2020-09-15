@@ -28,12 +28,18 @@ jobs:
         otp: ["23.0"]
         elixir: ["1.10"]
     services:
-      db:
+      test_db:
         image: postgres:12
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: pears_test
+      ci_db:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pears_ci
         ports: ['5432:5432']
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
@@ -77,6 +83,12 @@ jobs:
           mix compile
         env:
           MIX_ENV: test
+      - name: mix compile (ci)
+        run: |
+          mix deps.compile
+          mix compile
+        env:
+          MIX_ENV: ci
       - name: mix test
         run: mix test --trace
       - name: mix format
@@ -84,3 +96,24 @@ jobs:
           mix format --check-formatted --dry-run --check-equivalent
       - name: mix credo
         run: mix credo --strict
+      - name: start e2e server in the background
+        run: |
+          cd assets
+          npm install
+          node node_modules/webpack/bin/webpack.js --mode production
+          cd ..
+          mix do ecto.create, ecto.migrate
+          mix phx.server &
+        env:
+          MIX_ENV: ci
+      - name: cypress test
+        uses: cypress-io/github-action@v2
+        with:
+          wait-on: 'http://localhost:5000'
+          working-directory: assets
+          browser: chrome
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-videos
+          path: assets/cypress/videos

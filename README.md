@@ -1,5 +1,8 @@
 # Pears
 
+[![Build status badge](https://github.com/marcdel/pears/workflows/Elixir%20CI/badge.svg)](https://github.com/marcdel/pears/actions)
+
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
