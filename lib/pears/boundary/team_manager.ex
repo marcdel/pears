@@ -1,6 +1,6 @@
 defmodule Pears.Boundary.TeamManager do
   use GenServer
-  use Pears.O11y.Decorator
+  use OpenTelemetryDecorator
 
   alias Pears.Core.Team
 
@@ -14,7 +14,7 @@ defmodule Pears.Boundary.TeamManager do
 
   def init(_teams), do: {:error, "teams must be a map"}
 
-  @decorate trace([:team_manager, :validate_name], [:team_name])
+  @decorate trace("team_manager.validate_name", [:team_name])
   def validate_name(manager \\ __MODULE__, team_name) do
     GenServer.call(manager, {:validate_name, team_name})
   end
@@ -31,14 +31,14 @@ defmodule Pears.Boundary.TeamManager do
     GenServer.call(manager, {:remove_team, name})
   end
 
-  @decorate trace([:team_manager, :add_team], [:team_name])
+  @decorate trace("team_manager.add_team", [:team_name])
   def handle_call({:add_team, team_name}, _from, teams) do
     team = Team.new(name: team_name)
     new_teams = Map.put_new(teams, team.name, team)
     {:reply, {:ok, team}, new_teams}
   end
 
-  @decorate trace([:team_manager, :validate_name], [:team_name])
+  @decorate trace("team_manager.validate_name", [:team_name])
   def handle_call({:validate_name, team_name}, _from, teams) do
     if Map.has_key?(teams, team_name) do
       {:reply, {:error, :name_taken}, teams}
@@ -47,7 +47,7 @@ defmodule Pears.Boundary.TeamManager do
     end
   end
 
-  @decorate trace([:team_manager, :lookup_team_by_name], [:team_name])
+  @decorate trace("team_manager.lookup_team_by_name", [:team_name])
   def handle_call({:lookup_team_by_name, team_name}, _from, teams) do
     if Map.has_key?(teams, team_name) do
       {:reply, {:ok, teams[team_name]}, teams}
@@ -56,7 +56,7 @@ defmodule Pears.Boundary.TeamManager do
     end
   end
 
-  @decorate trace([:team_manager, :remove_team], [:team_name])
+  @decorate trace("team_manager.remove_team", [:team_name])
   def handle_call({:remove_team, team_name}, _from, teams) do
     new_teams = Map.delete(teams, team_name)
     {:reply, {:ok, new_teams}, new_teams}
