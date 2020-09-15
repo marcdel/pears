@@ -63,10 +63,18 @@ defmodule Pears.Core.Recommendator do
             )
   defp potential_matches_by_score(team) do
     potential_matches = Team.potential_matches(team)
-    primary = score_matches(primary_matches(potential_matches), team)
-    secondary = score_matches(secondary_matches(potential_matches), team)
-    scored_matches = sort_scored_matches(primary, secondary, team)
 
+    primary =
+      potential_matches
+      |> primary_matches()
+      |> score_matches(team)
+
+    secondary =
+      potential_matches
+      |> secondary_matches()
+      |> score_matches(team)
+
+    scored_matches = sort_scored_matches(primary, secondary, team)
     solo_pears = Enum.map(potential_matches.available, fn pear -> {pear} end)
 
     scored_matches ++ solo_pears
