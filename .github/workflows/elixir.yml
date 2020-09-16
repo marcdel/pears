@@ -117,3 +117,10 @@ jobs:
         with:
           name: cypress-videos
           path: assets/cypress/videos
+      - name: deploy
+        uses: mhanberg/gigalixir-action@v0.3.0
+        with:
+          GIGALIXIR_USERNAME: ${{ secrets.GIGALIXIR_USERNAME }}
+          GIGALIXIR_PASSWORD: ${{ secrets.GIGALIXIR_PASSWORD }}
+          GIGALIXIR_APP: pears
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
