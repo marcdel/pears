@@ -3,7 +3,7 @@
   "description": " ",
   "license": "MIT",
   "scripts": {
-    "deploy": "webpack --mode production",
+    "deploy": "NODE_ENV=production webpack --mode production",
     "watch": "webpack --mode development --watch",
     "cy": "cypress open"
   },
@@ -24,7 +24,10 @@
     "mini-css-extract-plugin": "^0.11.2",
     "node-sass": "^4.13.1",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^4.0.2",
     "sass-loader": "^10.0.2",
+    "tailwindcss": "^1.8.10",
     "terser-webpack-plugin": "^4.2.2",
     "webpack": "4.44.2",
     "webpack-cli": "^3.3.2"
