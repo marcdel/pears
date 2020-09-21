@@ -257,7 +257,7 @@ defmodule PearsWeb.TeamLive do
   defp assign_team_or_redirect(socket, team_name) do
     case Pears.lookup_team_by(name: team_name) do
       {:ok, team} ->
-        assign(socket, :team, team)
+        assign(socket, team: team, page_title: team.name)
 
       {:error, :not_found} ->
         socket

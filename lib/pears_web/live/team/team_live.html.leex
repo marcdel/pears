@@ -1,150 +1,191 @@
-<%= if @live_action in [:add_pear] do %>
-  <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
-    id: @team.id,
-    team: @team,
-    return_to: Routes.team_path(@socket, :show, @team)
-  %>
-<% end %>
+<div class="px-4 py-8 sm:px-0">
+    <%= if @live_action in [:add_pear] do %>
+      <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
+        id: @team.id,
+        team: @team,
+        return_to: Routes.team_path(@socket, :show, @team)
+      %>
+    <% end %>
 
-<%= if @live_action in [:add_track] do %>
-  <%= live_modal @socket, PearsWeb.TeamLive.AddTrackForm,
-    id: @team.id,
-    team: @team,
-    return_to: Routes.team_path(@socket, :show, @team)
-  %>
-<% end %>
+    <%= if @live_action in [:add_track] do %>
+      <%= live_modal @socket, PearsWeb.TeamLive.AddTrackForm,
+        id: @team.id,
+        team: @team,
+        return_to: Routes.team_path(@socket, :show, @team)
+      %>
+    <% end %>
 
-<div phx-click="unselect-pear">
-  <section class="board">
-    <div
-      id="unassigned"
-      class="left-column"
-      phx-hook="Destination"
-      phx-click="unassign-pear">
-      <article>
-        <h1><%= @team.name %></h1>
-      </article>
+    <div phx-click="unselect-pear">
+      <section class="board">
+        <div
+          id="unassigned"
+          class="left-column"
+          phx-hook="Destination"
+          phx-click="unassign-pear">
+          <article>
+            <h1><%= @team.name %></h1>
+          </article>
 
-      <article class="available-pears">
-        <h3>Available Pears</h3>
-        <p>
-          <%= for pear <- Map.values(@team.available_pears) do %>
-            <a
-              id="<%= pear.id %>"
-              phx-hook="Pear"
-              draggable="true"
-              data-pear-name="<%= pear.name %>"
-              data-track-name="Unassigned"
-              data-current-track="Unassigned"
-              phx-value-pear-name="<%= pear.name %>"
-              phx-value-track-name="Unassigned"
-              phx-click="pear-selected"
-              data-cy="<%= "available-pear #{pear.name}" %>"
-              class="button pill available-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
-              <%= pear.name %>
-            </a>
-          <% end %>
-        </p>
-        <%= live_patch "+ Add Pear", to: Routes.team_path(@socket, :add_pear, @team) %>
-      </article>
-    </div>
-    <div class="right-column">
-      <article>
-        <button class="button button-outline" phx-click="reset-pears">Reset Pears</button>
-        <button class="button button-outline" phx-click="record-pears">Record Pears</button>
-        <button class="button" phx-click="recommend-pears">Recommend Pears</button>
-      </article>
-
-<h1 class="text-orange-500 text-5xl font-bold text-center">Tailwind CSS</h1>
-      <h3>Tracks</h3>
-      <article class="tracks">
-        <div class="tracks-container">
-          <%= for track <- list_tracks(@team) do %>
-            <div
-              id="<%= track.id %> <%= track.name %>"
-              data-track-name="<%= track.name %>"
-              phx-hook="Destination"
-              phx-click="track-clicked"
-              phx-value-track-name="<%= track.name %>"
-              data-cy="<%= "track #{track.name}" %>"
-              class="track <%= if track.locked, do: "locked" %>">
-              <h4 class="track-name">
-                <span>
-                  <%= if track.locked do %>
-                    <a
-                      phx-click="unlock-track"
-                      phx-value-track-name="<%= track.name %>"
-                      data-cy="<%= "unlock-track #{track.name}" %>"
-                      href="#">
-                      <img
-                        src="<%= Routes.static_path(@socket, "/images/locked.svg") %>"
-                        class="locked"
-                        alt="unlock track <%= track.name %>"
-                      />
-                    </a>
-                  <% else %>
-                    <a
-                      phx-click="lock-track"
-                      phx-value-track-name="<%= track.name %>"
-                      data-cy="<%= "lock-track #{track.name}" %>"
-                      href="#">
-                      <img
-                        src="<%= Routes.static_path(@socket, "/images/unlocked.svg") %>"
-                        class="unlocked"
-                        alt="lock track <%= track.name %>"
-                      />
-                    </a>
-                  <% end %>
-                </span>
-
-                <%= if @editing_track == track.name do %>
-                  <form phx-submit="save-track-name" data-cy="edit-track-name-form <%= track.name %>">
-                    <input
-                      id="<%= track.name %>"
-                      phx-hook="FocusInput"
-                      data-cy="<%= "track-name-input #{track.name}" %>"
-                      name="new-track-name" type="text"
-                      value="<%= track.name %>" />
-                  </form>
-                <% else %>
-                  <span
-                    phx-click="edit-track-name"
-                    phx-value-track-name="<%= track.name %>"
-                    data-cy="<%= "edit-track-name #{track.name}" %>"
-                  >
-                    <%= track.name %>
-                  </span>
-                <% end %>
-
-                <a
-                  phx-click="remove-track"
-                  phx-value-track-name="<%= track.name %>"
-                  data-cy="<%= "remove-track #{track.name}" %>"
-                  href="#"
-                  class="phx-modal-close">
-                  &times;
-                </a>
-              </h4>
-              <%= for pear <- Map.values(track.pears) do %>
+          <article class="available-pears">
+            <h3>Available Pears</h3>
+            <p>
+              <%= for pear <- Map.values(@team.available_pears) do %>
                 <a
                   id="<%= pear.id %>"
                   phx-hook="Pear"
                   draggable="true"
                   data-pear-name="<%= pear.name %>"
-                  data-track-name="<%= track.name %>"
-                  phx-click="pear-selected"
+                  data-track-name="Unassigned"
+                  data-current-track="Unassigned"
                   phx-value-pear-name="<%= pear.name %>"
-                  phx-value-track-name="<%= track.name %>"
-                  data-cy="<%= "assigned-pear #{pear.name}" %>"
-                  class="button pill assigned-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
+                  phx-value-track-name="Unassigned"
+                  phx-click="pear-selected"
+                  data-cy="<%= "available-pear #{pear.name}" %>"
+                  class="button pill available-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
                   <%= pear.name %>
                 </a>
               <% end %>
-            </div>
-          <% end %>
+            </p>
+            <%= live_patch "+ Add Pear", to: Routes.team_path(@socket, :add_pear, @team) %>
+          </article>
         </div>
-      </article>
-      <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
+        <div class="right-column">
+          <article>
+            <button class="button button-outline" phx-click="reset-pears">Reset Pears</button>
+            <button class="button button-outline" phx-click="record-pears">Record Pears</button>
+            <button class="button" phx-click="recommend-pears">Recommend Pears</button>
+          </article>
+
+          <h3>Tracks</h3>
+          <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <%= for track <- list_tracks(@team) do %>
+                <li class="col-span-1 bg-white rounded-lg shadow">
+                  <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:px-6">
+                      <%= track.name %>
+                    </div>
+                    <div class="bg-gray-100 px-4 py-5 sm:p-6">
+                      <div class="px-4 py-5 sm:p-6">
+                        <div>
+                          <ul class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
+                            <%= for pear <- Map.values(track.pears) do %>
+                              <li class="col-span-3 flex shadow-sm rounded-md cursor-move" draggable="true">
+                                <div class="flex-shrink-0 flex items-center justify-center w-8 bg-white border-t border-r border-b border-gray-200 rounded-l-md text-green-600 text-sm leading-5 font-medium rounded-l-md">
+                                  <svg  class="w-4 h-4" viewBox="0 0 35 35" fill="currentColor" stroke="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="8" y="3" width="7" height="7"></rect>
+                                    <rect x="19" y="3" width="7" height="7"></rect>
+                                    <rect x="19" y="14" width="7" height="7"></rect>
+                                    <rect x="8" y="14" width="7" height="7"></rect>
+                                    <rect x="8" y="25" width="7" height="7"></rect>
+                                    <rect x="19" y="25" width="7" height="7"></rect>
+                                  </svg>
+                                </div>
+                                <div class="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                                  <div class="flex-1 px-4 py-2 text-sm leading-5 truncate">
+                                    <span class="text-gray-900 font-medium"><%= pear.name %></span>
+                                  </div>
+                                  <!--
+                                  <div class="flex-shrink-0 pr-2">
+                                    <button class="w-8 h-8 inline-flex items-center justify-center text-gray-400 rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                                      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
+                                -->
+                              </li>
+                            <% end %>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </li>
+            <% end %>
+        </ul>
+
+          <article class="tracks">
+            <div class="tracks-container">
+              <%= for track <- list_tracks(@team) do %>
+                <div
+                  id="<%= track.id %> <%= track.name %>"
+                  data-track-name="<%= track.name %>"
+                  phx-hook="Destination"
+                  phx-click="track-clicked"
+                  phx-value-track-name="<%= track.name %>"
+                  data-cy="<%= "track #{track.name}" %>"
+                  class="track <%= if track.locked, do: "locked" %>">
+                  <h4 class="track-name">
+                    <span>
+                      <%= if track.locked do %>
+                        <a
+                          phx-click="unlock-track"
+                          phx-value-track-name="<%= track.name %>"
+                          data-cy="<%= "unlock-track #{track.name}" %>"
+                          href="#">
+                          unlock
+                        </a>
+                      <% else %>
+                        <a
+                          phx-click="lock-track"
+                          phx-value-track-name="<%= track.name %>"
+                          data-cy="<%= "lock-track #{track.name}" %>"
+                          href="#">
+                          lock
+                        </a>
+                      <% end %>
+                    </span>
+
+                    <%= if @editing_track == track.name do %>
+                      <form phx-submit="save-track-name" data-cy="edit-track-name-form <%= track.name %>">
+                        <input
+                          id="<%= track.name %>"
+                          phx-hook="FocusInput"
+                          data-cy="<%= "track-name-input #{track.name}" %>"
+                          name="new-track-name" type="text"
+                          value="<%= track.name %>" />
+                      </form>
+                    <% else %>
+                      <span
+                        phx-click="edit-track-name"
+                        phx-value-track-name="<%= track.name %>"
+                        data-cy="<%= "edit-track-name #{track.name}" %>"
+                      >
+                        <%= track.name %>
+                      </span>
+                    <% end %>
+
+                    <a
+                      phx-click="remove-track"
+                      phx-value-track-name="<%= track.name %>"
+                      data-cy="<%= "remove-track #{track.name}" %>"
+                      href="#"
+                      class="phx-modal-close">
+                      &times;
+                    </a>
+                  </h4>
+                  <%= for pear <- Map.values(track.pears) do %>
+                    <a
+                      id="<%= pear.id %>"
+                      phx-hook="Pear"
+                      draggable="true"
+                      data-pear-name="<%= pear.name %>"
+                      data-track-name="<%= track.name %>"
+                      phx-click="pear-selected"
+                      phx-value-pear-name="<%= pear.name %>"
+                      phx-value-track-name="<%= track.name %>"
+                      data-cy="<%= "assigned-pear #{pear.name}" %>"
+                      class="button pill assigned-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
+                      <%= pear.name %>
+                    </a>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </article>
+          <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
+        </div>
+      </section>
     </div>
-  </section>
 </div>
