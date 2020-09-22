@@ -11,19 +11,19 @@ defmodule Pears.Core.Team do
   alias Pears.Core.Pear
   alias Pears.Core.Track
 
-  @decorate trace("team.new", [[:team, :name], :fields])
+  @decorate trace("team.new", include: [[:team, :name], :fields])
   def new(fields) do
     team = struct!(__MODULE__, fields)
     Map.put(team, :id, team.name)
   end
 
-  @decorate trace("team.add_pear", [[:team, :name], :pear_name])
+  @decorate trace("team.add_pear", include: [[:team, :name], :pear_name])
   def add_pear(team, pear_name, pear_id \\ nil) do
     pear = Pear.new(name: pear_name, id: pear_id)
     Map.put(team, :available_pears, Map.put(team.available_pears, pear_name, pear))
   end
 
-  @decorate trace("team.remove_pear", [[:team, :name], :pear_name])
+  @decorate trace("team.remove_pear", include: [[:team, :name], :pear_name])
   def remove_pear(team, pear_name) do
     pear = find_pear(team, pear_name)
 
@@ -44,14 +44,14 @@ defmodule Pears.Core.Team do
     |> remove_available_pear(pear)
   end
 
-  @decorate trace("team.add_track", [[:team, :name], :track_name, :track])
+  @decorate trace("team.add_track", include: [[:team, :name], :track_name, :track])
   def add_track(team, track_name, track_id \\ nil) do
     track_id = track_id || next_track_id(team)
     track = Track.new(name: track_name, id: track_id)
     Map.put(team, :tracks, Map.put(team.tracks, track_name, track))
   end
 
-  @decorate trace("team.remove_track", [[:team, :name], :track_name, :track])
+  @decorate trace("team.remove_track", include: [[:team, :name], :track_name, :track])
   def remove_track(team, track_name) do
     track = find_track(team, track_name)
 
@@ -60,14 +60,14 @@ defmodule Pears.Core.Team do
     |> Map.put(:tracks, Map.delete(team.tracks, track_name))
   end
 
-  @decorate trace("team.lock_track", [[:team, :name], :track_name, :track])
+  @decorate trace("team.lock_track", include: [[:team, :name], :track_name, :track])
   def lock_track(team, track_name) do
     track = find_track(team, track_name)
     updated_tracks = Map.put(team.tracks, track_name, Track.lock_track(track))
     Map.put(team, :tracks, updated_tracks)
   end
 
-  @decorate trace("team.unlock_track", [[:team, :name], :track_name, :track])
+  @decorate trace("team.unlock_track", include: [[:team, :name], :track_name, :track])
   def unlock_track(team, track_name) do
     track = find_track(team, track_name)
     updated_tracks = Map.put(team.tracks, track_name, Track.unlock_track(track))
@@ -76,7 +76,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.rename_track",
-              [
+              include: [
                 :team,
                 :track_name,
                 :new_track_name,
@@ -111,7 +111,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.add_pear_to_track",
-              [
+              include: [
                 :team,
                 :pear_name,
                 :track_name,
@@ -141,7 +141,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.move_pear_to_track",
-              [:team, :pear_name, :from_track_name, :to_track_name]
+              include: [:team, :pear_name, :from_track_name, :to_track_name]
             )
   def move_pear_to_track(team, pear_name, from_track_name, to_track_name) do
     team
@@ -151,7 +151,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.remove_pear_from_track",
-              [
+              include: [
                 :team,
                 :pear_name,
                 :track_name,
@@ -178,7 +178,7 @@ defmodule Pears.Core.Team do
     }
   end
 
-  @decorate trace("team.record_pears", [[:team, :name]])
+  @decorate trace("team.record_pears", include: [[:team, :name]])
   def record_pears(team) do
     if any_pears_assigned?(team) do
       %{team | history: [current_matches(team)] ++ team.history}
@@ -187,38 +187,40 @@ defmodule Pears.Core.Team do
     end
   end
 
-  @decorate trace("team.find_track", [[:team, :name], :track_name])
+  @decorate trace("team.find_track", include: [[:team, :name], :track_name])
   def find_track(team, track_name), do: Map.get(team.tracks, track_name, nil)
 
-  @decorate trace("team.find_pear", [[:team, :name], :pear_name])
+  @decorate trace("team.find_pear", include: [[:team, :name], :pear_name])
   def find_pear(team, pear_name) do
     find_available_pear(team, pear_name) || find_assigned_pear(team, pear_name)
   end
 
-  @decorate trace("team.find_available_pear", [[:team, :name], :pear_name])
+  @decorate trace("team.find_available_pear", include: [[:team, :name], :pear_name])
   def find_available_pear(team, pear_name), do: Map.get(team.available_pears, pear_name, nil)
 
-  @decorate trace("team.find_assigned_pear", [[:team, :name], :pear_name])
+  @decorate trace("team.find_assigned_pear", include: [[:team, :name], :pear_name])
   def find_assigned_pear(team, pear_name), do: Map.get(team.assigned_pears, pear_name, nil)
 
-  @decorate trace("team.match_in_history?", [[:team, :name], :potential_match])
+  @decorate trace("team.match_in_history?", include: [[:team, :name], :potential_match])
   def match_in_history?(team, potential_match) do
     Enum.any?(team.history, fn days_matches ->
       matched_on_day?(days_matches, potential_match, team)
     end)
   end
 
-  @decorate trace("team.matched_yesterday?", [[:_team, :name], :potential_match])
+  @decorate trace("team.matched_yesterday?", include: [[:_team, :name], :potential_match])
   def matched_yesterday?(%{history: []} = _team, _), do: false
 
-  @decorate trace("team.matched_yesterday?", [[:team, :name], :potential_match])
+  @decorate trace("team.matched_yesterday?", include: [[:team, :name], :potential_match])
   def matched_yesterday?(team, potential_match) do
     team.history
     |> List.first()
     |> matched_on_day?(potential_match, team)
   end
 
-  @decorate trace("team.matched_on_day?", [:days_matches, :potential_match, [:_team, :name]])
+  @decorate trace("team.matched_on_day?",
+              include: [:days_matches, :potential_match, [:_team, :name]]
+            )
   defp matched_on_day?(days_matches, potential_match, _team) do
     days_matches
     |> Enum.any?(fn {_, match} ->
@@ -228,7 +230,7 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  @decorate trace("team.available_slot_count", [[:team, :name]])
+  @decorate trace("team.available_slot_count", include: [[:team, :name]])
   def available_slot_count(team) do
     team.tracks
     |> Map.values()
@@ -241,7 +243,7 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  @decorate trace("team.potential_matches", [[:team, :name]])
+  @decorate trace("team.potential_matches", include: [[:team, :name]])
   def potential_matches(team) do
     assigned =
       team.tracks
@@ -255,7 +257,7 @@ defmodule Pears.Core.Team do
     %{available: available, assigned: assigned}
   end
 
-  @decorate trace("team.current_matches", [[:team, :name]])
+  @decorate trace("team.current_matches", include: [[:team, :name]])
   def current_matches(team) do
     team.tracks
     |> Enum.map(fn {track_name, track} ->
@@ -263,14 +265,14 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  @decorate trace("team.historical_matches", [[:team, :name]])
+  @decorate trace("team.historical_matches", include: [[:team, :name]])
   def historical_matches(team) do
     Enum.map(team.history, fn days_matches ->
       Enum.map(days_matches, fn {_, match} -> List.to_tuple(match) end)
     end)
   end
 
-  @decorate trace("team.reset_matches", [[:team, :name]])
+  @decorate trace("team.reset_matches", include: [[:team, :name]])
   def reset_matches(team) do
     team.tracks
     |> Map.values()
@@ -285,7 +287,7 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  @decorate trace("team.assign_pears_from_history", [[:team, :name]])
+  @decorate trace("team.assign_pears_from_history", include: [[:team, :name]])
   def assign_pears_from_history(team) do
     team.history
     |> List.first()
@@ -296,19 +298,19 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  @decorate trace("team.any_pears_assigned?", [[:team, :name]])
+  @decorate trace("team.any_pears_assigned?", include: [[:team, :name]])
   def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
 
-  @decorate trace("team.any_pears_available?", [[:team, :name]])
+  @decorate trace("team.any_pears_available?", include: [[:team, :name]])
   def any_pears_available?(team), do: Enum.any?(team.available_pears)
 
-  @decorate trace("team.pear_available?", [[:team, :name], :pear_name])
+  @decorate trace("team.pear_available?", include: [[:team, :name], :pear_name])
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
 
-  @decorate trace("team.pear_assigned?", [[:team, :name], :pear_name])
+  @decorate trace("team.pear_assigned?", include: [[:team, :name], :pear_name])
   def pear_assigned?(team, pear_name), do: Map.has_key?(team.assigned_pears, pear_name)
 
-  @decorate trace("team.find_empty_track", [[:team, :name], :track])
+  @decorate trace("team.find_empty_track", include: [[:team, :name], :track])
   def find_empty_track(team) do
     {_, track} = Enum.find(team.tracks, {nil, nil}, fn {_name, track} -> Track.empty?(track) end)
     track
@@ -335,6 +337,6 @@ defmodule Pears.Core.Team do
     }
   end
 
-  @decorate trace("team.next_track_id", [[:team, :name]])
+  @decorate trace("team.next_track_id", include: [[:team, :name]])
   defp next_track_id(team), do: Enum.count(team.tracks) + 1
 end
