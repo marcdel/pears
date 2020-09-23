@@ -61,8 +61,7 @@
             <%= for track <- list_tracks(@team) do %>
                 <li class="col-span-1 bg-white rounded-lg shadow">
                   <div class="bg-white overflow-hidden shadow rounded-lg">
-                    <div class="px-4 py-5 sm:px-6 flex justify-between <%= if track.locked, do: "border-b-2 border-red-400", else: "border-b-2 border-gray-100" %>">
-                      <%= track.name %>
+                    <div class="px-4 py-5 sm:px-6 flex items-center <%= if track.locked, do: "border-b-2 border-red-400", else: "border-b-2 border-gray-100" %>">
                       <%= if track.locked do %>
                         <a
                           phx-click="unlock-track"
@@ -90,6 +89,7 @@
                           </svg>
                         </a>
                       <% end %>
+                      <span class="pl-2"><%= track.name %></span>
                     </div>
                     <div class="bg-gray-100 px-4 py-5 sm:p-6">
                       <div class="px-4 py-5 sm:p-6">
