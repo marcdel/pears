@@ -122,6 +122,7 @@ jobs:
           path: assets/cypress/videos
       - name: deploy
         uses: mhanberg/gigalixir-action@v0.3.0
+        if: github.ref == 'refs/heads/master'
         with:
           GIGALIXIR_USERNAME: ${{ secrets.GIGALIXIR_USERNAME }}
           GIGALIXIR_PASSWORD: ${{ secrets.GIGALIXIR_PASSWORD }}
