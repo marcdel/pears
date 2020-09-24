@@ -15,3 +15,18 @@ config :pears, Pears.Repo,
   database: "pears_ci",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :opentelemetry, :resource,
+  service: [
+    name: "pears",
+    namespace: "pears_ci"
+  ]
+
+config :opentelemetry,
+  processors: [
+    ot_batch_processor: %{
+      exporter:
+        {OpenTelemetry.Honeycomb.Exporter,
+         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY"), dataset: "pears"}
+    }
+  ]

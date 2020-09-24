@@ -86,6 +86,6 @@ config :opentelemetry,
     ot_batch_processor: %{
       exporter:
         {OpenTelemetry.Honeycomb.Exporter,
-         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY")}
+         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY"), dataset: "pears"}
     }
   ]
