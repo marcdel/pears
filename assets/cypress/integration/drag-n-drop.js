@@ -8,7 +8,10 @@ context('Drag-n-drop', () => {
 
     cy.visit('/')
 
-    cy.fillInput('Create Team', teamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(teamName)
+      .should('have.value', teamName)
+
     cy.clickButton('Create')
   })
 

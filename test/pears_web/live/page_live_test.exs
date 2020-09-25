@@ -5,7 +5,7 @@ defmodule PearsWeb.PageLiveTest do
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
-    assert disconnected_html =~ "Pears.dev"
-    assert render(page_live) =~ "Pears.dev"
+    assert disconnected_html =~ "Create your team"
+    assert render(page_live) =~ "Create your team"
   end
 end

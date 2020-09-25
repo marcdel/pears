@@ -12,7 +12,10 @@ context('Validation', () => {
   })
 
   function testInvalidNameValidation() {
-    cy.fillInput('Create Team', existingTeamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(existingTeamName)
+      .should('have.value', existingTeamName)
+
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
 
     cy.get('[name="team-name"]').clear()
@@ -56,7 +59,10 @@ context('Validation', () => {
   it('create team, add pears, add tracks, and recommend pears', () => {
     testInvalidNameValidation()
 
-    cy.fillInput('Create Team', teamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(teamName)
+      .should('have.value', teamName)
+
     cy.clickButton('Create')
     cy.contains('Congratulations, your team has been created!').should('be.visible')
 

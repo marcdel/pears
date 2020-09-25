@@ -38,7 +38,9 @@ context('Full Journey', () => {
   }
 
   it('create team, add pears, add tracks, and recommend pears', () => {
-    cy.fillInput('Create Team', teamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(teamName)
+      .should('have.value', teamName)
 
     cy.clickButton('Create')
 
@@ -51,12 +53,12 @@ context('Full Journey', () => {
 
     addTrack('Feature Track')
 
-    cy.clickButton('Recommend Pears')
+    cy.clickButton('Suggest')
 
     cy.pearIsInTrack('First Pear', 'Feature Track')
     cy.pearIsInTrack('Second Pear', 'Feature Track')
 
-    cy.clickButton('Record Pears')
+    cy.clickButton('Save')
     cy.contains('Today\'s assigned pears have been recorded!').should('be.visible')
 
     cy.removeTrack('Feature Track')
@@ -89,17 +91,17 @@ context('Full Journey', () => {
     cy.pearIsInTrack('First Pear', 'Feature Track')
 
     cy.lockTrack('Feature Track')
-    cy.clickButton('Recommend Pears')
+    cy.clickButton('Suggest')
     cy.pearIsInTrack('Second Pear', 'Refactor Track')
 
-    cy.clickButton('Record Pears')
+    cy.clickButton('Save')
     cy.contains('Today\'s assigned pears have been recorded!').should('be.visible')
 
-    cy.clickButton('Reset Pears')
+    cy.clickButton('Reset')
     cy.pearIsAvailable('Second Pear')
 
     cy.unlockTrack('Feature Track')
-    cy.clickButton('Reset Pears')
+    cy.clickButton('Reset')
     cy.pearIsAvailable('First Pear')
   })
 })

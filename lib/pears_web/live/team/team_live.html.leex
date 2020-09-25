@@ -14,11 +14,43 @@
       %>
   <% end %>
   <div phx-click="unselect-pear">
-    <article>
-      <button class="button button-outline" phx-click="reset-pears">Reset Pears</button>
-      <button class="button button-outline" phx-click="record-pears">Record Pears</button>
-      <button class="button" phx-click="recommend-pears">Recommend Pears</button>
-    </article>
+    <div class="pb-5 mb-10 border-b border-gray-200 space-y-3 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
+      <h1 class="capitalize ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
+        <%= assigns[:page_title] %>
+      </h1>
+      <div class="flex space-x-3">
+        <span class="shadow-sm rounded-md">
+          <button type="button" phx-click="reset-pears" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            Reset
+          </button>
+        </span>
+        <span class="shadow-sm rounded-md">
+          <button type="button" phx-click="recommend-pears" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Suggest
+          </button>
+        </span>
+        <span class="shadow-sm rounded-md">
+          <button type="button" phx-click="record-pears" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save
+          </button>
+        </span>
+      </div>
+    </div>
     <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <li class="col-span-1 bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:px-6 border-b-2 border-gray-100">
@@ -83,7 +115,7 @@
                 phx-click="unlock-track"
                 phx-value-track-name="<%= track.name %>"
                 data-cy="<%= "unlock-track #{track.name}" %>"
-                title="Locked: [Recommend] and [Reset] will not add or remove pears."
+                title="Locked: [Suggest] and [Reset] will not add or remove pears."
                 class="text-red-600"
                 href="#">
                 <svg  class="w-4 h-4" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +128,7 @@
                 phx-click="lock-track"
                 phx-value-track-name="<%= track.name %>"
                 data-cy="<%= "lock-track #{track.name}" %>"
-                title="Unlocked: Select [Recommend] to add pears or select [Reset] to remove pears."
+                title="Unlocked: Select [Suggest] to add pears or select [Reset] to remove pears."
                 class="text-green-600"
                 href="#">
                 <svg  class="w-4 h-4" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -163,7 +195,32 @@
         </li>
       <% end %>
     </ul>
-    <%= live_patch "+ Add Pear", to: Routes.team_path(@socket, :add_pear, @team) %>
-    <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
+
+    <div class="flex space-x-3 px-4 py-8 sm:px-0">
+      <%= live_patch to: Routes.team_path(@socket, :add_pear, @team) do %>
+        <span class="shadow-sm rounded-md">
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            Add Pear
+          </button>
+        </span>
+      <% end %>
+      <%= live_patch to: Routes.team_path(@socket, :add_track, @team) do %>
+        <span class="shadow-sm rounded-md">
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            Add Track
+          </button>
+        </span>
+      <% end %>
+    </div>
   </div>
 </div>
