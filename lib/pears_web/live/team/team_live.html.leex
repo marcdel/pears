@@ -20,7 +20,7 @@
       </h1>
       <div class="flex space-x-3">
         <span class="shadow-sm rounded-md">
-          <button type="button" phx-click="reset-pears" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+          <button type="button" phx-click="reset-pears" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
             <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
               <polyline points="1 4 1 10 7 10"></polyline>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
@@ -29,7 +29,7 @@
           </button>
         </span>
         <span class="shadow-sm rounded-md">
-          <button type="button" phx-click="recommend-pears" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+          <button type="button" phx-click="recommend-pears" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
             <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -199,7 +199,7 @@
     <div class="flex space-x-3 px-4 py-8 sm:px-0">
       <%= live_patch to: Routes.team_path(@socket, :add_pear, @team) do %>
         <span class="shadow-sm rounded-md">
-          <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
             <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="16"></line>
@@ -211,7 +211,7 @@
       <% end %>
       <%= live_patch to: Routes.team_path(@socket, :add_track, @team) do %>
         <span class="shadow-sm rounded-md">
-          <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
             <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="16"></line>
