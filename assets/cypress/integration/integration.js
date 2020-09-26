@@ -82,7 +82,7 @@ context('Full Journey', () => {
     cy.pearIsInTrack('Second Pear', 'Refactor Track')
 
     cy.findAssignedPear('Second Pear').click()
-    cy.get('.available-pears').click()
+    cy.findAvailablePearsList().click()
     cy.pearIsAvailable('Second Pear')
 
     addTrack('Feature Track')
