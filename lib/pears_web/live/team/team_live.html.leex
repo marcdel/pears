@@ -137,7 +137,24 @@
                 </svg>
               </a>
             <% end %>
-            <span class="pl-2"><%= track.name %></span>
+            <%= if @editing_track == track.name do %>
+              <form phx-submit="save-track-name" class="w-full" data-cy="edit-track-name-form <%= track.name %>">
+                <input
+                  name="new-track-name"
+                  class="ml-2 p-1 form-input block w-full"
+                  phx-hook="FocusInput"
+                  data-cy="<%= "track-name-input #{track.name}" %>"
+                  value="<%= track.name %>">
+              </form>
+            <% else %>
+              <span
+               class="pl-2 w-full"
+               phx-click="edit-track-name"
+               phx-value-track-name="<%= track.name %>"
+               data-cy="<%= "edit-track-name #{track.name}" %>">
+                <%= track.name %>
+              </span>
+            <% end %>
           </div>
           <div
             class="bg-gray-100 px-4 py-5 sm:p-6 h-full"
@@ -148,6 +165,7 @@
             phx-value-track-name="<%= track.name %>"
             data-cy="<%= "track #{track.name}" %>">
             <ul
+              id="<%= track.id %> <%= track.name %> pears-list"
               class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6"
               data-track-name="<%= track.name %>"
               phx-hook="Destination">
