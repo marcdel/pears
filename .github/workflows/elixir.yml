@@ -60,7 +60,7 @@ jobs:
           mix deps.unlock --unused
           mix deps.clean --unused
           git diff --exit-code mix.lock
-      - name: mix compile (dev)
+      - name: mix compile
         run: |
           mix deps.compile
           mix compile
@@ -114,11 +114,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
       - name: mix deps.get
-        run: |
-          mix deps.get
-          mix deps.unlock --unused
-          mix deps.clean --unused
-          git diff --exit-code mix.lock
+        run: mix deps.get
       - name: mix test
         run: mix test --trace
 
@@ -166,17 +162,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
       - name: mix deps.get
-        run: |
-          mix deps.get
-          mix deps.unlock --unused
-          mix deps.clean --unused
-          git diff --exit-code mix.lock
-      - name: mix compile (ci)
-        run: |
-          mix deps.compile
-          mix compile
-        env:
-          MIX_ENV: ci
+        run: mix deps.get
       - name: start e2e server in the background
         run: |
           cd assets
