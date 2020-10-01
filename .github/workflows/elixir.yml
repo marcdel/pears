@@ -22,7 +22,7 @@ env:
 jobs:
   check:
     runs-on: ubuntu-18.04
-    name: Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}}
+    name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
         otp: ["23.0"]
@@ -72,7 +72,7 @@ jobs:
 
   test:
     runs-on: ubuntu-18.04
-    name: Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}}
+    name: Unit Tests (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
         otp: ["23.0"]
@@ -124,7 +124,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-18.04
-    name: Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}}
+    name: E2E Tests (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
         otp: ["23.0"]
