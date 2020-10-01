@@ -1,131 +1,210 @@
-<%= if @live_action in [:add_pear] do %>
-  <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
-    id: @team.id,
-    team: @team,
-    return_to: Routes.team_path(@socket, :show, @team)
-  %>
-<% end %>
-
-<%= if @live_action in [:add_track] do %>
-  <%= live_modal @socket, PearsWeb.TeamLive.AddTrackForm,
-    id: @team.id,
-    team: @team,
-    return_to: Routes.team_path(@socket, :show, @team)
-  %>
-<% end %>
-
-<div phx-click="unselect-pear">
-  <section class="board">
-    <div
-      id="unassigned"
-      class="left-column"
-      phx-hook="Destination"
-      phx-click="unassign-pear">
-      <article>
-        <h1><%= @team.name %></h1>
-      </article>
-
-      <article class="available-pears">
-        <h3>Available Pears</h3>
-        <p>
-          <%= for pear <- Map.values(@team.available_pears) do %>
-            <a
-              id="<%= pear.id %>"
-              phx-hook="Pear"
-              draggable="true"
-              data-pear-name="<%= pear.name %>"
-              data-track-name="Unassigned"
-              data-current-track="Unassigned"
-              phx-value-pear-name="<%= pear.name %>"
-              phx-value-track-name="Unassigned"
-              phx-click="pear-selected"
-              data-cy="<%= "available-pear #{pear.name}" %>"
-              class="button pill available-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
-              <%= pear.name %>
-            </a>
-          <% end %>
-        </p>
-        <%= live_patch "+ Add Pear", to: Routes.team_path(@socket, :add_pear, @team) %>
-      </article>
+<div class="px-4 py-8 sm:px-0">
+  <%= if @live_action in [:add_pear] do %>
+    <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,
+        id: @team.id,
+        team: @team,
+        return_to: Routes.team_path(@socket, :show, @team)
+      %>
+  <% end %>
+  <%= if @live_action in [:add_track] do %>
+    <%= live_modal @socket, PearsWeb.TeamLive.AddTrackForm,
+        id: @team.id,
+        team: @team,
+        return_to: Routes.team_path(@socket, :show, @team)
+      %>
+  <% end %>
+  <div phx-click="unselect-pear">
+    <div class="pb-5 mb-10 border-b border-gray-200 space-y-3 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
+      <div class="flex space-x-3 align-middle">
+        <h1 class="capitalize ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
+          <%= assigns[:page_title] %>
+        </h1>
+        <%= live_patch to: Routes.team_path(@socket, :add_track, @team) do %>
+          <span class="shadow-sm rounded-md">
+            <button type="button" class="inline-flex items-center px-4 py-2 text-sm leading-6 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+              <svg class="-ml-0.5 mr-1 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Track
+            </button>
+          </span>
+        <% end %>
+      </div>
+      <div class="flex space-x-3">
+        <span class="shadow-sm rounded-md">
+          <button type="button" phx-click="reset-pears" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            Reset
+          </button>
+        </span>
+        <span class="shadow-sm rounded-md">
+          <button type="button" phx-click="recommend-pears" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Suggest
+          </button>
+        </span>
+        <span class="shadow-sm rounded-md">
+          <button type="button" phx-click="record-pears" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green active:bg-green-700 transition ease-in-out duration-150">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save
+          </button>
+        </span>
+      </div>
     </div>
-    <div class="right-column">
-      <article>
-        <button class="button button-outline" phx-click="reset-pears">Reset Pears</button>
-        <button class="button button-outline" phx-click="record-pears">Record Pears</button>
-        <button class="button" phx-click="recommend-pears">Recommend Pears</button>
-      </article>
-
-      <h3>Tracks</h3>
-      <article class="tracks">
-        <div class="tracks-container">
-          <%= for track <- list_tracks(@team) do %>
-            <div
-              id="<%= track.id %> <%= track.name %>"
-              data-track-name="<%= track.name %>"
-              phx-hook="Destination"
-              phx-click="track-clicked"
-              phx-value-track-name="<%= track.name %>"
-              data-cy="<%= "track #{track.name}" %>"
-              class="track <%= if track.locked, do: "locked" %>">
-              <h4 class="track-name">
-                <span>
-                  <%= if track.locked do %>
-                    <a
-                      phx-click="unlock-track"
-                      phx-value-track-name="<%= track.name %>"
-                      data-cy="<%= "unlock-track #{track.name}" %>"
-                      href="#">
-                      <img
-                        src="<%= Routes.static_path(@socket, "/images/locked.svg") %>"
-                        class="locked"
-                        alt="unlock track <%= track.name %>"
-                      />
-                    </a>
-                  <% else %>
-                    <a
-                      phx-click="lock-track"
-                      phx-value-track-name="<%= track.name %>"
-                      data-cy="<%= "lock-track #{track.name}" %>"
-                      href="#">
-                      <img
-                        src="<%= Routes.static_path(@socket, "/images/unlocked.svg") %>"
-                        class="unlocked"
-                        alt="lock track <%= track.name %>"
-                      />
-                    </a>
-                  <% end %>
-                </span>
-
-                <%= if @editing_track == track.name do %>
-                  <form phx-submit="save-track-name" data-cy="edit-track-name-form <%= track.name %>">
-                    <input
-                      id="<%= track.name %>"
-                      phx-hook="FocusInput"
-                      data-cy="<%= "track-name-input #{track.name}" %>"
-                      name="new-track-name" type="text"
-                      value="<%= track.name %>" />
-                  </form>
-                <% else %>
-                  <span
-                    phx-click="edit-track-name"
-                    phx-value-track-name="<%= track.name %>"
-                    data-cy="<%= "edit-track-name #{track.name}" %>"
-                  >
-                    <%= track.name %>
-                  </span>
+    <ul class="grid grid-cols-1 grid-rows-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+      <li class="col-span-1 row-span-2 bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-4 sm:px-6 border-b-2 border-gray-100 flex justify-between">
+          <span class="pl-2">Available Pears</span>
+          <%= live_patch to: Routes.team_path(@socket, :add_pear, @team) do %>
+            <span class="shadow-sm rounded-md">
+              <button type="button" class="inline-flex items-center px-4 py-1 text-sm leading-6 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+                <svg class="-ml-0.5 mr-1 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Pear
+              </button>
+            </span>
+          <% end %>
+        </div>
+        <div
+          class="bg-gray-100 px-4 py-5 sm:p-6 h-full"
+          id="unassigned"
+          phx-hook="Destination"
+          phx-click="unassign-pear"
+          data-cy="available-pears-list">
+          <ul class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
+                <%= for pear <- Map.values(@team.available_pears) do %>
+                  <li
+                    class="col-span-3 flex shadow-sm rounded-md cursor-move" id="<%= pear.id %>"
+                    phx-hook="Pear"
+                    draggable="true"
+                    data-pear-name="<%= pear.name %>"
+                    data-track-name="Unassigned"
+                    data-current-track="Unassigned"
+                    phx-value-pear-name="<%= pear.name %>"
+                    phx-value-track-name="Unassigned"
+                    phx-click="pear-selected"
+                    data-cy="<%= "available-pear #{pear.name}" %>">
+                    <div class="flex-shrink-0 flex items-center justify-center w-8 bg-white border-t border-r border-b border-gray-200 rounded-l-md text-green-600 text-sm leading-5 font-medium rounded-l-md">
+                      <svg  class="w-4 h-4" viewBox="0 0 35 35" fill="currentColor" stroke="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="8" y="3" width="7" height="7"></rect>
+                        <rect x="19" y="3" width="7" height="7"></rect>
+                        <rect x="19" y="14" width="7" height="7"></rect>
+                        <rect x="8" y="14" width="7" height="7"></rect>
+                        <rect x="8" y="25" width="7" height="7"></rect>
+                        <rect x="19" y="25" width="7" height="7"></rect>
+                      </svg>
+                    </div>
+                    <div class="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                      <div class="flex-1 px-4 py-2 text-sm leading-5">
+                        <span class="text-gray-900 font-medium"><%= pear.name %></span>
+                      </div>
+                      <div class="flex-shrink-0 pr-2">
+                        <button title="Click to make this pear as the anchor for this track" class="w-8 h-8 inline-flex items-center justify-center text-white rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="5" r="3"></circle>
+                            <line x1="12" y1="22" x2="12" y2="8"></line>
+                            <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </li>
                 <% end %>
-
-                <a
-                  phx-click="remove-track"
-                  phx-value-track-name="<%= track.name %>"
-                  data-cy="<%= "remove-track #{track.name}" %>"
-                  href="#"
-                  class="phx-modal-close">
-                  &times;
-                </a>
-              </h4>
+              </ul>
+        </div>
+      </li>
+      <%= for track <- list_tracks(@team) do %>
+        <li class="col-span-1 bg-white overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:px-6 flex items-center <%= if track.locked, do: "border-b-2 border-red-400", else: "border-b-2 border-gray-100" %>">
+            <%= if track.locked do %>
+              <a
+                phx-click="unlock-track"
+                phx-value-track-name="<%= track.name %>"
+                data-cy="<%= "unlock-track #{track.name}" %>"
+                title="Locked: [Suggest] and [Reset] will not add or remove pears."
+                class="text-red-600"
+                href="#">
+                <svg  class="w-4 h-4" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </a>
+            <% else %>
+              <a
+                phx-click="lock-track"
+                phx-value-track-name="<%= track.name %>"
+                data-cy="<%= "lock-track #{track.name}" %>"
+                title="Unlocked: Select [Suggest] to add pears or select [Reset] to remove pears."
+                class="text-green-600"
+                href="#">
+                <svg  class="w-4 h-4" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                </svg>
+              </a>
+            <% end %>
+            <%= if @editing_track == track.name do %>
+              <form phx-submit="save-track-name" class="w-full" data-cy="edit-track-name-form <%= track.name %>">
+                <input
+                  id="new-track-name <%= track.name %>"
+                  name="new-track-name"
+                  class="ml-2 p-1 form-input block w-full"
+                  phx-hook="FocusInput"
+                  data-cy="<%= "track-name-input #{track.name}" %>"
+                  value="<%= track.name %>">
+              </form>
+            <% else %>
+              <span
+               class="pl-2 w-full"
+               phx-click="edit-track-name"
+               phx-value-track-name="<%= track.name %>"
+               data-cy="<%= "edit-track-name #{track.name}" %>">
+                <%= track.name %>
+              </span>
+            <% end %>
+            <a
+              phx-click="remove-track"
+              phx-value-track-name="<%= track.name %>"
+              data-cy="<%= "remove-track #{track.name}" %>"
+              href="#"
+              class="phx-modal-close">
+              <svg  class="w-4 h-4" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </a>
+          </div>
+          <div
+            class="bg-gray-100 px-4 py-5 sm:p-6 h-full"
+            id="<%= track.id %> <%= track.name %>"
+            data-track-name="<%= track.name %>"
+            phx-hook="Destination"
+            phx-click="track-clicked"
+            phx-value-track-name="<%= track.name %>"
+            data-cy="<%= "track #{track.name}" %>">
+            <ul
+              id="<%= track.id %> <%= track.name %> pears-list"
+              class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6"
+              data-track-name="<%= track.name %>"
+              phx-hook="Destination">
               <%= for pear <- Map.values(track.pears) do %>
-                <a
+                <li
+                  class="col-span-3 flex shadow-sm rounded-md cursor-move"
                   id="<%= pear.id %>"
                   phx-hook="Pear"
                   draggable="true"
@@ -134,16 +213,38 @@
                   phx-click="pear-selected"
                   phx-value-pear-name="<%= pear.name %>"
                   phx-value-track-name="<%= track.name %>"
-                  data-cy="<%= "assigned-pear #{pear.name}" %>"
-                  class="button pill assigned-pear <%= if @selected_pear == pear.name, do: "selected", else: "" %>">
-                  <%= pear.name %>
-                </a>
+                  data-cy="<%= "assigned-pear #{pear.name}" %>">
+                  <div class="flex-shrink-0 flex items-center justify-center w-8 bg-white border-t border-r border-b border-gray-200 rounded-l-md text-green-600 text-sm leading-5 font-medium rounded-l-md">
+                    <svg  class="w-4 h-4" viewBox="0 0 35 35" fill="currentColor" stroke="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="8" y="3" width="7" height="7"></rect>
+                      <rect x="19" y="3" width="7" height="7"></rect>
+                      <rect x="19" y="14" width="7" height="7"></rect>
+                      <rect x="8" y="14" width="7" height="7"></rect>
+                      <rect x="8" y="25" width="7" height="7"></rect>
+                      <rect x="19" y="25" width="7" height="7"></rect>
+                    </svg>
+                  </div>
+                  <div class="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                    <div class="flex-1 px-4 py-2 text-sm leading-5">
+                      <span class="text-gray-900 font-medium"><%= pear.name %></span>
+                    </div>
+                    <div class="flex-shrink-0 pr-2">
+                      <button title="Click to make this pear as the anchor for this track" class="w-8 h-8 inline-flex items-center justify-center text-white rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                       stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="5" r="3"></circle>
+                          <line x1="12" y1="22" x2="12" y2="8"></line>
+                          <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </li>
               <% end %>
-            </div>
-          <% end %>
-        </div>
-      </article>
-      <%= live_patch "+ Add Track", to: Routes.team_path(@socket, :add_track, @team) %>
-    </div>
-  </section>
+            </ul>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 </div>

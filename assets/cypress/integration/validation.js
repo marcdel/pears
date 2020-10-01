@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import {addPear, addTrack} from "../support/helpers"
+
 context('Validation', () => {
   const existingTeamName = 'Existing Team'
   const teamName = 'Team Cypress'
@@ -12,39 +14,14 @@ context('Validation', () => {
   })
 
   function testInvalidNameValidation() {
-    cy.fillInput('Create Team', existingTeamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(existingTeamName)
+      .should('have.value', existingTeamName)
+
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
 
     cy.get('[name="team-name"]').clear()
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-      .should('not.be.visible')
-  }
-
-  function addPear(pearName) {
-    cy.clickLink('Add Pear')
-
-    cy.contains('h2', 'Add Pear')
-
-    cy.fillInput('Name', pearName)
-    cy.clickButton('Add')
-
-    cy.pearIsAvailable(pearName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
-  function addTrack(trackName) {
-    cy.clickLink('Add Track')
-
-    cy.contains('h2', 'Add Track')
-
-    cy.fillInput('Name', trackName)
-    cy.clickButton('Add')
-
-    cy.trackExists(trackName)
-
-    cy.get('.phx-modal')
       .should('not.be.visible')
   }
 
@@ -56,7 +33,10 @@ context('Validation', () => {
   it('create team, add pears, add tracks, and recommend pears', () => {
     testInvalidNameValidation()
 
-    cy.fillInput('Create Team', teamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(teamName)
+      .should('have.value', teamName)
+
     cy.clickButton('Create')
     cy.contains('Congratulations, your team has been created!').should('be.visible')
 

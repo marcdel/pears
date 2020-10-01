@@ -24,6 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+import '@testing-library/cypress/add-commands'
 require('@4tw/cypress-drag-drop')
 
 Cypress.Commands.add('createTeam', (name) => cy.request('POST', `e2e/teams?name=${name}`))
@@ -36,9 +37,10 @@ Cypress.Commands.add('fillInput', (label, value) => {
     .should('have.value', value)
 })
 
-Cypress.Commands.add('clickButton', (text) => cy.contains('button', text).click())
-Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
+Cypress.Commands.add('clickButton', (text) => cy.findByRole('button', { name: text }).click())
+Cypress.Commands.add('clickLink', (text) => cy.findByRole('a', { name: text }).click())
 
+const findAvailablePearsList = pearName => cy.get('[data-cy="available-pears-list"]')
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
 const findAssignedPear = pearName => cy.get(`[data-cy="assigned-pear ${pearName}"]`)
 const trackSelector = trackName => `[data-cy="track ${trackName}"]`
@@ -51,6 +53,7 @@ const findEditTrackInput = (trackName) => cy.get(`[data-cy="track-name-input ${t
 const findEditTrackForm = (trackName) => cy.get(`[data-cy="edit-track-name-form ${trackName}"]`)
 const pearIsInTrack = (pearName, trackName) => findTrack(trackName).should('contain', pearName)
 
+Cypress.Commands.add('findAvailablePearsList', findAvailablePearsList)
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
 

@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import {addPear, addTrack} from "../support/helpers"
+
 context('Full Journey', () => {
   const teamName = 'Team Cypress'
 
@@ -9,36 +11,10 @@ context('Full Journey', () => {
     cy.visit('/')
   })
 
-  function addPear(pearName) {
-    cy.clickLink('Add Pear')
-
-    cy.contains('h2', 'Add Pear')
-
-    cy.fillInput('Name', pearName)
-    cy.clickButton('Add')
-
-    cy.pearIsAvailable(pearName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
-  function addTrack(trackName) {
-    cy.clickLink('Add Track')
-
-    cy.contains('h2', 'Add Track')
-
-    cy.fillInput('Name', trackName)
-    cy.clickButton('Add')
-
-    cy.trackExists(trackName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
   it('create team, add pears, add tracks, and recommend pears', () => {
-    cy.fillInput('Create Team', teamName)
+    cy.get('[data-cy="team-name-field"]')
+      .type(teamName)
+      .should('have.value', teamName)
 
     cy.clickButton('Create')
 
@@ -51,12 +27,12 @@ context('Full Journey', () => {
 
     addTrack('Feature Track')
 
-    cy.clickButton('Recommend Pears')
+    cy.clickButton('Suggest')
 
     cy.pearIsInTrack('First Pear', 'Feature Track')
     cy.pearIsInTrack('Second Pear', 'Feature Track')
 
-    cy.clickButton('Record Pears')
+    cy.clickButton('Save')
     cy.contains('Today\'s assigned pears have been recorded!').should('be.visible')
 
     cy.removeTrack('Feature Track')
@@ -80,7 +56,7 @@ context('Full Journey', () => {
     cy.pearIsInTrack('Second Pear', 'Refactor Track')
 
     cy.findAssignedPear('Second Pear').click()
-    cy.get('.available-pears').click()
+    cy.findAvailablePearsList().click()
     cy.pearIsAvailable('Second Pear')
 
     addTrack('Feature Track')
@@ -89,17 +65,17 @@ context('Full Journey', () => {
     cy.pearIsInTrack('First Pear', 'Feature Track')
 
     cy.lockTrack('Feature Track')
-    cy.clickButton('Recommend Pears')
+    cy.clickButton('Suggest')
     cy.pearIsInTrack('Second Pear', 'Refactor Track')
 
-    cy.clickButton('Record Pears')
+    cy.clickButton('Save')
     cy.contains('Today\'s assigned pears have been recorded!').should('be.visible')
 
-    cy.clickButton('Reset Pears')
+    cy.clickButton('Reset')
     cy.pearIsAvailable('Second Pear')
 
     cy.unlockTrack('Feature Track')
-    cy.clickButton('Reset Pears')
+    cy.clickButton('Reset')
     cy.pearIsAvailable('First Pear')
   })
 })
