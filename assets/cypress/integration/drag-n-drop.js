@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import {addPear, addTrack} from "../support/helpers"
+
 context('Drag-n-drop', () => {
   const teamName = 'Team Cypress'
 
@@ -15,35 +17,7 @@ context('Drag-n-drop', () => {
     cy.clickButton('Create')
   })
 
-  function addPear(pearName) {
-    cy.clickLink('Add Pear')
-
-    cy.contains('h2', 'Add Pear')
-
-    cy.fillInput('Name', pearName)
-    cy.clickButton('Add')
-
-    cy.pearIsAvailable(pearName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
-  function addTrack(trackName) {
-    cy.clickLink('Add Track')
-
-    cy.contains('h2', 'Add Track')
-
-    cy.fillInput('Name', trackName)
-    cy.clickButton('Add')
-
-    cy.trackExists(trackName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
-  it('supports drag and drop', () => {
+  xit('supports drag and drop', () => {
     addPear('First Pear')
     addPear('Second Pear')
     addTrack('Feature 1')

@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import {addPear, addTrack} from "../support/helpers"
+
 context('Validation', () => {
   const existingTeamName = 'Existing Team'
   const teamName = 'Team Cypress'
@@ -20,34 +22,6 @@ context('Validation', () => {
 
     cy.get('[name="team-name"]').clear()
     cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-      .should('not.be.visible')
-  }
-
-  function addPear(pearName) {
-    cy.clickLink('Add Pear')
-
-    cy.contains('h2', 'Add Pear')
-
-    cy.fillInput('Name', pearName)
-    cy.clickButton('Add')
-
-    cy.pearIsAvailable(pearName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
-  function addTrack(trackName) {
-    cy.clickLink('Add Track')
-
-    cy.contains('h2', 'Add Track')
-
-    cy.fillInput('Name', trackName)
-    cy.clickButton('Add')
-
-    cy.trackExists(trackName)
-
-    cy.get('.phx-modal')
       .should('not.be.visible')
   }
 

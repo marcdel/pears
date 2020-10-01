@@ -161,6 +161,7 @@
             <%= if @editing_track == track.name do %>
               <form phx-submit="save-track-name" class="w-full" data-cy="edit-track-name-form <%= track.name %>">
                 <input
+                  id="new-track-name <%= track.name %>"
                   name="new-track-name"
                   class="ml-2 p-1 form-input block w-full"
                   phx-hook="FocusInput"

@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import {addPear, addTrack} from "../support/helpers"
+
 context('Full Journey', () => {
   const teamName = 'Team Cypress'
 
@@ -8,34 +10,6 @@ context('Full Journey', () => {
 
     cy.visit('/')
   })
-
-  function addPear(pearName) {
-    cy.clickLink('Add Pear')
-
-    cy.contains('h2', 'Add Pear')
-
-    cy.fillInput('Name', pearName)
-    cy.clickButton('Add')
-
-    cy.pearIsAvailable(pearName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
-
-  function addTrack(trackName) {
-    cy.clickLink('Add Track')
-
-    cy.contains('h2', 'Add Track')
-
-    cy.fillInput('Name', trackName)
-    cy.clickButton('Add')
-
-    cy.trackExists(trackName)
-
-    cy.get('.phx-modal')
-      .should('not.be.visible')
-  }
 
   it('create team, add pears, add tracks, and recommend pears', () => {
     cy.get('[data-cy="team-name-field"]')

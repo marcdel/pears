@@ -24,6 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+import '@testing-library/cypress/add-commands'
 require('@4tw/cypress-drag-drop')
 
 Cypress.Commands.add('createTeam', (name) => cy.request('POST', `e2e/teams?name=${name}`))
@@ -36,8 +37,8 @@ Cypress.Commands.add('fillInput', (label, value) => {
     .should('have.value', value)
 })
 
-Cypress.Commands.add('clickButton', (text) => cy.contains('button', text).click())
-Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
+Cypress.Commands.add('clickButton', (text) => cy.findByRole('button', { name: text }).click())
+Cypress.Commands.add('clickLink', (text) => cy.findByRole('a', { name: text }).click())
 
 const findAvailablePearsList = pearName => cy.get('[data-cy="available-pears-list"]')
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
