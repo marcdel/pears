@@ -23,7 +23,8 @@ defmodule Pears.Application do
       # {Pears.Worker, arg}
       {Pears.Boundary.TeamManager, [name: Pears.Boundary.TeamManager]},
       {Registry, [name: Pears.Registry.TeamSession, keys: :unique]},
-      {DynamicSupervisor, [name: Pears.Supervisor.TeamSession, strategy: :one_for_one]}
+      {DynamicSupervisor, [name: Pears.Supervisor.TeamSession, strategy: :one_for_one]},
+      {Pears.Boundary.PruneSnapshots, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -1,5 +1,48 @@
 defmodule TeamBuilders do
   alias Pears.Core.Team
+  alias Pears.Persistence
+
+  def create_team(name \\ "Team #{Ecto.UUID.generate()}") do
+    {:ok, team} = Persistence.create_team(name)
+    team
+  end
+
+  def create_teams(count) do
+    Enum.map(1..count, fn _ -> create_team() end)
+  end
+
+  def create_pears(team, count) do
+    Enum.map(1..count, fn _ ->
+      {:ok, pear} = Persistence.add_pear_to_team(team.name, "Pear #{Ecto.UUID.generate()}")
+      pear
+    end)
+  end
+
+  def create_tracks(team, count) do
+    Enum.map(1..count, fn _ ->
+      {:ok, pear} = Persistence.add_track_to_team(team.name, "Track #{Ecto.UUID.generate()}")
+      pear
+    end)
+  end
+
+  def create_snapshots(team, count) do
+    Enum.map(1..count, fn _ ->
+      {:ok, snapshot} =
+        Persistence.add_snapshot_to_team(team.name, [{"track one", ["pear1", "pear2"]}])
+
+      snapshot
+    end)
+  end
+
+  def create_matches(team, count) do
+    Persistence.add_snapshot_to_team(
+      team.name,
+      Enum.map(1..count, fn _ ->
+        {"Track #{Ecto.UUID.generate()}",
+         ["Track #{Ecto.UUID.generate()}", "Track #{Ecto.UUID.generate()}"]}
+      end)
+    )
+  end
 
   def team do
     Team.new(name: "Team #{random_id()}")
