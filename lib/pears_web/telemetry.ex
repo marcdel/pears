@@ -2,6 +2,8 @@ defmodule PearsWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
+  alias Pears.O11y.PeriodicMeasurements
+
   def start_link(arg) do
     Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
   end
@@ -11,7 +13,7 @@ defmodule PearsWeb.Telemetry do
     children = [
       # Telemetry poller will execute the given period measurements
       # every 60_000ms, or 1 minute. Learn more here: https://hexdocs.pm/telemetry_metrics
-      {:telemetry_poller, measurements: periodic_measurements(), period: 60_000},
+      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
       # Add reporters as children of your supervision tree.
       # {Telemetry.Metrics.ConsoleReporter, metrics: metrics_to_log()},
       {Pears.O11y.TelemetryLogReporter, metrics: metrics_to_log()}
@@ -20,16 +22,25 @@ defmodule PearsWeb.Telemetry do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  defp metrics_to_log do
-    if Mix.env() == :prod, do: all_metrics(), else: []
+  def metrics do
+    app_metrics() ++
+      phoenix_metrics() ++
+      database_metrics() ++
+      vm_metrics()
   end
 
-  defp all_metrics do
-    app_metrics() ++ phoenix_metrics() ++ database_metrics() ++ vm_metrics()
+  defp metrics_to_log do
+    if Mix.env() == :prod, do: metrics(), else: []
   end
 
   defp app_metrics do
-    []
+    [
+      summary("pears.teams.count"),
+      summary("pears.pears.count"),
+      summary("pears.tracks.count"),
+      summary("pears.snapshots.count"),
+      summary("pears.matches.count")
+    ]
   end
 
   defp phoenix_metrics do
@@ -65,7 +76,7 @@ defmodule PearsWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {Instrumentation, :count_teams, []}
+      {PeriodicMeasurements, :record_counts, []}
     ]
   end
 end

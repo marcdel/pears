@@ -28,29 +28,16 @@ defmodule Pears.PersistenceTest do
       {:ok, _} = Persistence.delete_team("New Team")
       {:error, :not_found} = Persistence.get_team_by_name("New Team")
     end
-
-    test "count_teams" do
-      {:ok, _} = Persistence.create_team("Team 1")
-      {:ok, _} = Persistence.create_team("Team 2")
-
-      count = Persistence.count_teams()
-      assert count == 2
-
-      {:ok, _} = Persistence.create_team("Team 3")
-
-      count = Persistence.count_teams()
-      assert count == 3
-    end
   end
 
-  def team_factory(name) do
+  def create_team(name) do
     {:ok, team} = Persistence.create_team(name)
     team
   end
 
   describe "pears" do
     test "add_pear_to_team/2" do
-      team = team_factory("New Team")
+      team = create_team("New Team")
 
       {:ok, pear} = Persistence.add_pear_to_team("New Team", "Pear One")
       pear = Repo.preload(pear, :team)
@@ -61,7 +48,7 @@ defmodule Pears.PersistenceTest do
     end
 
     test "add_pear_to_track/3" do
-      team_factory("New Team")
+      create_team("New Team")
 
       {:ok, _} = Persistence.add_pear_to_team("New Team", "Pear One")
       {:ok, _} = Persistence.add_track_to_team("New Team", "Track One")
@@ -81,7 +68,7 @@ defmodule Pears.PersistenceTest do
 
   describe "tracks" do
     test "add_track_to_team/2" do
-      team = team_factory("New Team")
+      team = create_team("New Team")
 
       {:ok, track} = Persistence.add_track_to_team("New Team", "Track One")
       track = Repo.preload(track, :team)
@@ -94,14 +81,14 @@ defmodule Pears.PersistenceTest do
     end
 
     test "remove_track_from_team/2" do
-      team_factory("New Team")
+      create_team("New Team")
       Persistence.add_track_to_team("New Team", "Track One")
 
       assert {:ok, _} = Persistence.remove_track_from_team("New Team", "Track One")
     end
 
     test "lock_track/2" do
-      team_factory("New Team")
+      create_team("New Team")
       Persistence.add_track_to_team("New Team", "Track One")
 
       assert {:ok, track} = Persistence.lock_track("New Team", "Track One")
@@ -109,7 +96,7 @@ defmodule Pears.PersistenceTest do
     end
 
     test "unlock_track/2" do
-      team_factory("New Team")
+      create_team("New Team")
       Persistence.add_track_to_team("New Team", "Track One")
       assert {:ok, _} = Persistence.lock_track("New Team", "Track One")
 
@@ -118,7 +105,7 @@ defmodule Pears.PersistenceTest do
     end
 
     test "rename_track/3" do
-      team_factory("New Team")
+      create_team("New Team")
       Persistence.add_track_to_team("New Team", "Track One")
       assert {:ok, track} = Persistence.rename_track("New Team", "Track One", "New Track")
       assert track.name == "New Track"
@@ -127,7 +114,7 @@ defmodule Pears.PersistenceTest do
 
   describe "snapshots" do
     test "can create a snapshot of the current matches" do
-      team = team_factory("New Team")
+      team = create_team("New Team")
 
       assert {:ok, snapshot} =
                Persistence.add_snapshot_to_team("New Team", [
