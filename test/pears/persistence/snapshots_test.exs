@@ -35,17 +35,6 @@ defmodule Pears.Persistence.SnapshotsTest do
         assert oldest(snapshots_after) > oldest(snapshots_before)
       end)
     end
-
-    test "does not delete snapshots for excluded teams" do
-      team_record = TeamBuilders.create_team("cool team")
-      snapshots_before = TeamBuilders.create_snapshots(team_record, 3)
-      {:ok, team_record} = Persistence.get_team_by_name(team_record.name)
-
-      Snapshots.prune_all(number_to_keep: 1, excluded_team: "cool team")
-
-      {:ok, %{snapshots: snapshots_after}} = Persistence.get_team_by_name(team_record.name)
-      assert length(snapshots_after) == length(snapshots_before)
-    end
   end
 
   defp oldest(snapshots) do
