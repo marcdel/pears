@@ -15,8 +15,8 @@ defmodule PearsWeb.Telemetry do
       # every 60_000ms, or 1 minute. Learn more here: https://hexdocs.pm/telemetry_metrics
       {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
       # Add reporters as children of your supervision tree.
-      # {Telemetry.Metrics.ConsoleReporter, metrics: metrics_to_log()},
-      {Pears.O11y.TelemetryLogReporter, metrics: metrics_to_log()}
+      # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()},
+      # {Pears.O11y.TelemetryLogReporter, metrics: metrics()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -27,10 +27,6 @@ defmodule PearsWeb.Telemetry do
       phoenix_metrics() ++
       database_metrics() ++
       vm_metrics()
-  end
-
-  defp metrics_to_log do
-    if Mix.env() == :prod, do: metrics(), else: []
   end
 
   defp app_metrics do
@@ -73,10 +69,16 @@ defmodule PearsWeb.Telemetry do
   end
 
   defp periodic_measurements do
+    periodic_measurements(Mix.env())
+  end
+
+  defp periodic_measurements(:prod) do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
       {PeriodicMeasurements, :record_counts, []}
     ]
   end
+
+  defp periodic_measurements(_), do: []
 end

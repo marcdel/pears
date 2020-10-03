@@ -1,5 +1,6 @@
 defmodule Pears.Persistence.Snapshots do
   use OpenTelemetryDecorator
+  require OpenTelemetry.Span
 
   import Ecto.Query, warn: false
 
@@ -30,6 +31,21 @@ defmodule Pears.Persistence.Snapshots do
       |> Enum.sort_by(& &1.id, :desc)
       |> Enum.split(number_to_keep)
 
-    Enum.map(to_delete, &Repo.delete/1)
+    results =
+      to_delete
+      |> Enum.map(&Repo.delete/1)
+      |> Enum.group_by(fn {status, _} -> status end, fn {_, snapshot} -> snapshot end)
+
+    deleted = Map.get(results, :ok, [])
+    failed = Map.get(results, :error, [])
+
+    OpenTelemetry.Span.set_attributes(
+      deleted: deleted,
+      deleted_count: length(deleted),
+      failed: failed,
+      failed_count: length(failed)
+    )
+
+    results
   end
 end
