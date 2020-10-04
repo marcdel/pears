@@ -195,12 +195,45 @@ defmodule PearsTest do
     refute team.tracks |> Map.values() |> List.first() |> Map.get(:locked)
   end
 
-  test "team names must be unique", %{name: name} do
-    :ok = Pears.validate_name(name)
-    {:ok, _} = Pears.add_team(name)
+  describe "team name validation" do
+    test "team names must be unique", %{name: name} do
+      :ok = Pears.validate_name(name)
+      {:ok, _} = Pears.add_team(name)
 
-    {:error, :name_taken} = Pears.validate_name(name)
-    {:error, :name_taken} = Pears.add_team(name)
+      assert {:error, :name_taken} = Pears.validate_name(name)
+      assert {:error, :name_taken} = Pears.add_team(name)
+    end
+
+    test "compares with teams that aren't in memory as well", %{name: name} do
+      {:ok, _} = Persistence.create_team(name)
+
+      assert {:error, :name_taken} = Pears.validate_name(name)
+      assert {:error, changeset} = Pears.add_team(name)
+      assert {"has already been taken", _} = changeset.errors[:name]
+    end
+
+    test "uniqueness is case insensitive", %{name: name} do
+      :ok = Pears.validate_name(name)
+      {:ok, _} = Pears.add_team(name)
+
+      assert {:error, :name_taken} = Pears.validate_name(String.upcase(name))
+      assert {:error, :name_taken} = Pears.add_team(String.upcase(name))
+
+      assert {:error, :name_taken} = Pears.validate_name(String.capitalize(name))
+      assert {:error, :name_taken} = Pears.add_team(String.capitalize(name))
+    end
+
+    test "name cannot be blank" do
+      assert {:error, :name_blank} = Pears.validate_name("")
+      assert {:error, :name_blank} = Pears.add_team("")
+
+      assert {:error, :name_blank} = Pears.validate_name(" ")
+      assert {:error, :name_blank} = Pears.add_team(" ")
+    end
+
+    test "trims whitespace from team names" do
+      assert {:ok, %{name: "Test"}} = Pears.add_team(" Test ")
+    end
   end
 
   test "can lookup team by name or id", %{name: name} do

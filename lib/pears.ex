@@ -26,13 +26,18 @@ defmodule Pears do
          {:error, :not_found} <- Persistence.get_team_by_name(team_name) do
       :ok
     else
-      _ -> {:error, :name_taken}
+      {:error, validation_error} ->
+        {:error, validation_error}
+
+      {:ok, _team_record} ->
+        {:error, :name_taken}
     end
   end
 
   @decorate trace("pears.add_team", include: [:team_name, :error])
   def add_team(team_name) do
-    with :ok <- TeamManager.validate_name(team_name),
+    with team_name <- String.trim(team_name),
+         :ok <- TeamManager.validate_name(team_name),
          {:ok, _team_record} <- Persistence.create_team(team_name),
          {:ok, team} <- TeamManager.add_team(team_name),
          {:ok, team} <- TeamSession.start_session(team) do

@@ -40,10 +40,15 @@ defmodule Pears.Boundary.TeamManager do
 
   @decorate trace("team_manager.validate_name", include: [:team_name])
   def handle_call({:validate_name, team_name}, _from, teams) do
-    if Map.has_key?(teams, team_name) do
-      {:reply, {:error, :name_taken}, teams}
-    else
-      {:reply, :ok, teams}
+    cond do
+      String.trim(team_name) == "" ->
+        {:reply, {:error, :name_blank}, teams}
+
+      name_taken?(team_name, teams) ->
+        {:reply, {:error, :name_taken}, teams}
+
+      true ->
+        {:reply, :ok, teams}
     end
   end
 
@@ -60,5 +65,12 @@ defmodule Pears.Boundary.TeamManager do
   def handle_call({:remove_team, team_name}, _from, teams) do
     new_teams = Map.delete(teams, team_name)
     {:reply, {:ok, new_teams}, new_teams}
+  end
+
+  defp name_taken?(team_name, teams) do
+    teams
+    |> Map.keys()
+    |> Enum.map(&String.downcase/1)
+    |> Enum.member?(String.downcase(team_name))
   end
 end
