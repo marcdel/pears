@@ -9,11 +9,8 @@ defmodule PearsWeb.PageLive do
   @impl true
   def handle_event("validate_name", %{"team-name" => team_name}, socket) do
     case Pears.validate_name(team_name) do
-      :ok ->
-        {:noreply, clear_flash(socket)}
-
-      {:error, :name_taken} ->
-        {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}
+      :ok -> {:noreply, clear_flash(socket)}
+      error -> handle_validation_error(error, socket, team_name)
     end
   end
 
@@ -26,8 +23,20 @@ defmodule PearsWeb.PageLive do
          |> put_flash(:info, "Congratulations, your team has been created!")
          |> redirect(to: Routes.team_path(socket, :show, team))}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}
+      error ->
+        handle_validation_error(error, socket, team_name)
     end
+  end
+
+  defp handle_validation_error({:error, :name_taken}, socket, team_name) do
+    {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is already taken")}
+  end
+
+  defp handle_validation_error({:error, :name_blank}, socket, _team_name) do
+    {:noreply, put_flash(socket, :error, "Sorry, team name cannot be blank")}
+  end
+
+  defp handle_validation_error({:error, _}, socket, team_name) do
+    {:noreply, put_flash(socket, :error, "Sorry, the name \"#{team_name}\" is not valid")}
   end
 end
