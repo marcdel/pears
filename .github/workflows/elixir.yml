@@ -203,3 +203,9 @@ jobs:
           GIGALIXIR_APP: pears
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           MIGRATIONS: false
+      - name: create honeycomb marker
+        run: |
+          curl https://api.honeycomb.io/1/markers/pears \
+            -X POST \
+            -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
+            -d '{"message":"${{ github.sha }}", "type":"deploy"}'
