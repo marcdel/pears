@@ -24,6 +24,13 @@ Hooks.FocusInput = {
 
     // Put cursor at the end of the text content
     this.el.setSelectionRange(-1, -1)
+
+    this.el.addEventListener("keyup", e => {
+      if (e.key == "Escape") {
+        e.preventDefault()
+        this.pushEvent("cancel-editing-track")
+      }
+    })
   }
 }
 

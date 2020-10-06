@@ -76,6 +76,15 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  @decorate trace("team_live.cancel_editing_track", include: [:_team_name, :_track_name])
+  def handle_event("cancel-editing-track", _params, socket) do
+    _team_name = team_name(socket)
+    _track_name = socket.assigns.editing_track
+
+    {:noreply, cancel_editing_track(socket)}
+  end
+
+  @impl true
   @decorate trace("team_live.save_track_name", include: [:team_name, :track_name, :new_track_name])
   def handle_event("save-track-name", %{"new-track-name" => new_track_name}, socket) do
     team_name = team_name(socket)
@@ -83,7 +92,7 @@ defmodule PearsWeb.TeamLive do
 
     case Pears.rename_track(team_name, track_name, new_track_name) do
       {:ok, _updated_team} ->
-        {:noreply, socket}
+        {:noreply, cancel_editing_track(socket)}
 
       {:error, _changeset} ->
         {:noreply,
@@ -112,19 +121,6 @@ defmodule PearsWeb.TeamLive do
   def handle_event("pear-selected", %{"pear-name" => pear_name}, socket) do
     _team_name = team_name(socket)
     {:noreply, assign(socket, selected_pear: pear_name)}
-  end
-
-  @impl true
-  @decorate trace("team_live.unselect_pear", include: [:_team_name, :_params])
-  def handle_event("unselect-pear", _params, socket) do
-    _team_name = team_name(socket)
-
-    {
-      :noreply,
-      socket
-      |> unselect_pear()
-      |> cancel_editing_track()
-    }
   end
 
   @impl true

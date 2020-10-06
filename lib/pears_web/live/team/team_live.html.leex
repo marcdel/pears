@@ -13,7 +13,7 @@
         return_to: Routes.team_path(@socket, :show, @team)
       %>
   <% end %>
-  <div phx-click="unselect-pear">
+  <div>
     <div class="pb-5 mb-10 border-b border-gray-200 space-y-3 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
       <div class="flex space-x-3 align-middle">
         <h1 class="capitalize ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
@@ -182,7 +182,7 @@
               phx-value-track-name="<%= track.name %>"
               data-cy="<%= "remove-track #{track.name}" %>"
               href="#"
-              class="phx-modal-close">
+              class="ml-4">
               <svg  class="w-4 h-4" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
