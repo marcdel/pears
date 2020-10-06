@@ -208,4 +208,4 @@ jobs:
           curl https://api.honeycomb.io/1/markers/pears \
             -X POST \
             -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
-            -d '{"message":"${{ github.sha }}", "type":"deploy"}'
+            -d '{"message":"${{ github.sha }}", "url":"https://github.com/marcdel/pears/commit/${{ github.sha }}", "type":"deploy"}'
