@@ -240,4 +240,21 @@
       </li>
     <% end %>
   </ul>
+  <div class="pt-5 mt-10 space-y-3 flex justify-center align-middle">
+    <div class="flex text-sm border-2 p-2 border-transparent rounded-full text-white border-white <%= if @selected_pear != nil, do: "text-red-500 hover:border-red-500" %> transition duration-200 ease-in-out">
+      <svg
+       class="-ml-0.5 mr-1 h-20 w-20"
+       viewBox="0 0 24 24"
+       stroke="currentColor"
+       fill="none"
+       id="trash"
+       phx-hook="Destination"
+       phx-click="destination-selected"
+       phx-value-destination="Trash"
+       data-cy="trash">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+    </div>
+  </div>
 </div>

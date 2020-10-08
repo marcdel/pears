@@ -77,5 +77,9 @@ context('Full Journey', () => {
     cy.unlockTrack('Feature Track')
     cy.clickButton('Reset')
     cy.pearIsAvailable('First Pear')
+
+    cy.findAvailablePear('First Pear').click()
+    cy.findTrash().click()
+    cy.pearDoesNotExist('First Pear')
   })
 })

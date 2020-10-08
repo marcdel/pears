@@ -34,5 +34,8 @@ context('Drag-n-drop', () => {
 
     cy.dragPearToUnassigned('First Pear')
     cy.pearIsAvailable('First Pear')
+
+    cy.dragPearToTrash('First Pear')
+    cy.pearDoesNotExist('First Pear')
   })
 })

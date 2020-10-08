@@ -128,13 +128,34 @@ defmodule PearsWeb.TeamLive do
     _team_name = team_name(socket)
     pear_name = Map.get(params, "pear-name")
     current_location = Map.get(params, "current-location")
-
-    {:noreply,
-     assign(socket, selected_pear: pear_name, selected_pear_current_location: current_location)}
+    {:noreply, select_pear(socket, pear_name, current_location)}
   end
 
   @impl true
-  @decorate trace("team_live.destination_selected", include: [:team_name, :pear_name, :track_name])
+  @decorate trace("team_live.pear_unselected",
+              include: [:_team_name, :_pear_name, :_current_location]
+            )
+  def handle_event("pear-unselected", params, socket) do
+    _team_name = team_name(socket)
+    _pear_name = Map.get(params, "pear-name")
+    _current_location = Map.get(params, "current-location")
+
+    {:noreply, unselect_pear(socket)}
+  end
+
+  @impl true
+  @decorate trace("team_live.drag_pear", include: [:_team_name, :pear_name, :current_location])
+  def handle_event("drag-pear", params, socket) do
+    _team_name = team_name(socket)
+    pear_name = Map.get(params, "pear-name")
+    current_location = Map.get(params, "current-location")
+    {:noreply, select_pear(socket, pear_name, current_location)}
+  end
+
+  @impl true
+  @decorate trace("team_live.destination_selected",
+              include: [:team_name, :pear_name, :current_location, :destination]
+            )
   def handle_event("destination-selected", %{"destination" => destination}, socket) do
     team_name = team_name(socket)
     pear_name = selected_pear(socket)
@@ -143,6 +164,9 @@ defmodule PearsWeb.TeamLive do
     case {current_location, destination} do
       {"Unassigned", "Unassigned"} ->
         nil
+
+      {_, "Trash"} ->
+        Pears.remove_pear(team_name, pear_name)
 
       {"Unassigned", destination} ->
         Pears.add_pear_to_track(team_name, pear_name, destination)
@@ -154,17 +178,18 @@ defmodule PearsWeb.TeamLive do
         Pears.move_pear_to_track(team_name, pear_name, current_location, destination)
     end
 
-    {:noreply, socket}
+    {:noreply, unselect_pear(socket)}
   end
 
   @impl true
   @decorate trace("team_live.move_pear", include: [:_team_name])
   def handle_event("move-pear", %{"from" => "Unassigned", "to" => "Unassigned"}, socket) do
     _team_name = team_name(socket)
-    {:noreply, socket}
+
+    {:noreply, unselect_pear(socket)}
   end
 
-  @decorate trace("team_live.move_pear", include: [:team_name, :from_track, :pear_name])
+  @decorate trace("team_live.move_pear", include: [:team_name, :pear_name, :from_track])
   def handle_event("move-pear", %{"to" => "Unassigned"} = params, socket) do
     team_name = team_name(socket)
     pear_name = Map.get(params, "pear")
@@ -172,10 +197,20 @@ defmodule PearsWeb.TeamLive do
 
     Pears.remove_pear_from_track(team_name, pear_name, from_track)
 
-    {:noreply, socket}
+    {:noreply, unselect_pear(socket)}
   end
 
-  @decorate trace("team_live.move_pear", include: [:team_name, :to_track, :pear_name])
+  @decorate trace("team_live.move_pear", include: [:team_name, :pear_name])
+  def handle_event("move-pear", %{"to" => "Trash"} = params, socket) do
+    team_name = team_name(socket)
+    pear_name = Map.get(params, "pear")
+
+    Pears.remove_pear(team_name, pear_name)
+
+    {:noreply, unselect_pear(socket)}
+  end
+
+  @decorate trace("team_live.move_pear", include: [:team_name, :pear_name, :to_track])
   def handle_event("move-pear", %{"from" => "Unassigned"} = params, socket) do
     team_name = team_name(socket)
     pear_name = Map.get(params, "pear")
@@ -183,10 +218,10 @@ defmodule PearsWeb.TeamLive do
 
     Pears.add_pear_to_track(team_name, pear_name, to_track)
 
-    {:noreply, socket}
+    {:noreply, unselect_pear(socket)}
   end
 
-  @decorate trace("team_live.move_pear", include: [:team_name, :from_track, :to_track, :pear_name])
+  @decorate trace("team_live.move_pear", include: [:team_name, :pear_name, :from_track, :to_track])
   def handle_event("move-pear", params, socket) do
     team_name = team_name(socket)
     pear_name = Map.get(params, "pear")
@@ -195,14 +230,14 @@ defmodule PearsWeb.TeamLive do
 
     Pears.move_pear_to_track(team_name, pear_name, from_track, to_track)
 
-    {:noreply, socket}
+    {:noreply, unselect_pear(socket)}
   end
 
   @impl true
   @decorate trace("team_live.move_pear.failed", include: [:_team_name, :_params])
   def handle_event("move-pear", _params, socket) do
     _team_name = team_name(socket)
-    {:noreply, socket}
+    {:noreply, unselect_pear(socket)}
   end
 
   @impl true
@@ -217,6 +252,14 @@ defmodule PearsWeb.TeamLive do
 
   defp cancel_editing_track(socket) do
     assign(socket, :editing_track, nil)
+  end
+
+  defp select_pear(socket, pear_name, current_location) do
+    assign(socket, selected_pear: pear_name, selected_pear_current_location: current_location)
+  end
+
+  defp unselect_pear(socket) do
+    assign(socket, selected_pear: nil, selected_pear_current_location: nil)
   end
 
   defp assign_team_or_redirect(socket, team_name) do

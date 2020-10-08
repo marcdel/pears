@@ -38,8 +38,14 @@ Hooks.Pear = {
   mounted(){
     this.el.addEventListener("dragstart", e => {
       e.dataTransfer.effectAllowed = "move"
-      e.dataTransfer.setData("current-location", e.target.getAttribute("phx-value-current-location"))
-      e.dataTransfer.setData("pear-name", e.target.getAttribute("phx-value-pear-name"))
+
+      const pearName = e.target.getAttribute("phx-value-pear-name")
+      const currentLocation = e.target.getAttribute("phx-value-current-location")
+
+      this.pushEvent("drag-pear", {"pear-name": pearName, "current-location": currentLocation})
+
+      e.dataTransfer.setData("pear-name", pearName)
+      e.dataTransfer.setData("current-location", currentLocation)
     })
 
     this.el.addEventListener("dragover", e => {
@@ -76,7 +82,6 @@ Hooks.Destination = {
     })
   }
 }
-
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})

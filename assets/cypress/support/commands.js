@@ -45,6 +45,7 @@ const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearNam
 const findAssignedPear = pearName => cy.get(`[data-cy="assigned-pear ${pearName}"]`)
 const trackSelector = trackName => `[data-cy="track ${trackName}"]`
 const findTrack = (trackName) => cy.get(trackSelector(trackName))
+const findTrash = () => cy.get('[data-cy="trash"]')
 const findLockTrackLink = (trackName) => cy.get(`[data-cy="lock-track ${trackName}"]`)
 const findUnlockTrackLink = (trackName) => cy.get(`[data-cy="unlock-track ${trackName}"]`)
 const findRemoveTrackLink = (trackName) => cy.get(`[data-cy="remove-track ${trackName}"]`)
@@ -56,12 +57,12 @@ const pearIsInTrack = (pearName, trackName) => findTrack(trackName).should('cont
 Cypress.Commands.add('findAvailablePearsList', findAvailablePearsList)
 Cypress.Commands.add('findAvailablePear', findAvailablePear)
 Cypress.Commands.add('findAssignedPear', findAssignedPear)
+Cypress.Commands.add('findTrack', findTrack)
+Cypress.Commands.add('findTrash', findTrash)
 
 Cypress.Commands.add('pearIsAvailable', (pearName) => {
   return findAvailablePear(pearName).should('be.visible')
 })
-
-Cypress.Commands.add('findTrack', findTrack)
 
 Cypress.Commands.add('trackExists', (trackName) => {
   return findTrack(trackName).should('be.visible')
@@ -70,6 +71,11 @@ Cypress.Commands.add('trackExists', (trackName) => {
 Cypress.Commands.add('dragPearToUnassigned', (pearName) => {
   findAssignedPear(pearName)
     .drag('#unassigned')
+})
+
+Cypress.Commands.add('dragPearToTrash', (pearName) => {
+  findAssignedPear(pearName).drag('#trash')
+  findAvailablePear(pearName).drag('#trash')
 })
 
 Cypress.Commands.add('dragPearToTrack', (pearName, trackName) => {
@@ -117,6 +123,10 @@ Cypress.Commands.add('trackIsUnlocked', (trackName) => {
 
 Cypress.Commands.add('trackDoesNotExist', (trackName) => {
   return cy.contains(trackName).should('not.be.visible')
+})
+
+Cypress.Commands.add('pearDoesNotExist', (pearName) => {
+  return cy.contains(pearName).should('not.be.visible')
 })
 
 Cypress.Commands.add('pearIsInTrack', (pearName, trackName) => {
