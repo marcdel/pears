@@ -38,8 +38,8 @@ Hooks.Pear = {
   mounted(){
     this.el.addEventListener("dragstart", e => {
       e.dataTransfer.effectAllowed = "move"
-      e.dataTransfer.setData("from-track", e.target.dataset.trackName)
-      e.dataTransfer.setData("pear-name", e.target.dataset.pearName)
+      e.dataTransfer.setData("current-location", e.target.getAttribute("phx-value-current-location"))
+      e.dataTransfer.setData("pear-name", e.target.getAttribute("phx-value-pear-name"))
     })
 
     this.el.addEventListener("dragover", e => {
@@ -66,8 +66,8 @@ Hooks.Destination = {
       e.preventDefault()
       e.target.classList.remove("dragged-over")
 
-      let from = event.dataTransfer.getData("from-track") || "Unassigned"
-      let to = e.target.dataset.trackName || "Unassigned"
+      let from = event.dataTransfer.getData("current-location")
+      let to = e.target.getAttribute("phx-value-destination")
       let pear = event.dataTransfer.getData("pear-name")
 
       console.debug({from, to, pear})
