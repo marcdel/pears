@@ -235,6 +235,20 @@
                 </div>
               </li>
             <% end %>
+            <%= if @selected_pear != nil do %>
+              <li class="col-span-3 flex shadow-sm rounded-md">
+                <div class="flex-1 flex border-dashed border-2 border-gray-300 rounded-md truncate">
+                  <div class="flex-1 px-4 py-2 text-sm leading-5 truncate items-center justify-between"
+                   id="<%= track.id %> <%= track.name %> drop-zone"
+                   phx-hook="Destination"
+                   phx-click="destination-selected"
+                   phx-value-destination="<%= track.name %>"
+                   data-cy="track <%= track.name %> drop-zone">
+                    &nbsp;
+                  </div>
+                </div>
+              </li>
+            <% end %>
           </ul>
         </div>
       </li>
