@@ -87,56 +87,56 @@
         phx-value-destination="Unassigned"
         data-cy="available-pears-list">
         <ul class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
-              <%= for pear <- list_pears(@team.available_pears) do %>
-                <li
-                  class="col-span-3 flex shadow-sm rounded-md cursor-move" id="<%= pear.id %>"
-                  phx-hook="Pear"
-                  draggable="true"
-                  phx-value-pear-name="<%= pear.name %>"
-                  phx-value-current-location="Unassigned"
-                  phx-click="pear-selected"
-                  data-cy="<%= "available-pear #{pear.name}" %>">
-                  <div class="flex-shrink-0 flex items-center justify-center w-8 bg-white border-t border-r border-b border-gray-200 rounded-l-md text-green-600 text-sm leading-5 font-medium rounded-l-md">
-                    <svg  class="w-4 h-4" viewBox="0 0 35 35" fill="currentColor" stroke="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="8" y="3" width="7" height="7"></rect>
-                      <rect x="19" y="3" width="7" height="7"></rect>
-                      <rect x="19" y="14" width="7" height="7"></rect>
-                      <rect x="8" y="14" width="7" height="7"></rect>
-                      <rect x="8" y="25" width="7" height="7"></rect>
-                      <rect x="19" y="25" width="7" height="7"></rect>
+          <%= for pear <- list_pears(@team.available_pears) do %>
+            <li
+              class="col-span-3 flex shadow-sm rounded-md cursor-move" id="<%= pear.id %>"
+              phx-hook="Pear"
+              draggable="true"
+              phx-value-pear-name="<%= pear.name %>"
+              phx-value-current-location="Unassigned"
+              phx-click="pear-selected"
+              data-cy="<%= "available-pear #{pear.name}" %>">
+              <div class="flex-shrink-0 flex items-center justify-center w-8 bg-white border-t border-r border-b border-gray-200 rounded-l-md text-green-600 text-sm leading-5 font-medium rounded-l-md">
+                <svg  class="w-4 h-4" viewBox="0 0 35 35" fill="currentColor" stroke="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="8" y="3" width="7" height="7"></rect>
+                  <rect x="19" y="3" width="7" height="7"></rect>
+                  <rect x="19" y="14" width="7" height="7"></rect>
+                  <rect x="8" y="14" width="7" height="7"></rect>
+                  <rect x="8" y="25" width="7" height="7"></rect>
+                  <rect x="19" y="25" width="7" height="7"></rect>
+                </svg>
+              </div>
+              <div class="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
+                <div class="flex-1 px-4 py-2 text-sm leading-5">
+                  <span class="text-gray-900 font-medium"><%= pear.name %></span>
+                </div>
+                <div class="flex-shrink-0 pr-2">
+                  <button title="Click to make this pear as the anchor for this track" class="w-8 h-8 inline-flex items-center justify-center text-white rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="5" r="3"></circle>
+                      <line x1="12" y1="22" x2="12" y2="8"></line>
+                      <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
                     </svg>
-                  </div>
-                  <div class="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-                    <div class="flex-1 px-4 py-2 text-sm leading-5">
-                      <span class="text-gray-900 font-medium"><%= pear.name %></span>
-                    </div>
-                    <div class="flex-shrink-0 pr-2">
-                      <button title="Click to make this pear as the anchor for this track" class="w-8 h-8 inline-flex items-center justify-center text-white rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                          <circle cx="12" cy="5" r="3"></circle>
-                          <line x1="12" y1="22" x2="12" y2="8"></line>
-                          <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              <% end %>
-              <%= if @selected_pear != nil do %>
-                <li class="col-span-3 flex shadow-sm rounded-md">
-                  <div class="flex-1 flex border-dashed border-2 border-gray-300 rounded-md truncate">
-                    <div class="flex-1 px-4 py-2 text-sm leading-5 truncate items-center justify-between"
-                     id="Unassigned drop-zone"
-                     phx-hook="Destination"
-                     phx-click="destination-selected"
-                     phx-value-destination="Unassigned"
-                     data-cy="Unassigned drop-zone">
-                      &nbsp;
-                    </div>
-                  </div>
-                </li>
-              <% end %>
-            </ul>
+                  </button>
+                </div>
+              </div>
+            </li>
+          <% end %>
+          <%= if @selected_pear != nil do %>
+            <li class="col-span-3 flex shadow-sm rounded-md">
+              <div class="flex-1 flex border-dashed border-2 border-gray-300 rounded-md truncate">
+                <div class="flex-1 px-4 py-2 text-sm leading-5 truncate items-center justify-between"
+                 id="Unassigned drop-zone"
+                 phx-hook="Destination"
+                 phx-click="destination-selected"
+                 phx-value-destination="Unassigned"
+                 data-cy="Unassigned drop-zone">
+                  &nbsp;
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
       </div>
     </li>
     <%= for track <- list_tracks(@team) do %>
