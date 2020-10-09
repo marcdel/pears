@@ -1,4 +1,6 @@
 defmodule Pears.Core.Track do
+  alias Pears.Core.Pear
+
   defstruct id: nil, name: nil, locked: false, pears: %{}
 
   def new(fields) do
@@ -6,6 +8,9 @@ defmodule Pears.Core.Track do
   end
 
   def add_pear(track, pear) do
+    order = next_pear_order(track)
+    pear = Pear.set_order(pear, order)
+
     %{track | pears: Map.put(track.pears, pear.name, pear)}
   end
 
@@ -23,4 +28,14 @@ defmodule Pears.Core.Track do
   def incomplete?(track), do: Enum.count(track.pears) == 1
   def empty?(track), do: Enum.empty?(track.pears)
   def locked?(track), do: track.locked
+
+  defp next_pear_order(track) do
+    current_max =
+      track.pears
+      |> Map.values()
+      |> Enum.max_by(& &1.order, fn -> %{} end)
+      |> Map.get(:order, 0)
+
+    current_max + 1
+  end
 end

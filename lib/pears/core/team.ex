@@ -8,6 +8,7 @@ defmodule Pears.Core.Team do
             tracks: %{},
             history: []
 
+  alias Pears.Core.AvailablePears
   alias Pears.Core.Pear
   alias Pears.Core.Track
 
@@ -164,10 +165,14 @@ defmodule Pears.Core.Team do
             )
   def remove_pear_from_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
-    pear = find_assigned_pear(team, pear_name)
+
+    pear =
+      team
+      |> find_assigned_pear(pear_name)
+      |> Pear.remove_track()
 
     updated_tracks = Map.put(team.tracks, track_name, Track.remove_pear(track, pear_name))
-    updated_available_pears = Map.put(team.available_pears, pear_name, Pear.remove_track(pear))
+    updated_available_pears = AvailablePears.add_pear(team.available_pears, pear)
     updated_assigned_pears = Map.delete(team.assigned_pears, pear_name)
 
     %{

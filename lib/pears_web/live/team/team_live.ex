@@ -28,9 +28,9 @@ defmodule PearsWeb.TeamLive do
     |> Enum.map(fn {_track_name, track} -> track end)
   end
 
-  def list_pears(track) do
-    track.pears
-    |> Enum.sort_by(fn {_, %{id: id}} -> id end)
+  def list_pears(pears) do
+    pears
+    |> Enum.sort_by(fn {_, %{order: order}} -> order end)
     |> Enum.map(fn {_pear_name, pear} -> pear end)
   end
 

@@ -302,6 +302,59 @@ defmodule Pears.Core.TeamTest do
     assert slot_count == 3
   end
 
+  test "the order of pears within a track is stable as they're added and removed", %{team: team} do
+    team
+    |> Team.add_track("track1")
+    |> Team.add_track("track2")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Team.add_pear("pear3")
+    |> Team.add_pear("pear4")
+    |> Team.add_pear_to_track("pear2", "track1")
+    |> Team.add_pear_to_track("pear1", "track1")
+    |> Team.add_pear_to_track("pear4", "track1")
+    |> Team.add_pear_to_track("pear3", "track1")
+    |> assert_pear_order("track1", ["pear2", "pear1", "pear4", "pear3"])
+    |> Team.move_pear_to_track("pear4", "track1", "track2")
+    |> Team.move_pear_to_track("pear1", "track1", "track2")
+    |> assert_pear_order("track1", ["pear2", "pear3"])
+    |> assert_pear_order("track2", ["pear4", "pear1"])
+    |> Team.remove_pear_from_track("pear4", "track2")
+    |> Team.remove_pear_from_track("pear3", "track1")
+    |> assert_pear_order("available", ["pear4", "pear3"])
+    |> Team.remove_pear_from_track("pear2", "track1")
+    |> Team.remove_pear_from_track("pear1", "track2")
+    |> assert_pear_order("available", ["pear4", "pear3", "pear2", "pear1"])
+  end
+
+  defp assert_pear_order(team, "available", expected_order) do
+    actual_order =
+      team.available_pears
+      |> Map.values()
+      |> Enum.map(fn pear -> {pear.order, pear.name} end)
+      |> Enum.sort_by(fn {order, _} -> order end)
+      |> Enum.map(fn {_, name} -> name end)
+
+    assert actual_order == expected_order
+
+    team
+  end
+
+  defp assert_pear_order(team, track, expected_order) do
+    actual_order =
+      team.tracks
+      |> Map.get(track)
+      |> Map.get(:pears)
+      |> Map.values()
+      |> Enum.map(fn pear -> {pear.order, pear.name} end)
+      |> Enum.sort_by(fn {order, _} -> order end)
+      |> Enum.map(fn {_, name} -> name end)
+
+    assert actual_order == expected_order
+
+    team
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end
