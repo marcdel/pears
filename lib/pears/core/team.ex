@@ -21,7 +21,8 @@ defmodule Pears.Core.Team do
   @decorate trace("team.add_pear", include: [[:team, :name], :pear_name])
   def add_pear(team, pear_name, pear_id \\ nil) do
     pear = Pear.new(name: pear_name, id: pear_id)
-    Map.put(team, :available_pears, Map.put(team.available_pears, pear_name, pear))
+    updated_available_pears = AvailablePears.add_pear(team.available_pears, pear)
+    Map.put(team, :available_pears, updated_available_pears)
   end
 
   @decorate trace("team.remove_pear", include: [[:team, :name], :pear_name])
@@ -57,7 +58,7 @@ defmodule Pears.Core.Team do
     track = find_track(team, track_name)
 
     team
-    |> Map.put(:available_pears, Map.merge(team.available_pears, track.pears))
+    |> Map.put(:available_pears, AvailablePears.add_pears(team.available_pears, track.pears))
     |> Map.put(:tracks, Map.delete(team.tracks, track_name))
   end
 
