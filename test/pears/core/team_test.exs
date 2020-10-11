@@ -291,6 +291,8 @@ defmodule Pears.Core.TeamTest do
       |> Team.add_track("track zero")
       |> Team.add_track("track one")
       |> Team.add_track("track two")
+      |> Team.add_track("track three")
+      |> Team.lock_track("track three")
       |> Team.add_pear("pear1")
       |> Team.add_pear("pear2")
       |> Team.add_pear("pear3")

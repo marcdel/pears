@@ -64,14 +64,22 @@ defmodule PearsTest do
       Pears.add_pear(name, "Pear Four")
       Pears.add_pear(name, "Pear Five")
       Pears.add_track(name, "Track One")
+      Pears.add_track(name, "Track Two")
+      Pears.lock_track(name, "Track Two")
       Pears.recommend_pears(name)
 
       {:ok, team} = Pears.lookup_team_by(name: name)
 
-      assert Enum.count(team.tracks) == 3
+      assert Enum.count(team.tracks) == 4
       assert Enum.count(team.assigned_pears) == 5
       assert Enum.empty?(team.available_pears)
-      assert Map.keys(team.tracks) == ["Track One", "Untitled Track 1", "Untitled Track 2"]
+
+      assert Map.keys(team.tracks) == [
+               "Track One",
+               "Track Two",
+               "Untitled Track 1",
+               "Untitled Track 2"
+             ]
     end
 
     test "doesn't create new tracks when there are more tracks than available pears", %{

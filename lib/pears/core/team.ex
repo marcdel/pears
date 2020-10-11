@@ -242,6 +242,7 @@ defmodule Pears.Core.Team do
     |> Map.values()
     |> Enum.reduce(0, fn track, count ->
       cond do
+        Track.locked?(track) -> count
         Track.incomplete?(track) -> count + 1
         Track.empty?(track) -> count + 2
         true -> count

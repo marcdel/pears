@@ -13,7 +13,8 @@ defmodule Pears.Repo.Migrations.AddFeatureFlagsTable do
     create index(
              :feature_flags,
              [:flag_name, :gate_type, :target],
-             [unique: true, name: "feature_flags_flag_name_gate_target_idx"]
+             unique: true,
+             name: "feature_flags_flag_name_gate_target_idx"
            )
   end
 
