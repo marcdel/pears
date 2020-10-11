@@ -28,6 +28,7 @@ defmodule Pears.Core.Track do
   def incomplete?(track), do: Enum.count(track.pears) == 1
   def empty?(track), do: Enum.empty?(track.pears)
   def locked?(track), do: track.locked
+  def unlocked?(track), do: !track.locked
 
   defp next_pear_order(track) do
     current_max =

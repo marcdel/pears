@@ -21,7 +21,7 @@ defmodule Pears.Core.AvailablePears do
     Map.put(available_pears, pear.name, pear)
   end
 
-  defp next_pear_order(%{}), do: 1
+  defp next_pear_order(available_pears) when available_pears == %{}, do: 1
 
   defp next_pear_order(available_pears) do
     current_max =

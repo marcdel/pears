@@ -1,5 +1,6 @@
 defmodule Pears.Core.MatchValidator do
-  alias Pears.Core.{Team, Track}
+  alias Pears.Core.Team
+  alias Pears.Core.Track
 
   def valid?({p1}, team) do
     Team.pear_available?(team, p1) && Team.find_empty_track(team)
@@ -18,7 +19,7 @@ defmodule Pears.Core.MatchValidator do
   defp destination_track_available?({p1, p2}, team) do
     track = destination_track({p1, p2}, team) || Team.find_empty_track(team)
 
-    track && (Track.incomplete?(track) || Track.empty?(track))
+    track != nil && (Track.incomplete?(track) || Track.empty?(track))
   end
 
   defp available_pear({p1, p2}, team) do

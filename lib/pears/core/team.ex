@@ -318,7 +318,11 @@ defmodule Pears.Core.Team do
 
   @decorate trace("team.find_empty_track", include: [[:team, :name], :track])
   def find_empty_track(team) do
-    {_, track} = Enum.find(team.tracks, {nil, nil}, fn {_name, track} -> Track.empty?(track) end)
+    {_, track} =
+      Enum.find(team.tracks, {nil, nil}, fn {_name, track} ->
+        Track.empty?(track) && Track.unlocked?(track)
+      end)
+
     track
   end
 

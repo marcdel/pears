@@ -180,5 +180,14 @@ defmodule Pears.Core.RecommendatorTest do
         {"track two", ["pear3"]}
       ]
     ])
+
+    TeamBuilders.team()
+    |> Team.add_track("track one")
+    |> Team.lock_track("track one")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> Recommendator.assign_pears()
+    |> assert_pear_available("pear1")
+    |> assert_pear_available("pear2")
   end
 end
