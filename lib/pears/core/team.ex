@@ -350,3 +350,7 @@ defmodule Pears.Core.Team do
   @decorate trace("team.next_track_id", include: [[:team, :name]])
   defp next_track_id(team), do: Enum.count(team.tracks) + 1
 end
+
+defimpl FunWithFlags.Actor, for: Pears.Core.Team do
+  def id(%{name: name}), do: "team:#{name}"
+end
