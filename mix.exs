@@ -56,6 +56,7 @@ defmodule Pears.MixProject do
       {:hackney, ">= 1.11.0"},
       {:opentelemetry, "~> 0.4.0"},
       {:open_telemetry_decorator, "~> 0.4.1"},
+      {:opentelemetry_ecto, "~> 0.1.0"},
       {:opentelemetry_honeycomb, "~> 0.3.0-rc.0"},
       {:fun_with_flags, "~> 1.5.1"},
       {:fun_with_flags_ui, "~> 0.7.2"}
