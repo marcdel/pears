@@ -31,13 +31,6 @@ config :timber,
   api_key: Map.fetch!(System.get_env(), "TIMBER_KEY"),
   source_id: Map.fetch!(System.get_env(), "TIMBER_SOURCE_ID")
 
-# Telemetry
-config :opentelemetry, :resource,
-  service: [
-    name: "pears",
-    namespace: "pears"
-  ]
-
 config :opentelemetry,
   processors: [
     ot_batch_processor: %{

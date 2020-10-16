@@ -21,17 +21,11 @@ config :pears, PearsWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-config :opentelemetry, :resource,
-  service: [
-    name: "pears",
-    namespace: "pears_test"
-  ]
-
 config :opentelemetry,
   processors: [
     ot_batch_processor: %{
       exporter:
         {OpenTelemetry.Honeycomb.Exporter,
-         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY"), dataset: "pears"}
+         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY"), dataset: "pears_test"}
     }
   ]

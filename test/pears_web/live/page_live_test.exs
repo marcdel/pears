@@ -1,5 +1,5 @@
 defmodule PearsWeb.PageLiveTest do
-  use PearsWeb.ConnCase
+  use PearsWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
 
