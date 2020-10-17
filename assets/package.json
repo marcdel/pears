@@ -26,7 +26,7 @@
     "node-sass": "^4.13.1",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "postcss-import": "^12.0.1",
-    "postcss-loader": "^4.0.3",
+    "postcss-loader": "^4.0.4",
     "sass-loader": "^10.0.2",
     "tailwindcss": "^1.8.10",
     "terser-webpack-plugin": "^4.2.3",
