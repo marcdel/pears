@@ -1,0 +1,52 @@
+# Modifying the actions? Don't like pushing to GitHub to find out whether your changes worked?
+# Consider act: https://github.com/nektos/act
+#
+# WARNING: you'll need the 18.2GB GitHub-compatible Docker image:
+#   act -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04
+
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_test:
+        description: "Build and Test"
+        required: true
+        default: "build_test.yml"
+
+#on:
+#  push:
+#    branches: [ master ]
+
+env:
+  HONEYCOMB_KEY: ${{ secrets.HONEYCOMB_KEY }}
+  ADMIN_USER: ${{ secrets.ADMIN_USER }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  TIMBER_KEY: ${{ secrets.TIMBER_KEY }}
+  TIMBER_SOURCE_ID: ${{ secrets.TIMBER_SOURCE_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    name: Deploy to Production
+    needs: [check, test, e2e]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master # Checkout out master instead of the latest commit
+          fetch-depth: 0 # Checkout the whole branch
+      - name: deploy
+        uses: mhanberg/gigalixir-action@v0.3.0
+        if: github.ref == 'refs/heads/master'
+        with:
+          GIGALIXIR_USERNAME: ${{ secrets.GIGALIXIR_USERNAME }}
+          GIGALIXIR_PASSWORD: ${{ secrets.GIGALIXIR_PASSWORD }}
+          GIGALIXIR_APP: pears
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          MIGRATIONS: false
+      - name: create honeycomb marker
+        run: |
+          curl https://api.honeycomb.io/1/markers/pears \
+            -X POST \
+            -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
+            -d '{"message":"${{ github.sha }}", "url":"https://github.com/marcdel/pears/commit/${{ github.sha }}", "type":"deploy"}'

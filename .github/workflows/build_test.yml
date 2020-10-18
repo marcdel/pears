@@ -4,7 +4,7 @@
 # WARNING: you'll need the 18.2GB GitHub-compatible Docker image:
 #   act -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04
 
-name: Elixir CI
+name: Build and Test
 
 on:
   push:
@@ -184,28 +184,3 @@ jobs:
         with:
           name: cypress-videos
           path: assets/cypress/videos
-
-  deploy:
-    runs-on: ubuntu-18.04
-    name: Deploy to Production
-    needs: [check, test, e2e]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: master # Checkout out master instead of the latest commit
-          fetch-depth: 0 # Checkout the whole branch
-      - name: deploy
-        uses: mhanberg/gigalixir-action@v0.3.0
-        if: github.ref == 'refs/heads/master'
-        with:
-          GIGALIXIR_USERNAME: ${{ secrets.GIGALIXIR_USERNAME }}
-          GIGALIXIR_PASSWORD: ${{ secrets.GIGALIXIR_PASSWORD }}
-          GIGALIXIR_APP: pears
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          MIGRATIONS: false
-      - name: create honeycomb marker
-        run: |
-          curl https://api.honeycomb.io/1/markers/pears \
-            -X POST \
-            -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
-            -d '{"message":"${{ github.sha }}", "url":"https://github.com/marcdel/pears/commit/${{ github.sha }}", "type":"deploy"}'
