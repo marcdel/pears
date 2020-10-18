@@ -20,7 +20,7 @@
     "@testing-library/cypress": "^7.0.1",
     "babel-loader": "^8.0.0",
     "copy-webpack-plugin": "^6.2.1",
-    "css-loader": "^4.3.0",
+    "css-loader": "^5.0.0",
     "cypress": "^5.4.0",
     "mini-css-extract-plugin": "^1.0.0",
     "node-sass": "^4.13.1",
