@@ -135,6 +135,18 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
+  @decorate trace("team_live.toggle_anchor", include: [:team_name, :pear_name, :current_location])
+  def handle_event("toggle-anchor", params, socket) do
+    team_name = team_name(socket)
+    pear_name = Map.get(params, "pear-name")
+    current_location = Map.get(params, "current-location")
+
+    Pears.toggle_anchor(team_name, pear_name, current_location)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   @decorate trace("team_live.pear_unselected",
               include: [:_team_name, :_pear_name, :_current_location]
             )

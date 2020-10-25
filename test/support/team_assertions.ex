@@ -42,6 +42,16 @@ defmodule TeamAssertions do
     team
   end
 
+  def assert_anchoring_track(team, pear_name, track_name) do
+    assert Team.find_track(team, track_name).anchor == pear_name
+    team
+  end
+
+  def refute_anchoring_track(team, pear_name, track_name) do
+    refute Team.find_track(team, track_name).anchor == pear_name
+    team
+  end
+
   def refute_history(team, expected_history) do
     refute histrories_are_equal?(team, expected_history)
     team

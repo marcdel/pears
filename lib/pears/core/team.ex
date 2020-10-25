@@ -184,6 +184,16 @@ defmodule Pears.Core.Team do
     }
   end
 
+  @decorate trace(
+              "team.toggle_anchor",
+              include: [[:team, :name], :pear_name, :track_name, :track, :updated_tracks]
+            )
+  def toggle_anchor(team, pear_name, track_name) do
+    track = find_track(team, track_name)
+    updated_tracks = Map.put(team.tracks, track_name, Track.toggle_anchor(track, pear_name))
+    %{team | tracks: updated_tracks}
+  end
+
   @decorate trace("team.record_pears", include: [[:team, :name]])
   def record_pears(team) do
     if any_pears_assigned?(team) do

@@ -148,8 +148,22 @@ defmodule Pears do
             )
   def toggle_track_locked(team_name, track_name, locked?) do
     with {:ok, team} <- TeamSession.get_team(team_name),
-         {:ok, _} <- validate_track_exists(team, track_name),
+         {:ok, _track} <- validate_track_exists(team, track_name),
          {:ok, updated_team} <- lock_or_unlock_track(team, track_name, locked?),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
+         {:ok, updated_team} <- update_subscribers(updated_team) do
+      {:ok, updated_team}
+    else
+      error -> error
+    end
+  end
+
+  @decorate trace("pears.toggle_anchor", include: [:team_name, :pear_name, :track_name])
+  def toggle_anchor(team_name, pear_name, track_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         {:ok, _pear} <- validate_pear_on_team(team, pear_name),
+         {:ok, _track} <- validate_track_exists(team, track_name),
+         updated_team <- Team.toggle_anchor(team, pear_name, track_name),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}

@@ -203,6 +203,23 @@ defmodule PearsTest do
     refute team.tracks |> Map.values() |> List.first() |> Map.get(:locked)
   end
 
+  test "can toggle a pear as anchor for a track", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_track(name, "Track One")
+    Pears.add_pear_to_track(name, "Pear One", "Track One")
+
+    {:ok, team} = Pears.toggle_anchor(name, "Pear One", "Track One")
+
+    anchor = team.tracks |> Map.values() |> List.first() |> Map.get(:anchor)
+    assert anchor == "Pear One"
+
+    {:ok, team} = Pears.toggle_anchor(name, "Pear One", "Track One")
+
+    anchor = team.tracks |> Map.values() |> List.first() |> Map.get(:anchor)
+    assert anchor == nil
+  end
+
   describe "team name validation" do
     test "team names must be unique", %{name: name} do
       :ok = Pears.validate_name(name)

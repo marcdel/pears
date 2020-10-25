@@ -110,15 +110,6 @@
                 <div class="flex-1 px-4 py-2 text-sm leading-5">
                   <span class="text-gray-900 font-medium"><%= pear.name %></span>
                 </div>
-                <div class="flex-shrink-0 pr-2">
-                  <button title="Click to make this pear as the anchor for this track" class="w-8 h-8 inline-flex items-center justify-center text-white rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="5" r="3"></circle>
-                      <line x1="12" y1="22" x2="12" y2="8"></line>
-                      <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
-                    </svg>
-                  </button>
-                </div>
               </div>
             </li>
           <% end %>
@@ -237,14 +228,19 @@
                     <span class="text-gray-900 font-medium"><%= pear.name %></span>
                   </div>
                   <div class="flex-shrink-0 pr-2">
-                    <button title="Click to make this pear as the anchor for this track" class="w-8 h-8 inline-flex items-center justify-center text-white rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                    <a
+                      phx-click="toggle-anchor"
+                      phx-value-pear-name="<%= pear.name %>"
+                      phx-value-current-location="<%= track.name %>"
+                      title="Click to make this pear as the anchor for this track"
+                      class="w-8 h-8 inline-flex items-center justify-center <%= if (track.anchor == pear.name), do: "text-gray-500", else: "text-white" %> rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
                       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="5" r="3"></circle>
                         <line x1="12" y1="22" x2="12" y2="8"></line>
                         <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
                       </svg>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </li>

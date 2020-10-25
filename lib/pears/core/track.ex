@@ -1,7 +1,7 @@
 defmodule Pears.Core.Track do
   alias Pears.Core.Pear
 
-  defstruct id: nil, name: nil, locked: false, pears: %{}
+  defstruct id: nil, name: nil, locked: false, pears: %{}, anchor: nil
 
   def new(fields) do
     struct!(__MODULE__, fields)
@@ -19,6 +19,14 @@ defmodule Pears.Core.Track do
   end
 
   def find_pear(track, pear_name), do: Map.get(track.pears, pear_name, nil)
+
+  def toggle_anchor(track, pear_name) do
+    if track.anchor == pear_name do
+      Map.put(track, :anchor, nil)
+    else
+      Map.put(track, :anchor, pear_name)
+    end
+  end
 
   def lock_track(track), do: %{track | locked: true}
   def unlock_track(track), do: %{track | locked: false}

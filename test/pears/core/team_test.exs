@@ -188,6 +188,17 @@ defmodule Pears.Core.TeamTest do
     |> refute_track_locked("track one")
   end
 
+  test "can toggle a pear as anchor for a track", %{team: team} do
+    team
+    |> Team.add_track("track1")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear_to_track("pear1", "track1")
+    |> Team.toggle_anchor("pear1", "track1")
+    |> assert_anchoring_track("pear1", "track1")
+    |> Team.toggle_anchor("pear1", "track1")
+    |> refute_anchoring_track("pear1", "track1")
+  end
+
   test "can find a match in the team's history" do
     team =
       TeamBuilders.team()
