@@ -60,8 +60,7 @@ defmodule Pears.MixProject do
       {:opentelemetry_ecto, "~> 0.1.0"},
       {:opentelemetry_honeycomb, "~> 0.3.0-rc.0"},
       {:fun_with_flags, "~> 1.5.1"},
-      {:fun_with_flags_ui, "~> 0.7.2"},
-      {:phx_gen_auth, "~> 0.5", only: [:dev], runtime: false}
+      {:fun_with_flags_ui, "~> 0.7.2"}
     ]
   end
 
