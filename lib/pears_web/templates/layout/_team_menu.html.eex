@@ -1,0 +1,10 @@
+<ul>
+<%= if @current_team do %>
+  <li><%= @current_team.name %></li>
+  <li><%= link "Settings", to: Routes.team_settings_path(@conn, :edit) %></li>
+  <li><%= link "Log out", to: Routes.team_session_path(@conn, :delete), method: :delete %></li>
+<% else %>
+  <li><%= link "Register", to: Routes.team_registration_path(@conn, :new) %></li>
+  <li><%= link "Log in", to: Routes.team_session_path(@conn, :new) %></li>
+<% end %>
+</ul>

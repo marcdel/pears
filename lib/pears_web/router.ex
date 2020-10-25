@@ -1,38 +1,40 @@
 defmodule PearsWeb.Router do
   use PearsWeb, :router
 
+  import PearsWeb.TeamAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {PearsWeb.LayoutView, :root}
+    plug :put_root_layout, {PearsWeb.LayoutView, :logged_out}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_team
+  end
+
+  pipeline :logged_in do
+    plug :put_root_layout, {PearsWeb.LayoutView, :logged_in}
+  end
+
+  pipeline :logged_out do
+    plug :put_root_layout, {PearsWeb.LayoutView, :logged_out}
   end
 
   import Plug.BasicAuth
 
   pipeline :admins_only do
-    if Mix.env() in [:dev, :prod, :e2e, :ci] do
+    if Mix.env() == :test do
+      plug :basic_auth, username: "admin", password: "admin"
+    else
       plug :basic_auth,
         username: Map.fetch!(System.get_env(), "ADMIN_USER"),
         password: Map.fetch!(System.get_env(), "ADMIN_PASSWORD")
-    else
-      plug :basic_auth, username: "admin", password: "admin"
     end
   end
 
   pipeline :api do
     plug :accepts, ["json"]
-  end
-
-  scope "/", PearsWeb do
-    pipe_through :browser
-
-    live "/", PageLive, :index
-    live "/teams/:id", TeamLive, :show
-    live "/teams/:id/add_pear", TeamLive, :add_pear
-    live "/teams/:id/add_track", TeamLive, :add_track
   end
 
   # Other scopes may use custom stacks.
@@ -54,8 +56,39 @@ defmodule PearsWeb.Router do
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
-    pipe_through [:browser, :admins_only]
+    pipe_through [:browser, :logged_in, :admins_only]
     live_dashboard "/dashboard", metrics: PearsWeb.Telemetry
     forward "/feature-flags", FunWithFlags.UI.Router, namespace: "feature-flags"
+  end
+
+  ## Authentication routes
+
+  scope "/", PearsWeb do
+    pipe_through [:browser, :logged_out, :redirect_if_team_is_authenticated]
+
+    get "/teams/register", TeamRegistrationController, :new
+    post "/teams/register", TeamRegistrationController, :create
+    get "/teams/log_in", TeamSessionController, :new
+    post "/teams/log_in", TeamSessionController, :create
+  end
+
+  scope "/", PearsWeb do
+    pipe_through [:browser, :logged_in, :require_authenticated_team]
+
+    get "/teams/settings", TeamSettingsController, :edit
+    put "/teams/settings/update_password", TeamSettingsController, :update_password
+    put "/teams/settings/update_name", TeamSettingsController, :update_name
+
+    live "/teams/:id", TeamLive, :show
+    live "/teams/:id/add_pear", TeamLive, :add_pear
+    live "/teams/:id/add_track", TeamLive, :add_track
+  end
+
+  scope "/", PearsWeb do
+    pipe_through [:browser, :logged_out]
+
+    get "/", HomeController, :show
+    # live "/", PageLive, :index
+    delete "/teams/log_out", TeamSessionController, :delete
   end
 end

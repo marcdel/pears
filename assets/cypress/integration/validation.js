@@ -5,6 +5,7 @@ import {addPear, addTrack} from "../support/helpers"
 context('Validation', () => {
   const existingTeamName = 'Existing Team'
   const teamName = 'Team Cypress'
+  const teamPassword = 'Cypress Password'
 
   beforeEach(() => {
     cy.createTeam(existingTeamName)
@@ -14,31 +15,30 @@ context('Validation', () => {
   })
 
   function testInvalidNameValidation() {
-    cy.get('[data-cy="team-name-field"]')
-      .type(existingTeamName)
-      .should('have.value', existingTeamName)
+    cy.fillInput('Name', existingTeamName)
+    cy.fillInput('Password', teamPassword)
 
-    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
+    cy.clickButton(/register/i)
 
-    cy.get('[name="team-name"]').clear()
-    cy.contains(`Sorry, the name "${existingTeamName}" is already taken`)
-      .should('not.be.visible')
+    cy.get(`[phx-feedback-for="team_name"]`)
+      .should('have.text', 'has already been taken')
+
+    cy.clearInput('Name')
   }
 
   it('redirects to root for teams that dont exist', () => {
     cy.visit('/teams/fake-team')
-    cy.location('pathname').should('equal', '/')
+    cy.location('pathname').should('equal', '/teams/log_in')
   })
 
   it('create team, add pears, add tracks, and recommend pears', () => {
     testInvalidNameValidation()
 
-    cy.get('[data-cy="team-name-field"]')
-      .type(teamName)
-      .should('have.value', teamName)
+    cy.fillInput('Name', teamName)
+    cy.fillInput('Password', teamPassword)
 
-    cy.clickButton('Create')
-    cy.contains('Congratulations, your team has been created!').should('be.visible')
+    cy.clickButton(/register/i)
+    cy.contains('Team created successfully.').should('be.visible')
 
     addPear('Second Pear')
     addPear('Second Pear')

@@ -33,6 +33,7 @@ defmodule Pears.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 2.0"},
       {:phoenix, "~> 1.5.3"},
       {:phoenix_ecto, "~> 4.1"},
       {:ecto_sql, "~> 3.4"},
@@ -59,7 +60,8 @@ defmodule Pears.MixProject do
       {:opentelemetry_ecto, "~> 0.1.0"},
       {:opentelemetry_honeycomb, "~> 0.3.0-rc.0"},
       {:fun_with_flags, "~> 1.5.1"},
-      {:fun_with_flags_ui, "~> 0.7.2"}
+      {:fun_with_flags_ui, "~> 0.7.2"},
+      {:phx_gen_auth, "~> 0.5", only: [:dev], runtime: false}
     ]
   end
 

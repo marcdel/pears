@@ -41,4 +41,30 @@ defmodule PearsWeb.ConnCase do
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  @doc """
+  Setup helper that registers and logs in teams.
+
+      setup :register_and_log_in_team
+
+  It stores an updated connection and a registered team in the
+  test context.
+  """
+  def register_and_log_in_team(%{conn: conn}) do
+    team = Pears.AccountsFixtures.team_fixture()
+    %{conn: log_in_team(conn, team), team: team}
+  end
+
+  @doc """
+  Logs the given `team` into the `conn`.
+
+  It returns an updated `conn`.
+  """
+  def log_in_team(conn, team) do
+    token = Pears.Accounts.generate_team_session_token(team)
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:team_token, token)
+  end
 end

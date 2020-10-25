@@ -2,12 +2,15 @@ defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
   use OpenTelemetryDecorator
 
+  alias Pears.Accounts
+
   @impl true
   @decorate trace("team_live.mount", include: [:team_name])
-  def mount(%{"id" => team_name}, _session, socket) do
+  def mount(%{"id" => team_name}, session, socket) do
     {
       :ok,
       socket
+      |> assign_new(:current_team, fn -> find_current_team(session) end)
       |> assign_team_or_redirect(team_name)
       |> assign(selected_pear: nil, selected_pear_current_location: nil, editing_track: nil)
       |> apply_action(socket.assigns.live_action)
@@ -263,14 +266,25 @@ defmodule PearsWeb.TeamLive do
   end
 
   defp assign_team_or_redirect(socket, team_name) do
-    case Pears.lookup_team_by(name: team_name) do
-      {:ok, team} ->
-        assign(socket, team: team, page_title: team.name)
-
-      {:error, :not_found} ->
+    with true <- is_logged_in_team(socket, team_name),
+         {:ok, team} <- Pears.lookup_team_by(name: team_name) do
+      assign(socket, team: team, page_title: team.name)
+    else
+      _ ->
         socket
-        |> push_redirect(to: Routes.page_path(socket, :index))
+        |> redirect(to: Routes.team_registration_path(socket, :new))
         |> put_flash(:error, "Sorry, that team was not found")
+    end
+  end
+
+  defp is_logged_in_team(socket, team_name) do
+    socket.assigns[:current_team].name == team_name
+  end
+
+  defp find_current_team(session) do
+    case Accounts.get_team_by_session_token(session["team_token"]) do
+      %{} = user -> user
+      _ -> nil
     end
   end
 

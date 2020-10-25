@@ -31,13 +31,19 @@ Cypress.Commands.add('createTeam', (name) => cy.request('POST', `e2e/teams?name=
 Cypress.Commands.add('deleteTeam', (id) => cy.request('DELETE', `e2e/teams/${id}`))
 
 Cypress.Commands.add('fillInput', (label, value) => {
-  cy.contains('label', label)
-    .find('input')
+  cy.get('form')
+    .findByLabelText(label)
     .type(value)
     .should('have.value', value)
 })
 
-Cypress.Commands.add('clickButton', (text) => cy.findByRole('button', { name: text }).click())
+Cypress.Commands.add('clearInput', (label) => {
+  cy.get('form')
+    .findByLabelText(label)
+    .clear()
+})
+
+Cypress.Commands.add('clickButton', (text) => cy.findByRole('button', {name: text}).click())
 Cypress.Commands.add('clickLink', (text) => cy.findByRole('a', { name: text }).click())
 
 const findAvailablePearsList = pearName => cy.get('[data-cy="available-pears-list"]')

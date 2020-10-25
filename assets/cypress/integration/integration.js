@@ -4,6 +4,7 @@ import {addPear, addTrack} from "../support/helpers"
 
 context('Full Journey', () => {
   const teamName = 'Team Cypress'
+  const teamPassword = 'Cypress Password'
 
   beforeEach(() => {
     cy.deleteTeam(teamName)
@@ -12,13 +13,12 @@ context('Full Journey', () => {
   })
 
   it('create team, add pears, add tracks, and recommend pears', () => {
-    cy.get('[data-cy="team-name-field"]')
-      .type(teamName)
-      .should('have.value', teamName)
+    cy.fillInput('Name', teamName)
+    cy.fillInput('Password', teamPassword)
 
-    cy.clickButton('Create')
+    cy.clickButton(/register/i)
 
-    cy.contains('Congratulations, your team has been created!').should('be.visible')
+    cy.contains('Team created successfully.').should('be.visible')
     cy.location('pathname').should('include', '/teams/')
     cy.contains('h1', teamName)
 
