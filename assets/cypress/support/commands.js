@@ -49,6 +49,7 @@ Cypress.Commands.add('clickLink', (text) => cy.findByRole('a', { name: text }).c
 const findAvailablePearsList = pearName => cy.get('[data-cy="available-pears-list"]')
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
 const findAssignedPear = pearName => cy.get(`[data-cy="assigned-pear ${pearName}"]`)
+const findToggleAnchorLink = (pearName) => cy.get(`[data-cy="toggle-anchor ${pearName}"]`)
 const trackSelector = trackName => `[data-cy="track ${trackName}"]`
 const findTrack = (trackName) => cy.get(trackSelector(trackName))
 const findTrash = () => cy.get('[data-cy="trash"]')
@@ -117,6 +118,10 @@ Cypress.Commands.add('lockTrack', (trackName) => {
 
 Cypress.Commands.add('unlockTrack', (trackName) => {
   return findUnlockTrackLink(trackName).click()
+})
+
+Cypress.Commands.add('toggleAnchor', (pearName) => {
+  return findToggleAnchorLink(pearName).click()
 })
 
 Cypress.Commands.add('trackIsLocked', (trackName) => {

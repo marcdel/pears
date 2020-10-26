@@ -232,6 +232,7 @@
                       phx-click="toggle-anchor"
                       phx-value-pear-name="<%= pear.name %>"
                       phx-value-current-location="<%= track.name %>"
+                      data-cy="<%= "toggle-anchor #{pear.name}" %>"
                       title="Click to make this pear as the anchor for this track"
                       class="w-8 h-8 inline-flex items-center justify-center <%= if (track.anchor == pear.name), do: "text-gray-500", else: "text-white" %> rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
                       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"

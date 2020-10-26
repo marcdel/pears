@@ -266,9 +266,10 @@ defmodule Pears.Core.TeamTest do
       {"pear1", "track two"}
     ]
     |> TeamBuilders.from_matches()
+    |> Team.toggle_anchor("pear2", "track one")
     |> Team.reset_matches()
     |> refute_pear_in_track("pear1", "track two")
-    |> refute_pear_in_track("pear2", "track one")
+    |> assert_pear_in_track("pear2", "track one")
     |> refute_pear_in_track("pear3", "track one")
   end
 

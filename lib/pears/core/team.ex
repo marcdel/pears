@@ -297,6 +297,7 @@ defmodule Pears.Core.Team do
     |> Enum.flat_map(fn track ->
       track.pears
       |> Map.values()
+      |> Enum.reject(fn pear -> pear.name == track.anchor end)
       |> Enum.map(&Map.put(&1, :track, track.name))
     end)
     |> Enum.reduce(team, fn pear, team ->
