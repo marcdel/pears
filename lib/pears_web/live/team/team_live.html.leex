@@ -234,9 +234,9 @@
                       phx-value-current-location="<%= track.name %>"
                       data-cy="<%= "toggle-anchor #{pear.name}" %>"
                       title="Click to make this pear as the anchor for this track"
-                      class="w-8 h-8 inline-flex items-center justify-center <%= if (track.anchor == pear.name), do: "text-gray-500", else: "text-white" %> rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
-                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      class="w-8 h-8 inline-flex items-center justify-center <%= if (track.anchor == pear.name), do: "text-anchor", else: "text-white" %> rounded-full bg-transparent hover:text-anchor focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="5" r="3"></circle>
                         <line x1="12" y1="22" x2="12" y2="8"></line>
                         <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>

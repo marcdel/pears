@@ -11,7 +11,11 @@ module.exports = {
     "./js/**/*.js"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        anchor: '#FDBA21',
+      },
+    },
   },
   variants: {},
   plugins: [],
