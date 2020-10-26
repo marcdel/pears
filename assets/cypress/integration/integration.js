@@ -16,7 +16,7 @@ context('Full Journey', () => {
     cy.fillInput('Name', teamName)
     cy.fillInput('Password', teamPassword)
 
-    cy.clickButton(/register/i)
+    cy.clickButton('Register')
 
     cy.contains('Team created successfully.').should('be.visible')
     cy.location('pathname').should('include', '/teams/')
@@ -86,7 +86,7 @@ context('Full Journey', () => {
   it('can select an anchor', () => {
     cy.fillInput('Name', teamName)
     cy.fillInput('Password', teamPassword)
-    cy.clickButton(/register/i)
+    cy.clickButton('Register')
 
     addPear('First Pear')
     addPear('Second Pear')

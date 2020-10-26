@@ -43,8 +43,8 @@ Cypress.Commands.add('clearInput', (label) => {
     .clear()
 })
 
-Cypress.Commands.add('clickButton', (text) => cy.findByRole('button', {name: text}).click())
-Cypress.Commands.add('clickLink', (text) => cy.findByRole('a', { name: text }).click())
+Cypress.Commands.add('clickButton', (text) => cy.contains('button', text).click())
+Cypress.Commands.add('clickLink', (text) => cy.contains('a', text).click())
 
 const findAvailablePearsList = pearName => cy.get('[data-cy="available-pears-list"]')
 const findAvailablePear = pearName => cy.get(`[data-cy="available-pear ${pearName}"]`)
