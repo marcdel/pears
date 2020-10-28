@@ -235,7 +235,7 @@
                       phx-value-current-location="<%= track.name %>"
                       data-cy="<%= "toggle-anchor #{pear.name}" %>"
                       title="Click to make this pear the anchor for this track"
-                      class="w-8 h-8 inline-flex items-center justify-center <%= if (track.anchor == pear.name), do: "text-anchor", else: "text-gray-300" %> cursor-pointer rounded-full bg-transparent hover:text-anchor focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
+                      class="w-8 h-8 inline-flex items-center justify-center <%= if (track.anchor == pear.name), do: "text-yellow-400", else: "text-gray-300" %> cursor-pointer rounded-full bg-transparent hover:text-anchor focus:outline-none focus:text-gray-500 focus:bg-gray-100 transition ease-in-out duration-150">
                       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="5" r="3"></circle>
@@ -268,7 +268,7 @@
     <div id="trash-container" class="flex text-sm border-2 p-1 border-transparent rounded-full text-white background-white <%= if @selected_pear != nil, do: "text-white bg-red-400 hover:bg-red-600 shadow" %> transition duration-200 ease-in-out">
       <svg
        class="-ml-0.5 mr-1 h-10 w-10"
-       viewBox="0 0 22 24"
+       viewBox="0 0 21 24"
        stroke="currentColor"
        fill="none"
        id="trash"

@@ -13,7 +13,7 @@
   <body>
     <div class="min-h-screen bg-white">
       <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex">
               <div class="flex-shrink-0 flex items-center">
@@ -26,11 +26,11 @@
                 </a>
               </div>
               <div class="hidden sm:ml-6 space-x-8 sm:flex">
-                <a href="<%= Routes.home_path(@conn, :show) %>" class="<%= if @conn.request_path != Routes.team_settings_path(@conn, :edit), do: "border-indigo-500", else: "border-transparent" %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
+                <a href="<%= Routes.home_path(@conn, :show) %>" class="<%= if @conn.request_path != Routes.team_settings_path(@conn, :edit), do: "border-green-500", else: "border-transparent" %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-green-700 transition duration-150 ease-in-out">
                   Home
                 </a>
 
-                <a href="<%= Routes.team_settings_path(@conn, :edit) %>" class="<%= if @conn.request_path == Routes.team_settings_path(@conn, :edit), do: "border-indigo-500", else: "border-transparent" %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                <a href="<%= Routes.team_settings_path(@conn, :edit) %>" class="<%= if @conn.request_path == Routes.team_settings_path(@conn, :edit), do: "border-green-500", else: "border-transparent" %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
                   Settings
                 </a>
               </div>
@@ -51,7 +51,7 @@
         -->
         <div class="hidden sm:hidden">
           <div class="pt-2 pb-3 space-y-1">
-            <a href="#" class="block pl-3 pr-4 py-2 border-l-4 border-indigo-500 text-base font-medium text-indigo-700 bg-indigo-50 focus:outline-none focus:text-indigo-800 focus:bg-indigo-100 focus:border-indigo-700 transition duration-150 ease-in-out">
+            <a href="#" class="block pl-3 pr-4 py-2 border-l-4 border-green-500 text-base font-medium text-green-700 bg-green-50 focus:outline-none focus:text-green-800 focus:bg-green-100 focus:border-green-700 transition duration-150 ease-in-out">
               Dashboard
             </a>
 
@@ -87,7 +87,7 @@
 
       <div class="pt-10">
         <main>
-          <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <!-- Replace with your content -->
             <%= @inner_content %>
             <!-- /End replace -->
@@ -96,17 +96,17 @@
       </div>
 
       <nav class="bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex">
             </div>
             <div class="flex">
               <div class="flex-shrink-0 flex items-center">
-                <a href="mailto:help@pears.dev?subject=Pears%20Feedback">
+                <a href="mailto:help@pears.dev?subject=Pears%20Feedback" title="Send us feedback or questions!">
                   <div class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition duration-150 ease-in-out" id="feedback-link">
                     <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-white">
                       <span class="text-lg font-medium leading-none text-gray-500">
-                        <svg class="-ml-0.5 mr-1 h-6 w-6" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                        <svg class="-ml-0.5 mr-1 h-6 w-6" viewBox="0 0 19 24" stroke="currentColor" fill="none">
                           <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
                           <line x1="4" y1="22" x2="4" y2="15"></line>
                         </svg>
