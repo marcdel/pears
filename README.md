@@ -1,6 +1,6 @@
 # Pears
 
-[![Build status badge](https://github.com/marcdel/pears/workflows/Elixir%20CI/badge.svg)](https://github.com/marcdel/pears/actions)
+![Build, Test, Deploy](https://github.com/marcdel/pears/workflows/Build,%20Test,%20Deploy/badge.svg)
 
 ### Get started at [pears.dev](https://pears.dev/)!
 
