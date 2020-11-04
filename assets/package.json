@@ -18,7 +18,7 @@
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "tailwindcss": "^1.9.6",
-    "@tailwindcss/ui": "^0.6.2",
+    "@tailwindcss/ui": "^0.7.2",
     "@testing-library/cypress": "^7.0.1",
     "babel-loader": "^8.0.0",
     "copy-webpack-plugin": "^6.2.1",
