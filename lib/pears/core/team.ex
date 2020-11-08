@@ -184,6 +184,18 @@ defmodule Pears.Core.Team do
     }
   end
 
+  @decorate trace("team.choose_anchors",
+              include: [[:team, :name], [:team, :tracks], :updated_tracks]
+            )
+  def choose_anchors(team) do
+    updated_tracks =
+      team.tracks
+      |> Enum.map(fn {name, track} -> {name, Track.choose_anchor(track)} end)
+      |> Enum.into(%{})
+
+    %{team | tracks: updated_tracks}
+  end
+
   @decorate trace(
               "team.toggle_anchor",
               include: [[:team, :name], :pear_name, :track_name, :track, :updated_tracks]
@@ -316,16 +328,16 @@ defmodule Pears.Core.Team do
     end)
   end
 
-  @decorate trace("team.any_pears_assigned?", include: [[:team, :name]])
+  @decorate trace("team.any_pears_assigned?", include: [[:team, :name], :result])
   def any_pears_assigned?(team), do: Enum.any?(team.assigned_pears)
 
-  @decorate trace("team.any_pears_available?", include: [[:team, :name]])
+  @decorate trace("team.any_pears_available?", include: [[:team, :name], :result])
   def any_pears_available?(team), do: Enum.any?(team.available_pears)
 
-  @decorate trace("team.pear_available?", include: [[:team, :name], :pear_name])
+  @decorate trace("team.pear_available?", include: [[:team, :name], :pear_name, :result])
   def pear_available?(team, pear_name), do: Map.has_key?(team.available_pears, pear_name)
 
-  @decorate trace("team.pear_assigned?", include: [[:team, :name], :pear_name])
+  @decorate trace("team.pear_assigned?", include: [[:team, :name], :pear_name, :result])
   def pear_assigned?(team, pear_name), do: Map.has_key?(team.assigned_pears, pear_name)
 
   @decorate trace("team.find_empty_track", include: [[:team, :name], :track])

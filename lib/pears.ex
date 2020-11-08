@@ -10,6 +10,7 @@ defmodule Pears do
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Recommendator
   alias Pears.Core.Team
+  alias Pears.FeatureFlags
   alias Pears.Persistence
 
   @topic inspect(__MODULE__)
@@ -256,12 +257,20 @@ defmodule Pears do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, team_with_history} <- load_history(team),
          team_with_empty_tracks <- maybe_add_empty_tracks(team_with_history),
-         updated_team <- Recommendator.assign_pears(team_with_empty_tracks),
+         updated_team <- assign_pears(team_with_empty_tracks),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
     else
       error -> error
+    end
+  end
+
+  defp assign_pears(team) do
+    if FeatureFlags.enabled?(:choose_anchors_and_suggest, for: team) do
+      Recommendator.choose_anchors_and_suggest(team)
+    else
+      Recommendator.assign_pears(team)
     end
   end
 

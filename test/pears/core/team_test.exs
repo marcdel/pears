@@ -199,6 +199,32 @@ defmodule Pears.Core.TeamTest do
     |> refute_anchoring_track("pear1", "track1")
   end
 
+  test "can automatically choose anchors for tracks", %{team: team} do
+    team =
+      team
+      |> Team.add_track("track1")
+      |> Team.add_track("track2")
+      |> Team.add_track("track3")
+      |> Team.add_track("track4")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear("pear3")
+      |> Team.add_pear("pear4")
+      |> Team.add_pear("pear5")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.add_pear_to_track("pear2", "track2")
+      |> Team.add_pear_to_track("pear3", "track2")
+      |> Team.add_pear_to_track("pear4", "track3")
+      |> Team.add_pear_to_track("pear5", "track3")
+      |> Team.toggle_anchor("pear4", "track3")
+      |> Team.choose_anchors()
+      |> assert_anchoring_track("pear1", "track1")
+      |> assert_anchoring_track("pear4", "track3")
+
+    anchor = team.tracks["track2"].anchor
+    assert anchor == "pear2" || anchor == "pear3"
+  end
+
   test "can find a match in the team's history" do
     team =
       TeamBuilders.team()

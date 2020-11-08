@@ -3,6 +3,18 @@ defmodule Pears.Core.Recommendator do
 
   alias Pears.Core.{MatchValidator, Team}
 
+  @decorate trace("recommendator.choose_anchors_and_suggest", include: [[:team, :name]])
+  def choose_anchors_and_suggest(team) do
+    team =
+      team
+      |> Team.choose_anchors()
+      |> Team.reset_matches()
+
+    team
+    |> potential_matches_by_score()
+    |> assign_matches(team)
+  end
+
   @decorate trace("recommendator.assign_pears", include: [[:team, :name]])
   def assign_pears(team) do
     team

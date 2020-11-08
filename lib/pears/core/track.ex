@@ -20,6 +20,15 @@ defmodule Pears.Core.Track do
 
   def find_pear(track, pear_name), do: Map.get(track.pears, pear_name, nil)
 
+  def choose_anchor(%{anchor: anchor} = track) when anchor != nil, do: track
+
+  def choose_anchor(%{pears: pears} = track) when map_size(pears) == 0, do: track
+
+  def choose_anchor(track) do
+    {pear_name, _} = Enum.random(track.pears)
+    toggle_anchor(track, pear_name)
+  end
+
   def toggle_anchor(track, pear_name) do
     if track.anchor == pear_name do
       Map.put(track, :anchor, nil)
