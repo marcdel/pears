@@ -31,15 +31,17 @@
         <% end %>
       </div>
       <div class="flex space-x-3">
-        <span class="shadow-sm rounded-md">
-          <button type="button" phx-click="reset-pears" title="Reset - make all non-anchor pears available" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
-            <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-              <polyline points="1 4 1 10 7 10"></polyline>
-              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-            </svg>
-            Reset
-          </button>
-        </span>
+        <%= unless Pears.FeatureFlags.enabled?(:hide_reset_button, for: @team) do %>
+          <span class="shadow-sm rounded-md">
+            <button type="button" phx-click="reset-pears" title="Reset - make all non-anchor pears available" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+              <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Reset
+            </button>
+          </span>
+        <% end %>
         <span class="shadow-sm rounded-md">
           <button type="button" phx-click="recommend-pears" title="Suggest - move available pears to open tracks (creating new tracks if needed)" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-green-300 focus:shadow-outline-green active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
             <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
