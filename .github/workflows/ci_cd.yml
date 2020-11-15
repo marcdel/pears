@@ -193,7 +193,7 @@ jobs:
           path: assets/cypress/videos
 
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Deploy to Production
     needs: [check, test, e2e]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
