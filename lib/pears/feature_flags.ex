@@ -10,7 +10,7 @@ defimpl FunWithFlags.Actor, for: Pears.Core.Team do
   def id(%{name: name}), do: "team:#{name}"
 end
 
-defmodule Pears.FeatureFlags do
+defmodule FeatureFlags do
   @behaviour FeatureFlagsBehavior
 
   use OpenTelemetryDecorator
