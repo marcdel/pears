@@ -44,6 +44,12 @@ defmodule TeamBuilders do
     )
   end
 
+  def create_tokens(team, count) do
+    Enum.map(1..count, fn _ ->
+      Pears.Accounts.generate_team_session_token(team)
+    end)
+  end
+
   def team do
     Team.new(name: "Team #{random_id()}")
   end

@@ -50,4 +50,19 @@ defmodule Pears.Persistence.RecordCountsTest do
     Enum.each(teams, fn team -> TeamBuilders.create_matches(team, 1) end)
     assert RecordCounts.match_count() == 6
   end
+
+  test "token_count" do
+    teams = TeamBuilders.create_teams(2)
+
+    Enum.each(teams, fn team -> TeamBuilders.create_tokens(team, 2) end)
+    assert RecordCounts.token_count() == 4
+
+    Enum.each(teams, fn team -> TeamBuilders.create_tokens(team, 1) end)
+    assert RecordCounts.token_count() == 6
+  end
+
+  test "flag_count" do
+    Enum.each(1..4, fn i -> FeatureFlags.enable(String.to_atom("flag_#{i}")) end)
+    assert RecordCounts.flag_count() == 4
+  end
 end

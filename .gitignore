@@ -34,5 +34,5 @@ npm-debug.log
 /priv/static/
 
 # cypress failures
-assets/cypress/videos
-assets/cypress/screenshots
+ui_tests/cypress/videos
+ui_tests/cypress/screenshots
