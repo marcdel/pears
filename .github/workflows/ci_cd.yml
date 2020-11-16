@@ -20,6 +20,14 @@ env:
   TIMBER_SOURCE_ID: ${{ secrets.TIMBER_SOURCE_ID }}
 
 jobs:
+  buildevents:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kvrhdn/gha-buildevents@main
+        with:
+          apikey: ${{ secrets.HONEYCOMB_KEY }}
+          dataset: pears_buildevents
+          job-status: ${{ job.status }}
   check:
     runs-on: ubuntu-18.04
     name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
