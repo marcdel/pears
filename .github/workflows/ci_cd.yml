@@ -4,7 +4,7 @@
 # WARNING: you'll need the 18.2GB GitHub-compatible Docker image:
 #   act -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04
 
-name: Build, Test, Deploy
+name: pears_ci
 
 on:
   push:
@@ -20,14 +20,6 @@ env:
   TIMBER_SOURCE_ID: ${{ secrets.TIMBER_SOURCE_ID }}
 
 jobs:
-  buildevents:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.HONEYCOMB_KEY }}
-          dataset: pears_buildevents
-          job-status: ${{ job.status }}
   check:
     runs-on: ubuntu-18.04
     name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
@@ -36,6 +28,11 @@ jobs:
         otp: ["23.0"]
         elixir: ["1.10"]
     steps:
+      - uses: kvrhdn/gha-buildevents@main
+        with:
+          apikey: ${{ secrets.HONEYCOMB_KEY }}
+          dataset: pears_buildevents
+          job-status: ${{ job.status }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
@@ -95,6 +92,11 @@ jobs:
         ports: ['5432:5432']
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
+      - uses: kvrhdn/gha-buildevents@main
+        with:
+          apikey: ${{ secrets.HONEYCOMB_KEY }}
+          dataset: pears_buildevents
+          job-status: ${{ job.status }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
@@ -145,6 +147,11 @@ jobs:
         ports: ['5432:5432']
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
+      - uses: kvrhdn/gha-buildevents@main
+        with:
+          apikey: ${{ secrets.HONEYCOMB_KEY }}
+          dataset: pears_buildevents
+          job-status: ${{ job.status }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
