@@ -57,8 +57,10 @@ defmodule PearsWeb.Router do
 
   scope "/" do
     pipe_through [:browser, :logged_in, :admins_only]
+
     live_dashboard "/dashboard", metrics: PearsWeb.Telemetry
     forward "/feature-flags", FunWithFlags.UI.Router, namespace: "feature-flags"
+    live "/admin", PearsWeb.AdminLive, :show
   end
 
   ## Authentication routes
