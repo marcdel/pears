@@ -7,6 +7,7 @@ defmodule Pears.Application do
 
   def start(_type, _args) do
     OpenTelemetry.register_application_tracer(:pears)
+    OpentelemetryPhoenix.setup()
     OpentelemetryEcto.setup([:pears, :repo])
 
     attach_timber_events()
