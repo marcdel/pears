@@ -46,6 +46,30 @@ defmodule PearsWeb.Track do
     end
   end
 
+  @impl true
+  @decorate trace("track_live.remove_track", include: [:team_name, :track_name])
+  def handle_event("remove-track", %{"track-name" => track_name}, socket) do
+    team_name = team_name(socket)
+    {:ok, _updated_team} = Pears.remove_track(team_name, track_name)
+    {:noreply, socket}
+  end
+
+  @impl true
+  @decorate trace("track_live.lock_track", include: [:team_name, :track_name])
+  def handle_event("lock-track", %{"track-name" => track_name}, socket) do
+    team_name = team_name(socket)
+    {:ok, _updated_team} = Pears.lock_track(team_name, track_name)
+    {:noreply, socket}
+  end
+
+  @impl true
+  @decorate trace("track_live.unlock_track", include: [:team_name, :track_name])
+  def handle_event("unlock-track", %{"track-name" => track_name}, socket) do
+    team_name = team_name(socket)
+    {:ok, _updated_team} = Pears.unlock_track(team_name, track_name)
+    {:noreply, socket}
+  end
+
   defp put_parent_flash(team_name, type, message) do
     parent_topic = "#{inspect(Pears)}#{team_name}"
     Phoenix.PubSub.broadcast(Pears.PubSub, parent_topic, {Pears, :put_flash, type, message})

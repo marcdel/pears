@@ -68,30 +68,6 @@ defmodule PearsWeb.TeamLive do
   end
 
   @impl true
-  @decorate trace("team_live.remove_track", include: [:team_name, :track_name])
-  def handle_event("remove-track", %{"track-name" => track_name}, socket) do
-    team_name = team_name(socket)
-    {:ok, _updated_team} = Pears.remove_track(team_name, track_name)
-    {:noreply, socket}
-  end
-
-  @impl true
-  @decorate trace("team_live.lock_track", include: [:team_name, :track_name])
-  def handle_event("lock-track", %{"track-name" => track_name}, socket) do
-    team_name = team_name(socket)
-    {:ok, _updated_team} = Pears.lock_track(team_name, track_name)
-    {:noreply, socket}
-  end
-
-  @impl true
-  @decorate trace("team_live.unlock_track", include: [:team_name, :track_name])
-  def handle_event("unlock-track", %{"track-name" => track_name}, socket) do
-    team_name = team_name(socket)
-    {:ok, _updated_team} = Pears.unlock_track(team_name, track_name)
-    {:noreply, socket}
-  end
-
-  @impl true
   @decorate trace("team_live.pear_selected", include: [:_team_name, :pear_name, :current_location])
   def handle_event("pear-selected", params, socket) do
     _team_name = team_name(socket)
@@ -235,10 +211,6 @@ defmodule PearsWeb.TeamLive do
   defp team_name(socket), do: team(socket).name
   defp selected_pear(socket), do: socket.assigns.selected_pear
   defp current_location(socket), do: socket.assigns.selected_pear_current_location
-
-  defp cancel_editing_track(socket) do
-    assign(socket, :editing_track, nil)
-  end
 
   defp select_pear(socket, pear_name, current_location) do
     assign(socket, selected_pear: pear_name, selected_pear_current_location: current_location)
