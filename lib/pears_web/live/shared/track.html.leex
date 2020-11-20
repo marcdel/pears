@@ -28,7 +28,7 @@
       </a>
     <% end %>
     <%= if @editing_track == @track.name do %>
-      <form phx-submit="save-track-name" class="w-full" data-cy="edit-track-name-form <%= @track.name %>">
+      <form phx-submit="save-track-name" phx-target="<%= @myself %>" class="w-full" data-cy="edit-track-name-form <%= @track.name %>">
         <input
           id="new-track-name <%= @track.name %>"
           name="new-track-name"
@@ -42,6 +42,7 @@
        class="pl-2 w-full"
        title="Click to edit the track name"
        phx-click="edit-track-name"
+       phx-target="<%= @myself %>"
        phx-value-track-name="<%= @track.name %>"
        data-cy="<%= "edit-track-name #{@track.name}" %>">
         <%= @track.name %>

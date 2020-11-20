@@ -51,8 +51,9 @@
     </li>
     <%= for track <- list_tracks(@team) do %>
       <%= live_component(@socket, PearsWeb.Track,
+       id: track.id,
+       team_name: @team.name,
        track: track,
-       editing_track: @editing_track,
        pears: list_pears(track.pears),
        selected_pear: @selected_pear)
       %>

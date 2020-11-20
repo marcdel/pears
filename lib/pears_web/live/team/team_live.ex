@@ -1,6 +1,6 @@
 defmodule PearsWeb.TeamLive do
-  use PearsWeb, :live_view
   use OpenTelemetryDecorator
+  use PearsWeb, :live_view
 
   alias Pears.Accounts
 
@@ -89,40 +89,6 @@ defmodule PearsWeb.TeamLive do
     team_name = team_name(socket)
     {:ok, _updated_team} = Pears.unlock_track(team_name, track_name)
     {:noreply, socket}
-  end
-
-  @impl true
-  @decorate trace("team_live.edit_track_name", include: [:_team_name, :track_name])
-  def handle_event("edit-track-name", %{"track-name" => track_name}, socket) do
-    _team_name = team_name(socket)
-    {:noreply, assign(socket, :editing_track, track_name)}
-  end
-
-  @impl true
-  @decorate trace("team_live.cancel_editing_track", include: [:_team_name, :_track_name])
-  def handle_event("cancel-editing-track", _params, socket) do
-    _team_name = team_name(socket)
-    _track_name = socket.assigns.editing_track
-
-    {:noreply, cancel_editing_track(socket)}
-  end
-
-  @impl true
-  @decorate trace("team_live.save_track_name", include: [:team_name, :track_name, :new_track_name])
-  def handle_event("save-track-name", %{"new-track-name" => new_track_name}, socket) do
-    team_name = team_name(socket)
-    track_name = socket.assigns.editing_track
-
-    case Pears.rename_track(team_name, track_name, new_track_name) do
-      {:ok, _updated_team} ->
-        {:noreply, cancel_editing_track(socket)}
-
-      {:error, _changeset} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Sorry, a track with the name '#{new_track_name}' already exists")
-         |> cancel_editing_track()}
-    end
   end
 
   @impl true
@@ -258,6 +224,11 @@ defmodule PearsWeb.TeamLive do
   @impl true
   def handle_info({Pears, [:team, :updated], team}, socket) do
     {:noreply, assign(socket, team: team)}
+  end
+
+  @impl true
+  def handle_info({Pears, :put_flash, type, message}, socket) do
+    {:noreply, put_flash(socket, type, message)}
   end
 
   defp team(socket), do: socket.assigns.team
