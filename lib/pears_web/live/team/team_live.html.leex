@@ -43,7 +43,7 @@
         data-cy="available-pears-list">
         <ul class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
           <%= for pear <- list_pears(@team.available_pears) do %>
-            <%= live_component(@socket, PearsWeb.Pear, pear: pear, track: nil) %>
+            <%= live_component(@socket, PearsWeb.Pear, id: pear.id, team_name: @team.name, pear: pear, track: nil) %>
           <% end %>
           <%= live_component(@socket, PearsWeb.DropZone, selected_pear: @selected_pear, track: nil) %>
         </ul>

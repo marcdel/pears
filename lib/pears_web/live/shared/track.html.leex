@@ -76,7 +76,7 @@
       phx-hook="Destination"
       phx-value-destination="<%= @track.name %>">
       <%= for pear <- @pears do %>
-        <%= live_component(@socket, PearsWeb.Pear, pear: pear, track: @track) %>
+        <%= live_component(@socket, PearsWeb.Pear, id: pear.id, team_name: @team_name, pear: pear, track: @track) %>
       <% end %>
       <%= live_component(@socket, PearsWeb.DropZone, selected_pear: @selected_pear, track: @track) %>
     </ul>

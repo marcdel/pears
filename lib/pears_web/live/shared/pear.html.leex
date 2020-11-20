@@ -25,6 +25,7 @@
       <div class="flex-shrink-0 pr-2">
         <button
           phx-click="toggle-anchor"
+          phx-target="<%= @myself %>"
           phx-value-pear-name="<%= @pear.name %>"
           phx-value-current-location="<%= @track.name %>"
           data-cy="<%= "toggle-anchor #{@pear.name}" %>"
