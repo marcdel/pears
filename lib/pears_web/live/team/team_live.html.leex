@@ -1,3 +1,7 @@
+<%= if FeatureFlags.enabled?(:random_facilitator, for: @team) do %>
+  <%= live_component(@socket, PearsWeb.FacilitatorMessage, id: @team.id, team_name: @team.name) %>
+<% end %>
+
 <div class="px-4 py-8 sm:px-0">
   <%= if @live_action in [:add_pear] do %>
     <%= live_modal @socket, PearsWeb.TeamLive.AddPearForm,

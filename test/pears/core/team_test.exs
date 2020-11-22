@@ -367,6 +367,21 @@ defmodule Pears.Core.TeamTest do
     |> assert_pear_order("available", ["pear4", "pear3", "pear2", "pear1"])
   end
 
+  test "can randomly select a facilitator", %{team: team} do
+    facilitator =
+      team
+      |> Team.add_track("track1")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear("pear3")
+      |> Team.add_pear("pear4")
+      |> Team.add_pear_to_track("pear2", "track1")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.facilitator()
+
+    assert Enum.member?(["pear1", "pear2", "pear3", "pear4"], facilitator.name)
+  end
+
   defp assert_pear_order(team, "available", expected_order) do
     actual_order =
       team.available_pears

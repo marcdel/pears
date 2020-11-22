@@ -374,6 +374,17 @@ defmodule PearsTest do
     assert %{"Track Deux" => _} = team.tracks
   end
 
+  test "can pick a random facilitator", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_track(name, "Track One")
+    Pears.add_pear_to_track(name, "Pear One", "Track One")
+
+    {:ok, facilitator} = Pears.facilitator(name)
+
+    assert facilitator.name == "Pear One"
+  end
+
   def name(_) do
     {:ok, name: Ecto.UUID.generate()}
   end

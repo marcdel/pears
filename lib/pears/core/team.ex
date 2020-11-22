@@ -350,6 +350,14 @@ defmodule Pears.Core.Team do
     track
   end
 
+  @decorate trace("team.facilitator", include: [[:team, :name], :result])
+  def facilitator(team) do
+    team.available_pears
+    |> Map.merge(team.assigned_pears)
+    |> Map.values()
+    |> Enum.random()
+  end
+
   def metadata(team) do
     current_matches =
       team

@@ -306,6 +306,16 @@ defmodule Pears do
     end)
   end
 
+  @decorate trace("pears.facilitator", include: [:team_name])
+  def facilitator(team_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         facilitator <- Team.facilitator(team) do
+      {:ok, facilitator}
+    else
+      error -> error
+    end
+  end
+
   @decorate trace("pears.validate_pear_available", include: [[:team, :name], :pear_name])
   defp validate_pear_available(team, pear_name) do
     case Team.find_available_pear(team, pear_name) do
