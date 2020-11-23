@@ -352,10 +352,25 @@ defmodule Pears.Core.Team do
 
   @decorate trace("team.facilitator", include: [[:team, :name], :result])
   def facilitator(team) do
+    team
+    |> active_pears()
+    |> random_or_nil()
+  end
+
+  @decorate trace("team.has_active_pears?", include: [[:team, :name], :result])
+  def has_active_pears?(team) do
+    team
+    |> active_pears()
+    |> Enum.any?()
+  end
+
+  defp random_or_nil([]), do: nil
+  defp random_or_nil(list), do: Enum.random(list)
+
+  defp active_pears(team) do
     team.available_pears
     |> Map.merge(team.assigned_pears)
     |> Map.values()
-    |> Enum.random()
   end
 
   def metadata(team) do

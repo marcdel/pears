@@ -30,6 +30,10 @@ require('@4tw/cypress-drag-drop')
 Cypress.Commands.add('createTeam', (name) => cy.request('POST', `e2e/teams?name=${name}`))
 Cypress.Commands.add('deleteTeam', (id) => cy.request('DELETE', `e2e/teams/${id}`))
 
+Cypress.Commands.add('toggleFlag', (flag, enable) => {
+  return cy.request('POST', `e2e/toggle_flag?flag=${flag}&enable=${enable}`)
+})
+
 Cypress.Commands.add('fillInput', (label, value) => {
   cy.get('form')
     .findByLabelText(label)

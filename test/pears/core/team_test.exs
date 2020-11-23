@@ -367,7 +367,20 @@ defmodule Pears.Core.TeamTest do
     |> assert_pear_order("available", ["pear4", "pear3", "pear2", "pear1"])
   end
 
+  test "can check if there are active pears (available or assigned)", %{team: team} do
+    team
+    |> refute_has_active_pears()
+    |> Team.add_pear("pear1")
+    |> Team.add_pear("pear2")
+    |> assert_has_active_pears()
+    |> Team.add_track("track1")
+    |> Team.add_pear_to_track("pear1", "track1")
+    |> assert_has_active_pears()
+  end
+
   test "can randomly select a facilitator", %{team: team} do
+    assert Team.facilitator(team) == nil
+
     facilitator =
       team
       |> Team.add_track("track1")
@@ -380,34 +393,6 @@ defmodule Pears.Core.TeamTest do
       |> Team.facilitator()
 
     assert Enum.member?(["pear1", "pear2", "pear3", "pear4"], facilitator.name)
-  end
-
-  defp assert_pear_order(team, "available", expected_order) do
-    actual_order =
-      team.available_pears
-      |> Map.values()
-      |> Enum.map(fn pear -> {pear.order, pear.name} end)
-      |> Enum.sort_by(fn {order, _} -> order end)
-      |> Enum.map(fn {_, name} -> name end)
-
-    assert actual_order == expected_order
-
-    team
-  end
-
-  defp assert_pear_order(team, track, expected_order) do
-    actual_order =
-      team.tracks
-      |> Map.get(track)
-      |> Map.get(:pears)
-      |> Map.values()
-      |> Enum.map(fn pear -> {pear.order, pear.name} end)
-      |> Enum.sort_by(fn {order, _} -> order end)
-      |> Enum.map(fn {_, name} -> name end)
-
-    assert actual_order == expected_order
-
-    team
   end
 
   defp team(_) do

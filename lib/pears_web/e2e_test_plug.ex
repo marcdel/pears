@@ -24,5 +24,25 @@ defmodule PearsWeb.Plug.TestEndToEnd do
     end
   end
 
+  post "/toggle_flag" do
+    conn = Plug.Conn.fetch_query_params(conn)
+
+    flag =
+      conn.params
+      |> Map.get("flag")
+      |> String.to_existing_atom()
+
+    enable =
+      conn.params
+      |> Map.get("enable")
+      |> parse_boolean()
+
+    {:ok, enabled} = FeatureFlags.toggle(flag, enable)
+    send_resp(conn, 200, "#{enabled}")
+  end
+
+  defp parse_boolean("true"), do: true
+  defp parse_boolean(_), do: false
+
   match(_, do: send_resp(conn, 404, "not found"))
 end

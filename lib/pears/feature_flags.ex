@@ -1,6 +1,7 @@
 defmodule FeatureFlagsBehavior do
   @type options :: Keyword.t()
 
+  @callback toggle(atom(), boolean()) :: {:ok, boolean()}
   @callback disable(atom(), list()) :: {:ok, false}
   @callback enable(atom(), list()) :: {:ok, true}
   @callback enabled?(atom(), list()) :: boolean
@@ -14,6 +15,16 @@ defmodule FeatureFlags do
   @behaviour FeatureFlagsBehavior
 
   use OpenTelemetryDecorator
+
+  def toggle(flag_name, enable, options \\ [])
+
+  def toggle(flag_name, true, options) do
+    enable(flag_name, options)
+  end
+
+  def toggle(flag_name, false, options) do
+    disable(flag_name, options)
+  end
 
   @decorate trace("flags.disable", include: [:flag_name, :options, :result])
   def disable(flag_name, options \\ []) do

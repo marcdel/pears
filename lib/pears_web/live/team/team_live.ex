@@ -10,7 +10,7 @@ defmodule PearsWeb.TeamLive do
     {
       :ok,
       socket
-      |> assign_new(:current_team, fn -> find_current_team(session) end)
+      |> assign_new(:logged_in_team, fn -> find_logged_in_team(session) end)
       |> assign_team_or_redirect(team_name)
       |> assign(selected_pear: nil, selected_pear_current_location: nil, editing_track: nil)
       |> apply_action(socket.assigns.live_action)
@@ -35,6 +35,11 @@ defmodule PearsWeb.TeamLive do
     pears
     |> Enum.sort_by(fn {_, %{order: order}} -> order end)
     |> Enum.map(fn {_pear_name, pear} -> pear end)
+  end
+
+  defp show_random_facilitator_message(team) do
+    FeatureFlags.enabled?(:random_facilitator, for: team) &&
+      Pears.has_active_pears?(team.name)
   end
 
   @impl true
@@ -215,16 +220,16 @@ defmodule PearsWeb.TeamLive do
     else
       _ ->
         socket
-        |> redirect(to: Routes.team_registration_path(socket, :new))
         |> put_flash(:error, "Sorry, that team was not found")
+        |> redirect(to: Routes.team_registration_path(socket, :new))
     end
   end
 
   defp is_logged_in_team(socket, team_name) do
-    socket.assigns[:current_team].name == team_name
+    socket.assigns[:logged_in_team].name == team_name
   end
 
-  defp find_current_team(session) do
+  defp find_logged_in_team(session) do
     case Accounts.get_team_by_session_token(session["team_token"]) do
       %{} = user -> user
       _ -> nil

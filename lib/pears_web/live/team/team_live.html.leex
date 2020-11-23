@@ -1,4 +1,4 @@
-<%= if FeatureFlags.enabled?(:random_facilitator, for: @team) do %>
+<%= if show_random_facilitator_message(@team) do %>
   <%= live_component(@socket, PearsWeb.FacilitatorMessage, id: @team.id, team_name: @team.name) %>
 <% end %>
 

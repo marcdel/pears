@@ -20,7 +20,11 @@
           </svg>
           Accept
         </button>
-          <button class="inline-flex items-center bg-blue-50 px-2 py-1.5 rounded-md text-sm font-medium text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-50 focus:ring-blue-600">
+        <% end %>
+        <button
+          phx-click="shuffle"
+          phx-target="<%= @myself %>"
+          class="inline-flex items-center bg-blue-50 px-2 py-1.5 rounded-md text-sm font-medium text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-50 focus:ring-blue-600">
           <svg class="-ml-0.5 mr-2 h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
@@ -29,7 +33,6 @@
           </svg>
           Shuffle
         </button>
-        <% end %>
       </p>
     </div>
   </div>

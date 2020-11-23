@@ -85,4 +85,44 @@ defmodule TeamAssertions do
     pear = Team.find_assigned_pear(team, pear_name)
     Track.find_pear(track, pear_name) != nil && pear.track == track_name
   end
+
+  def assert_pear_order(team, "available", expected_order) do
+    actual_order =
+      team.available_pears
+      |> Map.values()
+      |> Enum.map(fn pear -> {pear.order, pear.name} end)
+      |> Enum.sort_by(fn {order, _} -> order end)
+      |> Enum.map(fn {_, name} -> name end)
+
+    assert actual_order == expected_order
+
+    team
+  end
+
+  def assert_pear_order(team, track, expected_order) do
+    actual_order =
+      team.tracks
+      |> Map.get(track)
+      |> Map.get(:pears)
+      |> Map.values()
+      |> Enum.map(fn pear -> {pear.order, pear.name} end)
+      |> Enum.sort_by(fn {order, _} -> order end)
+      |> Enum.map(fn {_, name} -> name end)
+
+    assert actual_order == expected_order
+
+    team
+  end
+
+  def assert_has_active_pears(team) do
+    assert Team.has_active_pears?(team)
+
+    team
+  end
+
+  def refute_has_active_pears(team) do
+    refute Team.has_active_pears?(team)
+
+    team
+  end
 end

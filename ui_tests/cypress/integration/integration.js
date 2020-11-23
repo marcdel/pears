@@ -8,6 +8,7 @@ context('Full Journey', () => {
 
   beforeEach(() => {
     cy.deleteTeam(teamName)
+    cy.toggleFlag('random_facilitator', false)
 
     cy.visit('/teams/register')
   })
@@ -84,6 +85,55 @@ context('Full Journey', () => {
   })
 
   it('can select an anchor', () => {
+    cy.fillInput('Name', teamName)
+    cy.fillInput('Password', teamPassword)
+    cy.clickButton('Register')
+
+    addPear('First Pear')
+    addPear('Second Pear')
+    addPear('Third Pear')
+    addPear('Fourth Pear')
+
+    addTrack('Feature One')
+    addTrack('Feature Two')
+
+    cy.findAvailablePear('First Pear').click()
+    cy.findTrack('Feature One').click()
+    cy.pearIsInTrack('First Pear', 'Feature One')
+
+    cy.findAvailablePear('Second Pear').click()
+    cy.findTrack('Feature One').click()
+    cy.pearIsInTrack('Second Pear', 'Feature One')
+
+    cy.findAvailablePear('Third Pear').click()
+    cy.findTrack('Feature Two').click()
+    cy.pearIsInTrack('Third Pear', 'Feature Two')
+
+    cy.findAvailablePear('Fourth Pear').click()
+    cy.findTrack('Feature Two').click()
+    cy.pearIsInTrack('Fourth Pear', 'Feature Two')
+
+    cy.clickButton('Save')
+
+    cy.toggleAnchor('First Pear')
+    cy.toggleAnchor('Third Pear')
+
+    cy.clickButton('Reset')
+
+    cy.pearIsInTrack('First Pear', 'Feature One')
+    cy.pearIsAvailable('Second Pear')
+    cy.pearIsInTrack('Third Pear', 'Feature Two')
+    cy.pearIsAvailable('Fourth Pear')
+
+    cy.clickButton('Suggest')
+
+    cy.pearIsInTrack('First Pear', 'Feature One')
+    cy.pearIsInTrack('Second Pear', 'Feature Two')
+    cy.pearIsInTrack('Third Pear', 'Feature Two')
+    cy.pearIsInTrack('Fourth Pear', 'Feature One')
+  })
+
+  it('can get suggested facilitator and shuffle for someone else', () => {
     cy.fillInput('Name', teamName)
     cy.fillInput('Password', teamPassword)
     cy.clickButton('Register')
