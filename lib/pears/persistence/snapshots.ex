@@ -9,6 +9,7 @@ defmodule Pears.Persistence.Snapshots do
   alias Pears.Repo
 
   @number_to_keep 30
+  @thirty_days_ago NaiveDateTime.utc_now() |> NaiveDateTime.add(-(30 * 24 * 3600), :second)
 
   @decorate trace("snapshots.prune_all", include: [:number_to_keep])
   def prune_all(opts \\ []) do
@@ -22,13 +23,22 @@ defmodule Pears.Persistence.Snapshots do
   def prune(team, opts \\ []) do
     number_to_keep = Keyword.get(opts, :number_to_keep, @number_to_keep)
 
-    {_, to_delete} =
+    {_, extra_snapshots} =
       team.snapshots
       |> Enum.sort_by(& &1.id, :desc)
       |> Enum.split(number_to_keep)
 
+    {_, old_snapshots} =
+      team.snapshots
+      |> Enum.sort_by(& &1.inserted_at, :desc)
+      |> Enum.split_with(fn %{inserted_at: inserted_at} ->
+        NaiveDateTime.compare(inserted_at, @thirty_days_ago) == :gt
+      end)
+
     results =
-      to_delete
+      extra_snapshots
+      |> Enum.concat(old_snapshots)
+      |> Enum.uniq()
       |> Enum.map(&Repo.delete/1)
       |> Enum.group_by(fn {status, _} -> status end, fn {_, snapshot} -> snapshot end)
 
