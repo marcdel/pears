@@ -16,14 +16,14 @@ defmodule Pears.Boundary.TeamSession do
 
     def update_team(%{session_facilitator: nil} = state, team) do
       state
-      |> Map.put(:session_facilitator, Team.facilitator(team))
       |> Map.put(:team, team)
+      |> new_session_facilitator()
     end
 
     def update_team(state, team), do: Map.put(state, :team, team)
 
-    def update_session_facilitator(state, session_facilitator) do
-      Map.put(state, :session_facilitator, session_facilitator)
+    def new_session_facilitator(state) do
+      Map.put(state, :session_facilitator, Team.facilitator(state.team))
     end
 
     def team(state), do: Map.get(state, :team)
@@ -83,6 +83,11 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :get_facilitator)
   end
 
+  @decorate trace("team_session.new_facilitator", include: [:team_name])
+  def new_facilitator(team_name) do
+    GenServer.call(via(team_name), :get_new_facilitator)
+  end
+
   def via(name) do
     {:via, Registry, {Pears.Registry.TeamSession, name}}
   end
@@ -97,6 +102,15 @@ defmodule Pears.Boundary.TeamSession do
 
   def handle_call(:get_facilitator, _from, state) do
     {:reply, {:ok, State.session_facilitator(state)}, state, @timeout}
+  end
+
+  def handle_call(:get_new_facilitator, _from, state) do
+    facilitator =
+      state
+      |> State.new_session_facilitator()
+      |> State.session_facilitator()
+
+    {:reply, {:ok, facilitator}, state, @timeout}
   end
 
   @decorate trace("team_session.timeout")

@@ -386,6 +386,18 @@ defmodule PearsTest do
     assert facilitator.name == "Pear One"
   end
 
+  test "can pick a new random facilitator", %{name: name} do
+    Pears.add_team(name)
+    Pears.add_pear(name, "Pear One")
+    Pears.add_pear(name, "Pear Two")
+
+    {:ok, facilitator} = Pears.facilitator(name)
+    {:ok, new_facilitator} = Pears.new_facilitator(name)
+
+    assert Enum.member?(["Pear One", "Pear Two"], facilitator.name)
+    assert Enum.member?(["Pear One", "Pear Two"], new_facilitator.name)
+  end
+
   def name(_) do
     {:ok, name: Ecto.UUID.generate()}
   end

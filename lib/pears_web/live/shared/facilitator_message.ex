@@ -17,7 +17,7 @@ defmodule PearsWeb.FacilitatorMessage do
   @decorate trace("team_live.shuffle_facilitator", include: [:team_name])
   def handle_event("shuffle", _params, socket) do
     team_name = team_name(socket)
-    {:ok, facilitator} = Pears.facilitator(team_name)
+    {:ok, facilitator} = Pears.new_facilitator(team_name)
     {:noreply, assign(socket, :facilitator, facilitator.name)}
   end
 

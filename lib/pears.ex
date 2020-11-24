@@ -317,6 +317,17 @@ defmodule Pears do
     end
   end
 
+  @decorate trace("pears.new_facilitator", include: [:team_name, :result])
+  def new_facilitator(team_name) do
+    with {:ok, team} <- TeamSession.get_team(team_name),
+         true <- Team.has_active_pears?(team) do
+      TeamSession.new_facilitator(team_name)
+    else
+      false -> {:error, :no_pears}
+      error -> error
+    end
+  end
+
   @decorate trace("pears.has_active_pears?", include: [:team_name, :result])
   def has_active_pears?(team_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
