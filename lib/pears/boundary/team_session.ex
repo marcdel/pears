@@ -2,6 +2,34 @@ defmodule Pears.Boundary.TeamSession do
   use GenServer
   use OpenTelemetryDecorator
 
+  alias Pears.Core.Team
+  alias Pears.O11y
+
+  @timeout :timer.minutes(60)
+
+  defmodule State do
+    defstruct [:team, :session_facilitator]
+
+    def new(team) do
+      %__MODULE__{team: team, session_facilitator: Team.facilitator(team)}
+    end
+
+    def update_team(%{session_facilitator: nil} = state, team) do
+      state
+      |> Map.put(:session_facilitator, Team.facilitator(team))
+      |> Map.put(:team, team)
+    end
+
+    def update_team(state, team), do: Map.put(state, :team, team)
+
+    def update_session_facilitator(state, session_facilitator) do
+      Map.put(state, :session_facilitator, session_facilitator)
+    end
+
+    def team(state), do: Map.get(state, :team)
+    def session_facilitator(state), do: Map.get(state, :session_facilitator)
+  end
+
   def start_link(team) do
     GenServer.start_link(__MODULE__, team, name: via(team.name))
   end
@@ -14,11 +42,12 @@ defmodule Pears.Boundary.TeamSession do
     }
   end
 
+  @decorate trace("team_session.init", include: [[:team, :name]])
   def init(team) do
-    {:ok, team}
+    {:ok, State.new(team), @timeout}
   end
 
-  @decorate trace("team_session.start_session", include: [:team])
+  @decorate trace("team_session.start_session", include: [[:team, :name]])
   def start_session(team) do
     GenServer.whereis(via(team.name)) ||
       DynamicSupervisor.start_child(
@@ -49,15 +78,30 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), {:update_team, team})
   end
 
+  @decorate trace("team_session.facilitator", include: [:team_name])
+  def facilitator(team_name) do
+    GenServer.call(via(team_name), :get_facilitator)
+  end
+
   def via(name) do
     {:via, Registry, {Pears.Registry.TeamSession, name}}
   end
 
-  def handle_call(:get_team, _from, team) do
-    {:reply, {:ok, team}, team}
+  def handle_call(:get_team, _from, state) do
+    {:reply, {:ok, State.team(state)}, state, @timeout}
   end
 
-  def handle_call({:update_team, updated_team}, _from, _team) do
-    {:reply, {:ok, updated_team}, updated_team}
+  def handle_call({:update_team, updated_team}, _from, state) do
+    {:reply, {:ok, updated_team}, State.update_team(state, updated_team), @timeout}
+  end
+
+  def handle_call(:get_facilitator, _from, state) do
+    {:reply, {:ok, State.session_facilitator(state)}, state, @timeout}
+  end
+
+  @decorate trace("team_session.timeout")
+  def handle_info(:timeout, state) do
+    O11y.set_attribute(:team_name, State.team(state).name)
+    {:stop, :normal, []}
   end
 end

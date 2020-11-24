@@ -380,8 +380,6 @@ defmodule PearsTest do
     assert {:error, :no_pears} = Pears.facilitator(name)
 
     Pears.add_pear(name, "Pear One")
-    Pears.add_track(name, "Track One")
-    Pears.add_pear_to_track(name, "Pear One", "Track One")
 
     {:ok, facilitator} = Pears.facilitator(name)
 
