@@ -213,6 +213,11 @@ jobs:
     needs: [check, test, e2e]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
+      - uses: kvrhdn/gha-buildevents@main
+        with:
+          apikey: ${{ secrets.HONEYCOMB_KEY }}
+          dataset: pears_buildevents
+          job-status: ${{ job.status }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
