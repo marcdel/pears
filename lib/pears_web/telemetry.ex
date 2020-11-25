@@ -2,8 +2,6 @@ defmodule PearsWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
-  alias Pears.O11y.PeriodicMeasurements
-
   def start_link(arg) do
     Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
   end
@@ -67,18 +65,4 @@ defmodule PearsWeb.Telemetry do
       summary("vm.total_run_queue_lengths.io")
     ]
   end
-
-  defp periodic_measurements do
-    periodic_measurements(Mix.env())
-  end
-
-  defp periodic_measurements(:prod) do
-    [
-      # A module, function and arguments to be invoked periodically.
-      # This function must call :telemetry.execute/3 and a metric must be added above.
-      {PeriodicMeasurements, :record_counts, []}
-    ]
-  end
-
-  defp periodic_measurements(_), do: []
 end

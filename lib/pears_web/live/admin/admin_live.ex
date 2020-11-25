@@ -6,7 +6,7 @@ defmodule PearsWeb.AdminLive do
 
   @impl true
   @decorate trace("admin_live.mount", include: [:total_teams, :total_records, :percent_full])
-  def mount(params, session, socket) do
+  def mount(_params, _session, socket) do
     total_records = RecordCounts.total()
     percent_full = RecordCounts.percent_full()
     total_teams = RecordCounts.team_count()
