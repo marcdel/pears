@@ -266,7 +266,7 @@ defmodule Pears do
   end
 
   defp assign_pears(team) do
-    if FeatureFlags.enabled?(:hide_reset_button, for: team) do
+    if FeatureFlags.enabled?(:new_suggest_function, for: team) do
       Recommendator.choose_anchors_and_suggest(team)
     else
       Recommendator.assign_pears(team)
