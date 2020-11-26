@@ -5,14 +5,22 @@ defmodule Pears.Core.Recommendator do
 
   @decorate trace("recommendator.choose_anchors_and_suggest", include: [[:team, :name]])
   def choose_anchors_and_suggest(team) do
-    team =
-      team
-      |> Team.choose_anchors()
-      |> Team.reset_matches()
-
     team
-    |> potential_matches_by_score()
-    |> assign_matches(team)
+    |> Team.choose_anchors()
+    |> Team.reset_matches()
+    |> assign_pears()
+    |> remove_added_anchors(team)
+  end
+
+  defp remove_added_anchors(updated_team, team) do
+    anchors_before = Team.anchors(team)
+    anchors_after = Team.anchors(updated_team)
+
+    anchors_to_remove = anchors_before -- anchors_after
+
+    Enum.reduce(anchors_to_remove, updated_team, fn {pear, track}, updated_team ->
+      Team.toggle_anchor(updated_team, pear, track)
+    end)
   end
 
   @decorate trace("recommendator.assign_pears", include: [[:team, :name]])

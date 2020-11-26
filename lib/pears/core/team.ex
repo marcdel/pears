@@ -206,6 +206,15 @@ defmodule Pears.Core.Team do
     %{team | tracks: updated_tracks}
   end
 
+  @decorate trace("team.anchors", include: [[:team, :name], :result])
+  def anchors(team) do
+    team
+    |> Map.get(:tracks)
+    |> Map.values()
+    |> Enum.map(fn track -> {Map.get(track, :anchor), Map.get(track, :name)} end)
+    |> Enum.filter(fn {anchor, _} -> anchor == nil end)
+  end
+
   @decorate trace("team.record_pears", include: [[:team, :name]])
   def record_pears(team) do
     if any_pears_assigned?(team) do
