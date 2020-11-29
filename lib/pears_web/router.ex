@@ -77,6 +77,8 @@ defmodule PearsWeb.Router do
   scope "/", PearsWeb do
     pipe_through [:browser, :logged_in, :require_authenticated_team]
 
+    get "/slack/oauth", SlackAuthController, :new
+
     get "/teams/settings", TeamSettingsController, :edit
     put "/teams/settings/update_password", TeamSettingsController, :update_password
     put "/teams/settings/update_name", TeamSettingsController, :update_name

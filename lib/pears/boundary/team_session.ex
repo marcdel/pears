@@ -8,7 +8,7 @@ defmodule Pears.Boundary.TeamSession do
   @timeout :timer.minutes(60)
 
   defmodule State do
-    defstruct [:team, :session_facilitator]
+    defstruct [:team, :session_facilitator, :slack_token]
 
     def new(team) do
       %__MODULE__{team: team, session_facilitator: Team.facilitator(team)}
@@ -25,6 +25,9 @@ defmodule Pears.Boundary.TeamSession do
     def new_session_facilitator(state) do
       Map.put(state, :session_facilitator, Team.facilitator(state.team))
     end
+
+    def slack_token(state), do: Map.get(state, :slack_token)
+    def set_slack_token(state, slack_token), do: Map.put(state, :slack_token, slack_token)
 
     def team(state), do: Map.get(state, :team)
     def session_facilitator(state), do: Map.get(state, :session_facilitator)
@@ -88,6 +91,16 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :get_new_facilitator)
   end
 
+  @decorate trace("team_session.slack_token", include: [:team_name])
+  def slack_token(team_name) do
+    GenServer.call(via(team_name), :get_slack_token)
+  end
+
+  @decorate trace("team_session.set_slack_token", include: [:team_name])
+  def set_slack_token(team_name, token) do
+    GenServer.call(via(team_name), {:set_slack_token, token})
+  end
+
   def via(name) do
     {:via, Registry, {Pears.Registry.TeamSession, name}}
   end
@@ -111,6 +124,14 @@ defmodule Pears.Boundary.TeamSession do
       |> State.session_facilitator()
 
     {:reply, {:ok, facilitator}, state, @timeout}
+  end
+
+  def handle_call(:get_slack_token, _from, state) do
+    {:reply, {:ok, State.slack_token(state)}, state, @timeout}
+  end
+
+  def handle_call({:set_slack_token, token}, _from, state) do
+    {:reply, {:ok, token}, State.set_slack_token(state, token), @timeout}
   end
 
   @decorate trace("team_session.timeout")

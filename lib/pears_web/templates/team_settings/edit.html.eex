@@ -3,7 +3,6 @@
     <div class="sm:mx-auto sm:w-full sm:max-w-xl">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <%= form_for @name_changeset, Routes.team_settings_path(@conn, :update_name), fn f -> %>
-
           <h3 class="text-lg leading-6 font-medium text-gray-900">
             Change team name
           </h3>
@@ -44,7 +43,6 @@
       </div>
     </div>
   </div>
-
   <div class="bg-white flex flex-col justify-center sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-xl">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
@@ -94,4 +92,9 @@
       </div>
     </div>
   </div>
+  <%= if FeatureFlags.enabled?(:slack_onboarding) do %>
+    <a href="https://slack.com/oauth/v2/authorize?state=onboard&client_id=169408119024.1514845190500&scope=app_mentions:read,channels:read,chat:write,commands,im:history,im:read,im:write,users:read&user_scope=">
+      <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
+    </a>
+  <% end %>
 </div>
