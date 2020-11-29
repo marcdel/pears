@@ -7,7 +7,19 @@ defmodule PearsWeb.SlackAuthController do
   @decorate trace("SlackAuthController.authenticate", include: [:team_name])
   def new(conn, %{"state" => "onboard", "code" => code}) do
     team_name = conn.assigns.current_team.name
-    Slack.onboard_team(team_name, code)
+
+    case Slack.onboard_team(team_name, code) do
+      {:ok, _} ->
+        conn
+        |> put_flash(:info, "Slack app successfully added!")
+        |> redirect(to: Routes.team_settings_path(conn, :edit))
+
+      _ ->
+        conn
+        |> put_flash(:error, "Whoops, something went wrong! Please try again.")
+        |> redirect(to: Routes.team_settings_path(conn, :edit))
+    end
+
     send_resp(conn, 200, "")
   end
 
