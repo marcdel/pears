@@ -18,6 +18,8 @@ env:
   ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
   TIMBER_KEY: ${{ secrets.TIMBER_KEY }}
   TIMBER_SOURCE_ID: ${{ secrets.TIMBER_SOURCE_ID }}
+  SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
+  SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
 
 jobs:
   check:
