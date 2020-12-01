@@ -2,7 +2,6 @@ defmodule PearsWeb.TeamSettingsController do
   use PearsWeb, :controller
 
   alias Pears.Accounts
-  alias PearsWeb.TeamAuth
 
   plug :assign_changeset
 
