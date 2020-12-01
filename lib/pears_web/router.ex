@@ -21,10 +21,6 @@ defmodule PearsWeb.Router do
     plug :put_root_layout, {PearsWeb.LayoutView, :logged_out}
   end
 
-  pipeline :settings do
-    plug :put_root_layout, {PearsWeb.LayoutView, :settings}
-  end
-
   import Plug.BasicAuth
 
   pipeline :admins_only do
@@ -88,7 +84,7 @@ defmodule PearsWeb.Router do
   end
 
   scope "/settings", PearsWeb do
-    pipe_through [:browser, :settings, :require_authenticated_team]
+    pipe_through [:browser, :logged_in, :require_authenticated_team]
 
     get "/", TeamSettingsController, :edit
     put "/", TeamSettingsController, :update

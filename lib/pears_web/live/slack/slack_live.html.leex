@@ -1,5 +1,22 @@
-<div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-  <a href="https://slack.com/oauth/v2/authorize?state=onboard&client_id=169408119024.1514845190500&scope=app_mentions:read,channels:read,chat:write,commands,im:history,im:read,im:write,users:read&user_scope=">
-    <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
-  </a>
-</div>
+<main class="max-w-8xl mx-auto pb-10 lg:py-12 lg:px-8">
+  <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
+    <%= render(PearsWeb.LayoutView, "_live_settings_nav.html", socket: @socket) %>
+    <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-6">
+      <section aria-labelledby="step_1_heading">
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="bg-white py-6 px-4 sm:p-6">
+            <h2 id="step_1_heading" class="text-lg leading-6 font-medium text-gray-900">Step 1</h2>
+            <div class="mt-6 grid grid-cols-1 gap-6">
+              Instructions for setting up the slack integration.
+            </div>
+          </div>
+          <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+            <a class="inline-flex justify-center" href="https://slack.com/oauth/v2/authorize?state=onboard&client_id=169408119024.1514845190500&scope=app_mentions:read,channels:read,chat:write,commands,im:history,im:read,im:write,users:read&user_scope=">
+              <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>

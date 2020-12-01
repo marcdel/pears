@@ -1,40 +1,45 @@
-<div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-  <section aria-labelledby="change_password_heading">
-    <%= form_for @changeset, Routes.team_password_path(@conn, :update), fn f -> %>
-      <div class="shadow sm:rounded-md sm:overflow-hidden">
-        <div class="bg-white py-6 px-4 sm:p-6">
-          <h2 id="change_password_heading" class="text-lg leading-6 font-medium text-gray-900">Change password</h2>
-          <%= if @changeset.action do %>
-            <div class="mt-6 text-sm leading-5 font-medium text-red-600">
-              <p>Oops, something went wrong! Please check the errors below.</p>
-            </div>
-          <% end %>
-          <div class="mt-6 grid grid-cols-4 gap-6">
-            <div class="col-span-4 sm:col-span-2">
-              <%= label f, :password, "New password", class: "block text-sm font-medium leading-5 text-gray-700" %>
-              <%= password_input f, :password, required: true, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm" %>
-              <p class="mt-2 text-sm text-red-600" id="password-error"><%= error_tag f, :password %></p>
-            </div>
+<main class="max-w-8xl mx-auto pb-10 lg:py-12 lg:px-8">
+  <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
+    <%= render(PearsWeb.LayoutView, "_settings_nav.html", conn: @conn) %>
+    <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
+      <section aria-labelledby="change_password_heading">
+        <%= form_for @changeset, Routes.team_password_path(@conn, :update), fn f -> %>
+          <div class="shadow sm:rounded-md sm:overflow-hidden">
+            <div class="bg-white py-6 px-4 sm:p-6">
+              <h2 id="change_password_heading" class="text-lg leading-6 font-medium text-gray-900">Change password</h2>
+              <%= if @changeset.action do %>
+                <div class="mt-6 text-sm leading-5 font-medium text-red-600">
+                  <p>Oops, something went wrong! Please check the errors below.</p>
+                </div>
+              <% end %>
+              <div class="mt-6 grid grid-cols-4 gap-6">
+                <div class="col-span-4 sm:col-span-2">
+                  <%= label f, :password, "New password", class: "block text-sm font-medium leading-5 text-gray-700" %>
+                  <%= password_input f, :password, required: true, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm" %>
+                  <p class="mt-2 text-sm text-red-600" id="password-error"><%= error_tag f, :password %></p>
+                </div>
 
-            <div class="col-span-4 sm:col-span-2">
-              <%= label f, :password_confirmation, "Confirm new password", class: "block text-sm font-medium text-gray-700" %>
-              <%= password_input f, :password_confirmation, required: true, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm" %>
-              <p class="mt-2 text-sm text-red-600" id="password_confirmation-error"><%= error_tag f, :password_confirmation %></p>
-            </div>
+                <div class="col-span-4 sm:col-span-2">
+                  <%= label f, :password_confirmation, "Confirm new password", class: "block text-sm font-medium text-gray-700" %>
+                  <%= password_input f, :password_confirmation, required: true, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm" %>
+                  <p class="mt-2 text-sm text-red-600" id="password_confirmation-error"><%= error_tag f, :password_confirmation %></p>
+                </div>
 
-            <div class="col-span-4 sm:col-span-2">
-              <%= label f, :current_password, for: "current_password_for_password", class: "block text-sm font-medium text-gray-700" %>
-              <%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_password", class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm" %>
-              <p class="mt-2 text-sm text-red-600" id="current_password-error"><%= error_tag f, :current_password %></p>
+                <div class="col-span-4 sm:col-span-2">
+                  <%= label f, :current_password, for: "current_password_for_password", class: "block text-sm font-medium text-gray-700" %>
+                  <%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_password", class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm" %>
+                  <p class="mt-2 text-sm text-red-600" id="current_password-error"><%= error_tag f, :current_password %></p>
+                </div>
+              </div>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+              <button type="submit" class="bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
+                Change password
+              </button>
             </div>
           </div>
-        </div>
-        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-          <button type="submit" class="bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
-            Change password
-          </button>
-        </div>
-      </div>
-    <% end %>
-  </section>
-</div>
+        <% end %>
+      </section>
+    </div>
+  </div>
+</main>
