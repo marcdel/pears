@@ -21,6 +21,10 @@ defmodule PearsWeb.Router do
     plug :put_root_layout, {PearsWeb.LayoutView, :logged_out}
   end
 
+  pipeline :settings do
+    plug :put_root_layout, {PearsWeb.LayoutView, :settings}
+  end
+
   import Plug.BasicAuth
 
   pipeline :admins_only do
@@ -63,8 +67,7 @@ defmodule PearsWeb.Router do
     live "/admin", PearsWeb.AdminLive, :show
   end
 
-  ## Authentication routes
-
+  # Authentication routes
   scope "/", PearsWeb do
     pipe_through [:browser, :logged_out, :redirect_if_team_is_authenticated]
 
@@ -79,13 +82,21 @@ defmodule PearsWeb.Router do
 
     get "/slack/oauth", SlackAuthController, :new
 
-    get "/teams/settings", TeamSettingsController, :edit
-    put "/teams/settings/update_password", TeamSettingsController, :update_password
-    put "/teams/settings/update_name", TeamSettingsController, :update_name
-
     live "/teams/:id", TeamLive, :show
     live "/teams/:id/add_pear", TeamLive, :add_pear
     live "/teams/:id/add_track", TeamLive, :add_track
+  end
+
+  scope "/settings", PearsWeb do
+    pipe_through [:browser, :settings, :require_authenticated_team]
+
+    get "/", TeamSettingsController, :edit
+    put "/", TeamSettingsController, :update
+
+    get "/password", TeamPasswordController, :edit
+    put "/password", TeamPasswordController, :update
+
+    live "/slack", SlackLive, :show
   end
 
   scope "/", PearsWeb do

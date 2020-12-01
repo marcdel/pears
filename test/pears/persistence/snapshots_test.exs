@@ -67,8 +67,8 @@ defmodule Pears.Persistence.SnapshotsTest do
   defp days_ago(days) do
     seconds = -(days * 24 * 3600)
 
-    NaiveDateTime.utc_now()
-    |> NaiveDateTime.add(seconds, :second)
+    DateTime.utc_now()
+    |> DateTime.add(seconds, :second)
     |> NaiveDateTime.truncate(:second)
   end
 

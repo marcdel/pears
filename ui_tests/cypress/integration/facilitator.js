@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import {addPear, addTrack} from "../support/helpers"
+import {addPear} from "../support/helpers"
 
 const teamName = 'Team Cypress'
 const teamPassword = 'Cypress Password'

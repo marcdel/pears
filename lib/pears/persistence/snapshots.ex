@@ -9,7 +9,7 @@ defmodule Pears.Persistence.Snapshots do
   alias Pears.Repo
 
   @number_to_keep 30
-  @thirty_days_ago NaiveDateTime.utc_now() |> NaiveDateTime.add(-(30 * 24 * 3600), :second)
+  @thirty_days_ago DateTime.utc_now() |> DateTime.add(-(30 * 24 * 3600), :second)
 
   @decorate trace("snapshots.prune_all", include: [:number_to_keep])
   def prune_all(opts \\ []) do

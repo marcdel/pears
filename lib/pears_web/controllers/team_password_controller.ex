@@ -1,4 +1,4 @@
-defmodule PearsWeb.TeamSettingsController do
+defmodule PearsWeb.TeamPasswordController do
   use PearsWeb, :controller
 
   alias Pears.Accounts
@@ -13,11 +13,12 @@ defmodule PearsWeb.TeamSettingsController do
   def update(conn, %{"current_password" => password, "team" => team_params}) do
     team = conn.assigns.current_team
 
-    case Accounts.update_team_name(team, password, team_params) do
-      {:ok, _} ->
+    case Accounts.update_team_password(team, password, team_params) do
+      {:ok, team} ->
         conn
-        |> put_flash(:info, "Team name updated successfully")
-        |> redirect(to: Routes.team_settings_path(conn, :edit))
+        |> put_flash(:info, "Password updated successfully.")
+        |> put_session(:team_return_to, Routes.team_password_path(conn, :edit))
+        |> TeamAuth.log_in_team(team)
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

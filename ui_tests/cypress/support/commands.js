@@ -35,6 +35,8 @@ Cypress.Commands.add('toggleFlag', (flag, enable) => {
 })
 
 Cypress.Commands.add('fillInput', (label, value) => {
+  cy.clearInput(label)
+
   cy.get('form')
     .findByLabelText(label)
     .type(value)

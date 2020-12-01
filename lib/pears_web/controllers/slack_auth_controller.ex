@@ -12,12 +12,12 @@ defmodule PearsWeb.SlackAuthController do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Slack app successfully added!")
-        |> redirect(to: Routes.team_settings_path(conn, :edit))
+        |> redirect(to: Routes.slack_path(conn, :show))
 
       _ ->
         conn
         |> put_flash(:error, "Whoops, something went wrong! Please try again.")
-        |> redirect(to: Routes.team_settings_path(conn, :edit))
+        |> redirect(to: Routes.slack_path(conn, :show))
     end
 
     send_resp(conn, 200, "")
