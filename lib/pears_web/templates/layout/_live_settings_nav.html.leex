@@ -21,7 +21,6 @@
       </span>
     </a>
 
-    <%= if FeatureFlags.enabled?(:slack_onboarding) do %>
     <a href="<%= Routes.slack_path(@socket, :show) %>" class="group rounded-md px-3 py-2 flex items-center text-sm font-medium group rounded-md px-3 py-2 flex items-center text-sm font-medium text-green-600 hover:bg-gray-50 hover:bg-gray-50">
       <!-- Heroicon name: view-grid-add -->
       <svg class="flex-shrink-0 -ml-1 mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -31,6 +30,5 @@
         Slack Integration
       </span>
     </a>
-    <% end %>
   </nav>
 </aside>

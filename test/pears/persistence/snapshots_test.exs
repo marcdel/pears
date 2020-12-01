@@ -39,9 +39,9 @@ defmodule Pears.Persistence.SnapshotsTest do
 
     test "deletes snapshots older than 30 days" do
       team_record = TeamBuilders.create_team()
-      Repo.insert!(%SnapshotRecord{inserted_at: days_ago(31), team_id: team_record.id})
+      Repo.insert!(%SnapshotRecord{inserted_at: days_ago(32), team_id: team_record.id})
       Repo.insert!(%SnapshotRecord{inserted_at: days_ago(30), team_id: team_record.id})
-      Repo.insert!(%SnapshotRecord{inserted_at: days_ago(29), team_id: team_record.id})
+      Repo.insert!(%SnapshotRecord{inserted_at: days_ago(28), team_id: team_record.id})
 
       Snapshots.prune_all()
 
