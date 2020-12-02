@@ -11,6 +11,10 @@ defimpl FunWithFlags.Actor, for: Pears.Core.Team do
   def id(%{name: name}), do: "team:#{name}"
 end
 
+defimpl FunWithFlags.Actor, for: Pears.Accounts.Team do
+  def id(%{name: name}), do: "team:#{name}"
+end
+
 defmodule FeatureFlags do
   @behaviour FeatureFlagsBehavior
 
