@@ -8,6 +8,7 @@
     "cy": "cypress open"
   },
   "dependencies": {
+    "autoprefixer": "^10.0.4",
     "nprogress": "^0.2.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
@@ -16,8 +17,6 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
-    "@tailwindcss/forms": "^0.2.1",
-    "@tailwindcss/ui": "^0.7.2",
     "babel-loader": "^8.2.2",
     "copy-webpack-plugin": "^6.3.2",
     "css-loader": "^5.0.1",
@@ -28,7 +27,9 @@
     "postcss-import": "^13.0.0",
     "postcss-loader": "^4.1.0",
     "sass-loader": "^10.1.0",
-    "tailwindcss": "^1.9.6",
+    "tailwindcss": "^2.0.1",
+    "@tailwindcss/forms": "^0.2.1",
+    "@tailwindcss/ui": "^0.7.2",
     "terser-webpack-plugin": "^4.2.3",
     "webpack": "4.44.2",
     "webpack-cli": "^4.2.0"

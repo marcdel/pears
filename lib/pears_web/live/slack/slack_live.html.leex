@@ -7,13 +7,34 @@
           <div class="bg-white py-6 px-4 sm:p-6">
             <h2 id="step_1_heading" class="text-lg leading-6 font-medium text-gray-900">Step 1</h2>
             <div class="mt-6 grid grid-cols-1 gap-6">
-              Instructions for setting up the slack integration.
+              <p class="text-med text-gray-500">Authorize the Pears slack bot to post in your team's slack.</p>
             </div>
           </div>
           <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
             <a class="inline-flex justify-center" href="https://slack.com/oauth/v2/authorize?state=onboard&client_id=169408119024.1514845190500&scope=app_mentions:read,channels:read,chat:write,commands,im:history,im:read,im:write,users:read&user_scope=">
               <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
             </a>
+          </div>
+        </div>
+      </section>
+      <section aria-labelledby="step_2_heading">
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="bg-white py-6 px-4 sm:p-6">
+            <h2 id="step_2_heading" class="text-lg leading-6 font-medium text-gray-900">Step 2</h2>
+            <div class="mt-6 grid grid-cols-1 gap-6">
+              <p class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</p>
+              <select id="location" name="location" disabled class="block max-w-2xl  pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                <option selected></option>
+                <option>USA</option>
+                <option>Canada</option>
+                <option>EU</option>
+              </select>
+            </div>
+          </div>
+          <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+            <button type="submit" disabled class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
+              Save channel
+            </button>
           </div>
         </div>
       </section>
