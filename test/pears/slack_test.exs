@@ -30,12 +30,74 @@ defmodule Pears.SlackTest do
     "warning" => "superfluous_charset"
   }
 
+  @valid_conversations_response %{
+    "channels" => [
+      %{
+        "created" => 123_456_789,
+        "creator" => "UTTTTTTTTTTL",
+        "id" => "XXXXXXXXXX",
+        "is_archived" => false,
+        "is_channel" => true,
+        "is_ext_shared" => false,
+        "is_general" => true,
+        "is_group" => false,
+        "is_im" => false,
+        "is_member" => false,
+        "is_mpim" => false,
+        "is_org_shared" => false,
+        "is_pending_ext_shared" => false,
+        "is_private" => false,
+        "is_shared" => false,
+        "name" => "general",
+        "name_normalized" => "general",
+        "num_members" => 1,
+        "parent_conversation" => nil,
+        "pending_connected_team_ids" => [],
+        "pending_shared" => [],
+        "previous_names" => [],
+        "purpose" => %{
+          "creator" => "",
+          "last_set" => 0,
+          "value" =>
+            "This channel is for team-wide communication and announcements. All team members are in this channel."
+        },
+        "shared_team_ids" => ["XXXXXXXXXX"],
+        "topic" => %{
+          "creator" => "",
+          "last_set" => 0,
+          "value" => "Company-wide announcements and work-based matters"
+        },
+        "unlinked" => 0
+      }
+    ],
+    "ok" => true,
+    "response_metadata" => %{
+      "next_cursor" => "",
+      "warnings" => ["superfluous_charset"]
+    },
+    "warning" => "superfluous_charset"
+  }
+
+  @invalid_conversations_response %{
+    "error" => "not_authed",
+    "ok" => false,
+    "response_metadata" => %{"warnings" => ["superfluous_charset"]},
+    "warning" => "superfluous_charset"
+  }
+
   def retrieve_access_tokens(code) do
     send(self(), {:code, code})
 
     case code do
       @valid_code -> @valid_token_response
       @invalid_code -> @invalid_token_response
+    end
+  end
+
+  def channels(token) do
+    case token do
+      nil -> @invalid_conversations_response
+      _ -> @valid_conversations_response
     end
   end
 
@@ -48,6 +110,22 @@ defmodule Pears.SlackTest do
     test "handles invalid responses", %{team: team} do
       {:error, _} = Slack.onboard_team(team.name, @invalid_code, __MODULE__)
       assert Slack.token(team.name) == nil
+    end
+  end
+
+  describe "list_channels" do
+    test "exchanges a code for an access token and saves it in the session", %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+
+      {:ok, channels} = Slack.list_channels(team.name, __MODULE__)
+
+      assert [%{name: "general"}] = channels
+    end
+
+    test "handles invalid responses" do
+      {:ok, _} = Pears.add_team("no token")
+
+      assert {:error, :invalid_token} = Slack.list_channels("no token", __MODULE__)
     end
   end
 

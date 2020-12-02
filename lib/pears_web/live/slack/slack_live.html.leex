@@ -23,16 +23,16 @@
             <h2 id="step_2_heading" class="text-lg leading-6 font-medium text-gray-900">Step 2</h2>
             <div class="mt-6 grid grid-cols-1 gap-6">
               <p class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</p>
-              <select id="location" name="location" disabled class="block max-w-2xl  pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+              <select id="location" name="location" <%= if @no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                 <option selected></option>
-                <option>USA</option>
-                <option>Canada</option>
-                <option>EU</option>
+                <%= for channel <- @channels do %>
+                  <option><%= channel.name %></option>
+                <% end %>
               </select>
             </div>
           </div>
           <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-            <button type="submit" disabled class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
+            <button type="submit" <%= if @no_channels, do: "disabled" %> class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
               Save channel
             </button>
           </div>
