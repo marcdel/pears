@@ -3,6 +3,7 @@ defmodule Pears.Core.Team do
 
   defstruct name: nil,
             id: nil,
+            slack_channel: nil,
             available_pears: %{},
             assigned_pears: %{},
             tracks: %{},
@@ -253,6 +254,11 @@ defmodule Pears.Core.Team do
     team.history
     |> List.first()
     |> matched_on_day?(potential_match, team)
+  end
+
+  @decorate trace("team.update_slack_channel", include: [[:team, :name], :team_channel])
+  def update_slack_channel(team, slack_channel) do
+    Map.put(team, :slack_channel, slack_channel)
   end
 
   @decorate trace("team.matched_on_day?",

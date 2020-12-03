@@ -2,7 +2,9 @@ defmodule Pears.Slack do
   use OpenTelemetryDecorator
 
   alias Pears.Boundary.TeamSession
+  alias Pears.Core.Team
   alias Pears.Slack.Channel
+  alias Pears.Slack.Details
   alias Pears.SlackClient
 
   @decorate trace("slack.onboard_team", include: [:team_name])
@@ -14,12 +16,21 @@ defmodule Pears.Slack do
     end
   end
 
-  @decorate trace("slack.list_channels", include: [:team_name])
-  def list_channels(team_name, slack_client \\ SlackClient) do
-    with {:ok, _} <- TeamSession.find_or_start_session(team_name),
+  @decorate trace("slack.get_details", include: [:team_name])
+  def get_details(team_name, slack_client \\ SlackClient) do
+    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          {:ok, token} <- TeamSession.slack_token(team_name),
          {:ok, channels} <- fetch_channels(token, slack_client) do
-      {:ok, channels}
+      {:ok, Details.new(team, token, channels)}
+    end
+  end
+
+  @decorate trace("slack.save_team_channel", include: [:team_name, :channel_name])
+  def save_team_channel(team_name, channel_name) do
+    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         updated_team <- Team.update_slack_channel(team, channel_name),
+         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team) do
+      {:ok, updated_team}
     end
   end
 

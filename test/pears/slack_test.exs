@@ -113,19 +113,39 @@ defmodule Pears.SlackTest do
     end
   end
 
-  describe "list_channels" do
-    test "exchanges a code for an access token and saves it in the session", %{team: team} do
+  describe "get_details" do
+    setup %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
 
-      {:ok, channels} = Slack.list_channels(team.name, __MODULE__)
+      :ok
+    end
 
-      assert [%{name: "general"}] = channels
+    test "exchanges a code for an access token and saves it in the session", %{team: team} do
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      assert [%{name: "general"}] = details.channels
     end
 
     test "handles invalid responses" do
       {:ok, _} = Pears.add_team("no token")
+      assert {:error, :invalid_token} = Slack.get_details("no token", __MODULE__)
+    end
 
-      assert {:error, :invalid_token} = Slack.list_channels("no token", __MODULE__)
+    test "returns the team's slack_channel", %{team: team} do
+      {:ok, _} = Slack.save_team_channel(team.name, "cool team")
+
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+
+      assert details.team_channel == "cool team"
+    end
+  end
+
+  describe "save_team_channel" do
+    test "sets the team slack_channel to the provided channel name", %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+
+      {:ok, team} = Slack.save_team_channel(team.name, "cool team")
+
+      assert team.slack_channel == "cool team"
     end
   end
 
