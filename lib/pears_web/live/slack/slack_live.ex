@@ -39,7 +39,11 @@ defmodule PearsWeb.SlackLive do
 
     case Slack.save_team_channel(team_name, team_channel) do
       {:ok, team} ->
-        {:noreply, assign(socket, team: team, team_channel: team_channel)}
+        {:noreply,
+          socket
+          |> assign(team: team, team_channel: team_channel)
+          |> put_flash(:info, "Team channel successfully saved!")
+        }
 
       _ ->
         {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}

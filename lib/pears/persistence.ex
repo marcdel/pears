@@ -24,6 +24,25 @@ defmodule Pears.Persistence do
     end
   end
 
+  @decorate trace("persistence.set_slack_token", include: [:team_name])
+  def set_slack_token(team_name, slack_token) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, updated_team} <- do_set_slack_token(team, slack_token) do
+      {:ok, updated_team}
+    else
+      error -> error
+    end
+  end
+
+  defp do_set_slack_token(team_record, slack_token) do
+    case team_record
+         |> TeamRecord.slack_token_changeset(%{slack_token: slack_token})
+         |> Repo.update() do
+      {:ok, team} -> {:ok, team}
+      error -> error
+    end
+  end
+
   @decorate trace("persistence.get_team_by_name", include: [:team_name])
   def get_team_by_name(team_name) do
     result =

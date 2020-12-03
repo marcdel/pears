@@ -395,10 +395,16 @@ defmodule Pears.Core.TeamTest do
     assert Enum.member?(["pear1", "pear2", "pear3", "pear4"], facilitator.name)
   end
 
-  test "can update the team's slack channel", %{team: team} do
+  test "can set the team's slack channel", %{team: team} do
     assert team.slack_channel == nil
-    team = Team.update_slack_channel(team, "random")
+    team = Team.set_slack_channel(team, "random")
     assert team.slack_channel == "random"
+  end
+
+  test "can set the team's slack token", %{team: team} do
+    assert team.slack_token == nil
+    team = Team.set_slack_token(team, "asdasd123123")
+    assert team.slack_token == "asdasd123123"
   end
 
   defp team(_) do

@@ -67,7 +67,8 @@ defmodule Pears.MixProject do
        git: "https://github.com/opentelemetry-beam/opentelemetry_phoenix.git", tag: "main"},
       {:fun_with_flags, "~> 1.6.0"},
       {:fun_with_flags_ui, "~> 0.7.2"},
-      {:slack, "~> 0.23.5"}
+      {:slack, "~> 0.23.5"},
+      {:cloak_ecto, "~> 1.1.1"}
     ]
   end
 

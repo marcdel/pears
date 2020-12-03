@@ -15,6 +15,7 @@ defmodule Pears.Application do
     children = [
       # Start the Ecto repository
       Pears.Repo,
+      Pears.Vault,
       # Start the Telemetry supervisor
       PearsWeb.Telemetry,
       # Start the PubSub system

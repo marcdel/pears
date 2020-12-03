@@ -10,7 +10,7 @@ defmodule Pears.Boundary.TeamSession do
   @timeout :timer.minutes(60)
 
   defmodule State do
-    defstruct [:team, :session_facilitator, :slack_token]
+    defstruct [:team, :session_facilitator]
 
     def new(team) do
       %__MODULE__{team: team, session_facilitator: Team.facilitator(team)}
@@ -27,9 +27,6 @@ defmodule Pears.Boundary.TeamSession do
     def new_session_facilitator(state) do
       Map.put(state, :session_facilitator, Team.facilitator(state.team))
     end
-
-    def slack_token(state), do: Map.get(state, :slack_token)
-    def set_slack_token(state, slack_token), do: Map.put(state, :slack_token, slack_token)
 
     def team(state), do: Map.get(state, :team)
     def session_facilitator(state), do: Map.get(state, :session_facilitator)
@@ -101,16 +98,6 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :get_new_facilitator)
   end
 
-  @decorate trace("team_session.slack_token", include: [:team_name])
-  def slack_token(team_name) do
-    GenServer.call(via(team_name), :get_slack_token)
-  end
-
-  @decorate trace("team_session.set_slack_token", include: [:team_name])
-  def set_slack_token(team_name, token) do
-    GenServer.call(via(team_name), {:set_slack_token, token})
-  end
-
   @decorate trace("team_session.maybe_fetch_team_from_db", include: [:team_name, :error])
   defp maybe_fetch_team_from_db(team_name) do
     with {:error, :not_found} <- TeamManager.lookup_team_by_name(team_name),
@@ -137,9 +124,8 @@ defmodule Pears.Boundary.TeamSession do
 
   @decorate trace("team_session.map_to_team", include: [:team_name])
   defp map_to_team(%{name: team_name} = team_record) do
-    team = Team.new(name: team_name)
-
-    team
+    Team.new(name: team_name)
+    |> Team.set_slack_token(team_record.slack_token)
     |> add_pears(team_record)
     |> add_tracks(team_record)
     |> assign_pears(team_record)
@@ -221,14 +207,6 @@ defmodule Pears.Boundary.TeamSession do
       |> State.session_facilitator()
 
     {:reply, {:ok, facilitator}, state, @timeout}
-  end
-
-  def handle_call(:get_slack_token, _from, state) do
-    {:reply, {:ok, State.slack_token(state)}, state, @timeout}
-  end
-
-  def handle_call({:set_slack_token, token}, _from, state) do
-    {:reply, {:ok, token}, State.set_slack_token(state, token), @timeout}
   end
 
   @decorate trace("team_session.timeout")

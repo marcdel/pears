@@ -1,10 +1,10 @@
 defmodule Pears.Slack.Details do
   defstruct [:token, :channels, :team_channel, has_token: false]
 
-  def new(team, token, channels) do
+  def new(team, channels) do
     %__MODULE__{
-      token: token,
-      has_token: token != nil,
+      token: team.slack_token,
+      has_token: team.slack_token != nil,
       channels: channels,
       team_channel: team.slack_channel
     }

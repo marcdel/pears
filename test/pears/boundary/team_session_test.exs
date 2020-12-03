@@ -17,6 +17,7 @@ defmodule Pears.Boundary.TeamSessionTest do
 
     test "fetches team from database if not in memory", %{name: name} do
       {:ok, _} = Persistence.create_team(name)
+      {:ok, _} = Persistence.set_slack_token(name, "my slack token")
       {:ok, _} = Persistence.add_pear_to_team(name, "pear1")
       {:ok, _} = Persistence.add_pear_to_team(name, "pear2")
       {:ok, _} = Persistence.add_pear_to_team(name, "pear3")
@@ -33,6 +34,7 @@ defmodule Pears.Boundary.TeamSessionTest do
       {:ok, saved_team} = TeamSession.find_or_start_session(name)
 
       assert saved_team.name == name
+      assert saved_team.slack_token == "my slack token"
       assert Enum.empty?(saved_team.available_pears)
       assert Enum.count(saved_team.assigned_pears) == 3
       assert Enum.count(saved_team.tracks) == 2

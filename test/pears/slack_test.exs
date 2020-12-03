@@ -1,6 +1,7 @@
 defmodule Pears.SlackTest do
   use Pears.DataCase, async: true
 
+  alias Pears.Persistence
   alias Pears.Slack
 
   setup [:team]
@@ -102,14 +103,16 @@ defmodule Pears.SlackTest do
   end
 
   describe "onboard_team" do
-    test "exchanges a code for an access token and saves it in the session", %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
-      assert Slack.token(team.name) == "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+    test "exchanges a code for an access token and saves it", %{team: team} do
+      {:ok, team} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      assert team.slack_token == "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+
+      {:ok, team_record} = Persistence.get_team_by_name(team.name)
+      assert team_record.slack_token == "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
     end
 
     test "handles invalid responses", %{team: team} do
       {:error, _} = Slack.onboard_team(team.name, @invalid_code, __MODULE__)
-      assert Slack.token(team.name) == nil
     end
   end
 
@@ -127,7 +130,7 @@ defmodule Pears.SlackTest do
 
     test "handles invalid responses" do
       {:ok, _} = Pears.add_team("no token")
-      assert {:error, :invalid_token} = Slack.get_details("no token", __MODULE__)
+      assert {:error, :no_token} = Slack.get_details("no token", __MODULE__)
     end
 
     test "returns the team's slack_channel", %{team: team} do
