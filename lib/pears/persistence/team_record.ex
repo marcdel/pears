@@ -9,6 +9,7 @@ defmodule Pears.Persistence.TeamRecord do
 
   schema "teams" do
     field :name, :string
+    field :slack_channel, :string
     field :slack_token, EncryptedBinary
     has_many :pears, PearRecord, foreign_key: :team_id
     has_many :tracks, TrackRecord, foreign_key: :team_id
@@ -30,5 +31,12 @@ defmodule Pears.Persistence.TeamRecord do
     team_record
     |> cast(attrs, [:slack_token])
     |> validate_required([:slack_token])
+  end
+
+  @doc false
+  def slack_channel_changeset(team_record, attrs) do
+    team_record
+    |> cast(attrs, [:slack_channel])
+    |> validate_required([:slack_channel])
   end
 end

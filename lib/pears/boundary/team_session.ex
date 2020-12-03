@@ -126,6 +126,7 @@ defmodule Pears.Boundary.TeamSession do
   defp map_to_team(%{name: team_name} = team_record) do
     Team.new(name: team_name)
     |> Team.set_slack_token(team_record.slack_token)
+    |> Team.set_slack_channel(team_record.slack_channel)
     |> add_pears(team_record)
     |> add_tracks(team_record)
     |> assign_pears(team_record)

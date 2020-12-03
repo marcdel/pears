@@ -146,9 +146,12 @@ defmodule Pears.SlackTest do
     test "sets the team slack_channel to the provided channel name", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
 
-      {:ok, team} = Slack.save_team_channel(team.name, "cool team")
+      {:ok, team} = Slack.save_team_channel(team.name, "random")
 
-      assert team.slack_channel == "cool team"
+      assert team.slack_channel == "random"
+
+      {:ok, team_record} = Persistence.get_team_by_name(team.name)
+      assert team_record.slack_channel == "random"
     end
   end
 

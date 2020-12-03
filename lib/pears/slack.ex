@@ -30,6 +30,7 @@ defmodule Pears.Slack do
   @decorate trace("slack.save_team_channel", include: [:team_name, :channel_name])
   def save_team_channel(team_name, channel_name) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         {:ok, _} <- Persistence.set_slack_channel(team_name, channel_name),
          updated_team <- Team.set_slack_channel(team, channel_name),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team) do
       {:ok, updated_team}
