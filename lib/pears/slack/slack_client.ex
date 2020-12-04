@@ -5,7 +5,7 @@ defmodule Pears.SlackClient do
   alias Slack.Web.Conversations, as: Conversations
   alias Slack.Web.Oauth.V2, as: Auth
 
-  @decorate trace("slack_client.retrieve_access_tokens")
+  @decorate trace("slack_client.retrieve_access_tokens", include: [:result])
   def retrieve_access_tokens(code, oauth_access \\ &Auth.access/3) do
     oauth_access.(client_id(), client_secret(), code)
   end
