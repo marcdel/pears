@@ -9,8 +9,10 @@ defmodule Pears.SlackTest do
   @valid_code "169403114024.1535385215366.e6118897ed25c4e0d78803d3217ac7a98edabf0cf97010a115ef264771a1f98c"
   @invalid_code "asljaskjasdaskda"
 
+  @valid_token "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+
   @valid_token_response %{
-    "access_token" => "xoxp-XXXXXXXX-XXXXXXXX-XXXXX",
+    "access_token" => @valid_token,
     "app_id" => "XXXXXXXXXX",
     "authed_user" => %{"id" => "UTTTTTTTTTTL"},
     "bot_user_id" => "UTTTTTTTTTTR",
@@ -87,7 +89,7 @@ defmodule Pears.SlackTest do
   }
 
   def retrieve_access_tokens(code) do
-    send(self(), {:code, code})
+    send(self(), {:retrieve_access_tokens, code})
 
     case code do
       @valid_code -> @valid_token_response
@@ -95,24 +97,24 @@ defmodule Pears.SlackTest do
     end
   end
 
-  def channels(token) do
-    case token do
-      nil -> @invalid_conversations_response
-      _ -> @valid_conversations_response
-    end
-  end
-
   describe "onboard_team" do
     test "exchanges a code for an access token and saves it", %{team: team} do
       {:ok, team} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
-      assert team.slack_token == "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+      assert team.slack_token == @valid_token
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
-      assert team_record.slack_token == "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+      assert team_record.slack_token == @valid_token
     end
 
     test "handles invalid responses", %{team: team} do
       {:error, _} = Slack.onboard_team(team.name, @invalid_code, __MODULE__)
+    end
+  end
+
+  def channels(token) do
+    case token do
+      nil -> @invalid_conversations_response
+      _ -> @valid_conversations_response
     end
   end
 
@@ -131,6 +133,7 @@ defmodule Pears.SlackTest do
     test "handles invalid responses" do
       {:ok, _} = Pears.add_team("no token")
       assert {:error, :no_token} = Slack.get_details("no token", __MODULE__)
+      {:ok, _} = Pears.remove_team("no token")
     end
 
     test "returns the team's slack_channel", %{team: team} do
@@ -152,6 +155,37 @@ defmodule Pears.SlackTest do
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
       assert team_record.slack_channel == "random"
+    end
+  end
+
+  def send_message(channel, text, token) do
+    send(self(), {:send_message, channel, text, token})
+
+    case channel do
+      nil -> %{"ok" => false}
+      _ -> %{"ok" => true}
+    end
+  end
+
+  describe "send_message_to_team" do
+    setup %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+
+      :ok
+    end
+
+    test "sends a message to the team's slack channel", %{team: team} do
+      {:ok, team} = Slack.save_team_channel(team.name, "random")
+
+      :ok = Slack.send_message_to_team(team.name, "Hey, friends!", __MODULE__)
+
+      assert_receive {:send_message, "random", "Hey, friends!", token}
+      assert token == @valid_token
+    end
+
+    test "handles invalid responses", %{team: team} do
+      # Invalid because we haven't set the team channel
+      :error = Slack.send_message_to_team(team.name, "Hey, friends!", __MODULE__)
     end
   end
 
