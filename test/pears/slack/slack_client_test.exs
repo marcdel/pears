@@ -5,14 +5,18 @@ defmodule Pears.SlackClientTest do
 
   @valid_code "169403114024.1535385215366.e6118897ed25c4e0d78803d3217ac7a98edabf0cf97010a115ef264771a1f98c"
   @valid_token "a98edabf0cf97010a115ef264771a1f98c"
+  @redirect_uri "https://fake.com/slack/oauth"
 
   test "calls slack oauth access method with the provided code" do
-    fake_access_fn = fn _, _, code -> send(self(), {:code, code}) end
+    fake_access_fn = fn _, _, code, %{redirect_uri: redirect_uri} ->
+      send(self(), {:oauth_access, code, redirect_uri})
+    end
 
-    SlackClient.retrieve_access_tokens(@valid_code, fake_access_fn)
+    SlackClient.retrieve_access_tokens(@valid_code, @redirect_uri, fake_access_fn)
 
-    assert_receive {:code, code}
+    assert_receive {:oauth_access, code, redirect_uri}
     assert code == @valid_code
+    assert redirect_uri == @redirect_uri
   end
 
   test "can get the list of channels for a given token" do

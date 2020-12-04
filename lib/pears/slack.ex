@@ -13,9 +13,8 @@ defmodule Pears.Slack do
     state = "onboard"
     client_id = "169408119024.1514845190500"
     scope = "channels:read"
-    redirect_uri = Application.get_env(:pears, :slack_oauth_redirect_uri)
 
-    "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri}&state=#{state}&client_id=#{
+    "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri()}&state=#{state}&client_id=#{
       client_id
     }&scope=#{scope}&user_scope="
   end
@@ -66,7 +65,7 @@ defmodule Pears.Slack do
 
   defp fetch_tokens(slack_code, slack_client) do
     slack_code
-    |> slack_client.retrieve_access_tokens()
+    |> slack_client.retrieve_access_tokens(redirect_uri())
     |> Map.get("access_token")
     |> case do
       nil -> {:error, :invalid_code}
@@ -85,4 +84,6 @@ defmodule Pears.Slack do
       channels -> {:ok, Enum.map(channels, &Channel.from_json/1)}
     end
   end
+
+  defp redirect_uri, do: Application.get_env(:pears, :slack_oauth_redirect_uri)
 end
