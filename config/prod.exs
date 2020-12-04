@@ -35,6 +35,8 @@ config :pears, Pears.Repo,
   ssl: true,
   pool_size: 2
 
+config :pears, slack_oauth_redirect_uri: "https://app.pears.dev/slack/oauth"
+
 # Do not print debug messages in production
 config :logger, level: :info
 

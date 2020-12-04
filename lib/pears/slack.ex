@@ -8,6 +8,18 @@ defmodule Pears.Slack do
   alias Pears.Slack.Details
   alias Pears.SlackClient
 
+  @decorate trace("slack.link_url")
+  def link_url do
+    state = "onboard"
+    client_id = "169408119024.1514845190500"
+    scope = "channels:read"
+    redirect_uri = Application.get_env(:pears, :slack_oauth_redirect_uri)
+
+    "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri}&state=#{state}&client_id=#{
+      client_id
+    }&scope=#{scope}&user_scope="
+  end
+
   @decorate trace("slack.onboard_team", include: [:team_name])
   def onboard_team(team_name, slack_code, slack_client \\ SlackClient) do
     with {:ok, token} <- fetch_tokens(slack_code, slack_client),
