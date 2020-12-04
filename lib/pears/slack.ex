@@ -3,6 +3,7 @@ defmodule Pears.Slack do
 
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Team
+  alias Pears.O11y
   alias Pears.Persistence
   alias Pears.Slack.Channel
   alias Pears.Slack.Details
@@ -64,24 +65,31 @@ defmodule Pears.Slack do
   end
 
   defp fetch_tokens(slack_code, slack_client) do
-    slack_code
-    |> slack_client.retrieve_access_tokens(redirect_uri())
-    |> Map.get("access_token")
-    |> case do
-      nil -> {:error, :invalid_code}
-      token -> {:ok, token}
+    case slack_client.retrieve_access_tokens(slack_code, redirect_uri()) do
+      %{"ok" => true} = response ->
+        {:ok, Map.get(response, "access_token")}
+
+      error ->
+        O11y.set_attribute(:error, error)
+        {:error, :invalid_code}
     end
   end
 
   defp fetch_channels(nil, _slack_client), do: {:error, :no_token}
 
   defp fetch_channels(token, slack_client) do
-    token
-    |> slack_client.channels()
-    |> Map.get("channels")
-    |> case do
-      nil -> {:error, :invalid_token}
-      channels -> {:ok, Enum.map(channels, &Channel.from_json/1)}
+    case slack_client.channels(token) do
+      %{"ok" => true} = response ->
+        channels =
+          response
+          |> Map.get("channels")
+          |> Enum.map(&Channel.from_json/1)
+
+        {:ok, channels}
+
+      error ->
+        O11y.set_attribute(:error, error)
+        {:error, :invalid_token}
     end
   end
 

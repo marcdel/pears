@@ -88,7 +88,7 @@ defmodule Pears.SlackTest do
     "warning" => "superfluous_charset"
   }
 
-  def retrieve_access_tokens(code, redirect_uri) do
+  def retrieve_access_tokens(code, _redirect_uri) do
     case code do
       @valid_code -> @valid_token_response
       @invalid_code -> @invalid_token_response
