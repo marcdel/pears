@@ -13,7 +13,7 @@ defmodule Pears.Slack do
   def link_url do
     state = "onboard"
     client_id = "169408119024.1514845190500"
-    scope = "channels:read"
+    scope = Enum.join(["channels:read", "chat:write.public", "chat:write"], ",")
 
     "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri()}&state=#{state}&client_id=#{
       client_id
@@ -39,6 +39,17 @@ defmodule Pears.Slack do
     end
   end
 
+  @decorate trace("slack.send_daily_pears_summary", include: [:team_name])
+  def send_daily_pears_summary(team_name, slack_client \\ SlackClient) do
+    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         {:ok, message} <- build_daily_pears_summary(team),
+         :ok <- do_send_message_to_team(team, message, slack_client) do
+      :ok
+    else
+      error -> error
+    end
+  end
+
   @decorate trace("slack.send_message_to_team", include: [:team_name, :message])
   def send_message_to_team(team_name, message, slack_client \\ SlackClient) do
     case TeamSession.find_or_start_session(team_name) do
@@ -57,11 +68,48 @@ defmodule Pears.Slack do
     end
   end
 
+  defp do_send_message_to_team(%{slack_channel: nil}, _message, _slack_client) do
+    {:error, :slack_channel_not_set}
+  end
+
+  defp do_send_message_to_team(%{slack_token: nil}, _message, _slack_client) do
+    {:error, :slack_token_not_set}
+  end
+
   defp do_send_message_to_team(team, message, slack_client) do
     case slack_client.send_message(team.slack_channel, message, team.slack_token) do
-      %{"ok" => true} -> :ok
-      _ -> :error
+      %{"ok" => true} ->
+        {:ok, message}
+
+      error ->
+        O11y.set_attribute(:error, error)
+        {:error, error}
     end
+  end
+
+  defp build_daily_pears_summary(team) do
+    summary_lines =
+      team.tracks
+      |> Map.values()
+      |> Enum.map(&build_daily_pears_summary_line/1)
+      |> Enum.join("\n")
+      |> String.trim_trailing()
+
+    summary = """
+    Today's 🍐s are:
+    #{summary_lines}
+    """
+
+    {:ok, summary}
+  end
+
+  defp build_daily_pears_summary_line(track) do
+    match_text =
+      track.pears
+      |> Map.values()
+      |> Enum.map_join(" & ", &Map.get(&1, :name))
+
+    "\t- #{match_text} on #{track.name}"
   end
 
   defp fetch_tokens(slack_code, slack_client) do

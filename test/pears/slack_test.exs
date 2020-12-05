@@ -174,16 +174,62 @@ defmodule Pears.SlackTest do
 
     test "sends a message to the team's slack channel", %{team: team} do
       {:ok, team} = Slack.save_team_channel(team.name, "random")
+      message = "Hey, friends!"
 
-      :ok = Slack.send_message_to_team(team.name, "Hey, friends!", __MODULE__)
+      {:ok, ^message} = Slack.send_message_to_team(team.name, message, __MODULE__)
 
-      assert_receive {:send_message, "random", "Hey, friends!", token}
+      assert_receive {:send_message, "random", message, token}
       assert token == @valid_token
     end
 
     test "handles invalid responses", %{team: team} do
       # Invalid because we haven't set the team channel
-      :error = Slack.send_message_to_team(team.name, "Hey, friends!", __MODULE__)
+      {:error, _} = Slack.send_message_to_team(team.name, "Hey, friends!", __MODULE__)
+      refute_receive {:send_message, _, _, _}
+    end
+  end
+
+  describe "send_daily_pears_summary" do
+    setup %{team: team} do
+      Pears.add_pear(team.name, "Pear One")
+      Pears.add_pear(team.name, "Pear Two")
+      Pears.add_track(team.name, "Track One")
+      Pears.add_pear_to_track(team.name, "Pear One", "Track One")
+      Pears.add_pear_to_track(team.name, "Pear Two", "Track One")
+
+      Pears.add_pear(team.name, "Pear Three")
+      Pears.add_pear(team.name, "Pear Four")
+      Pears.add_track(team.name, "Track Two")
+      Pears.add_pear_to_track(team.name, "Pear Three", "Track Two")
+      Pears.add_pear_to_track(team.name, "Pear Four", "Track Two")
+
+      {:ok, team: team}
+    end
+
+    test "sends a summary of who is pairing on what", %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.save_team_channel(team.name, "random")
+
+      {:ok, _} = Slack.send_daily_pears_summary(team.name, __MODULE__)
+
+      assert_receive {:send_message, "random", message, _}
+
+      assert message == """
+             Today's 🍐s are:
+             \t- Pear One & Pear Two on Track One
+             \t- Pear Four & Pear Three on Track Two
+             """
+    end
+
+    test "does not send a message if no channel is specified", %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:error, _} = Slack.send_daily_pears_summary(team.name)
+      refute_receive {:send_message, _, _, _}
+    end
+
+    test "does not send a message if no token is saved", %{team: team} do
+      {:error, _} = Slack.send_daily_pears_summary(team.name)
+      refute_receive {:send_message, _, _, _}
     end
   end
 

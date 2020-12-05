@@ -3,6 +3,7 @@ defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
 
   alias Pears.Accounts
+  alias Pears.Slack
 
   @impl true
   @decorate trace("team_live.mount", include: [:team_name])
@@ -65,6 +66,7 @@ defmodule PearsWeb.TeamLive do
 
     case Pears.record_pears(team_name) do
       {:ok, _updated_team} ->
+        Slack.send_daily_pears_summary(team_name)
         {:noreply, put_flash(socket, :info, "Today's assigned pears have been recorded!")}
 
       {:error, _changeset} ->
