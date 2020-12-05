@@ -191,6 +191,8 @@ defmodule Pears.SlackTest do
 
   describe "send_daily_pears_summary" do
     setup %{team: team} do
+      FeatureFlags.enable(:send_daily_pears_summary, for_actor: team)
+
       Pears.add_pear(team.name, "Pear One")
       Pears.add_pear(team.name, "Pear Two")
       Pears.add_track(team.name, "Track One")
@@ -219,6 +221,16 @@ defmodule Pears.SlackTest do
              \t- Pear One & Pear Two on Track One
              \t- Pear Four & Pear Three on Track Two
              """
+    end
+
+    test "does not send a message if feature turned off", %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.save_team_channel(team.name, "random")
+      FeatureFlags.disable(:send_daily_pears_summary, for_actor: team)
+
+      Slack.send_daily_pears_summary(team.name, __MODULE__)
+
+      refute_receive {:send_message, _, _, _}
     end
 
     test "does not send a message if no channel is specified", %{team: team} do

@@ -42,6 +42,7 @@ defmodule Pears.Slack do
   @decorate trace("slack.send_daily_pears_summary", include: [:team_name])
   def send_daily_pears_summary(team_name, slack_client \\ SlackClient) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         true <- FeatureFlags.enabled?(:send_daily_pears_summary, for: team),
          {:ok, message} <- build_daily_pears_summary(team),
          :ok <- do_send_message_to_team(team, message, slack_client) do
       :ok
