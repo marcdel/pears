@@ -20,8 +20,8 @@ defmodule Pears.SlackClientTest do
   end
 
   test "can get the list of channels for a given token" do
-    fake_channels_fn = fn %{token: token, next_cursor: next_cursor} ->
-      send(self(), {:fetch_channels, token, next_cursor})
+    fake_channels_fn = fn %{token: token, cursor: cursor} ->
+      send(self(), {:fetch_channels, token, cursor})
     end
 
     SlackClient.channels(@valid_token, "", fake_channels_fn)

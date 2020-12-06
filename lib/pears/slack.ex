@@ -133,9 +133,9 @@ defmodule Pears.Slack do
     end
   end
 
-  @decorate trace("slack.fetch_channels", include: [:next_cursor])
-  defp do_fetch_channels(token, next_cursor, slack_client) do
-    case slack_client.channels(token, next_cursor) do
+  @decorate trace("slack.fetch_channels", include: [:cursor, :next_cursor])
+  defp do_fetch_channels(token, cursor, slack_client) do
+    case slack_client.channels(token, cursor) do
       %{"ok" => true} = response ->
         channels =
           response
