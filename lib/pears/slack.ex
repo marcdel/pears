@@ -69,12 +69,12 @@ defmodule Pears.Slack do
     end
   end
 
-  defp do_send_message_to_team(%{slack_channel: nil}, _message, _slack_client) do
-    {:error, :slack_channel_not_set}
-  end
-
   defp do_send_message_to_team(%{slack_token: nil}, _message, _slack_client) do
     {:error, :slack_token_not_set}
+  end
+
+  defp do_send_message_to_team(%{slack_channel: nil}, _message, _slack_client) do
+    {:error, :slack_channel_not_set}
   end
 
   defp do_send_message_to_team(team, message, slack_client) do
@@ -127,14 +127,30 @@ defmodule Pears.Slack do
   defp fetch_channels(nil, _slack_client), do: {:error, :no_token}
 
   defp fetch_channels(token, slack_client) do
-    case slack_client.channels(token) do
+    case do_fetch_channels(token, "", slack_client) do
+      {:error, :invalid_token} -> {:error, :invalid_token}
+      channels -> {:ok, Enum.sort_by(channels, &Map.get(&1, :name))}
+    end
+  end
+
+  @decorate trace("slack.fetch_channels", include: [:next_cursor])
+  defp do_fetch_channels(token, next_cursor, slack_client) do
+    case slack_client.channels(token, next_cursor) do
       %{"ok" => true} = response ->
         channels =
           response
           |> Map.get("channels")
           |> Enum.map(&Channel.from_json/1)
 
-        {:ok, channels}
+        O11y.set_attribute(:channel_count, Enum.count(channels))
+
+        case response do
+          %{"response_metadata" => %{"next_cursor" => ""}} ->
+            channels
+
+          %{"response_metadata" => %{"next_cursor" => next_cursor}} ->
+            channels ++ do_fetch_channels(token, next_cursor, slack_client)
+        end
 
       error ->
         O11y.set_attribute(:error, error)

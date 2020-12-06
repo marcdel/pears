@@ -33,7 +33,55 @@ defmodule Pears.SlackTest do
     "warning" => "superfluous_charset"
   }
 
-  @valid_conversations_response %{
+  @conversations_page_one %{
+    "channels" => [
+      %{
+        "created" => 123_456_789,
+        "creator" => "UTTTTTTTTTTL",
+        "id" => "XXXXXXXXXX",
+        "is_archived" => false,
+        "is_channel" => true,
+        "is_ext_shared" => false,
+        "is_general" => true,
+        "is_group" => false,
+        "is_im" => false,
+        "is_member" => false,
+        "is_mpim" => false,
+        "is_org_shared" => false,
+        "is_pending_ext_shared" => false,
+        "is_private" => false,
+        "is_shared" => false,
+        "name" => "random",
+        "name_normalized" => "random",
+        "num_members" => 1,
+        "parent_conversation" => nil,
+        "pending_connected_team_ids" => [],
+        "pending_shared" => [],
+        "previous_names" => [],
+        "purpose" => %{
+          "creator" => "",
+          "last_set" => 0,
+          "value" =>
+            "A place for non-work-related flimflam, faffing, hodge-podge or jibber-jabber you'd prefer to keep out of more focused work-related channels."
+        },
+        "shared_team_ids" => ["XXXXXXXXXX"],
+        "topic" => %{
+          "creator" => "",
+          "last_set" => 0,
+          "value" => "Company-wide announcements and work-based matters"
+        },
+        "unlinked" => 0
+      }
+    ],
+    "ok" => true,
+    "response_metadata" => %{
+      "next_cursor" => "page_two",
+      "warnings" => ["superfluous_charset"]
+    },
+    "warning" => "superfluous_charset"
+  }
+
+  @conversations_page_two %{
     "channels" => [
       %{
         "created" => 123_456_789,
@@ -109,12 +157,9 @@ defmodule Pears.SlackTest do
     end
   end
 
-  def channels(token) do
-    case token do
-      nil -> @invalid_conversations_response
-      _ -> @valid_conversations_response
-    end
-  end
+  def channels(nil, _next_cursor), do: @invalid_conversations_response
+  def channels(_token, ""), do: @conversations_page_one
+  def channels(_token, _next_cursor), do: @conversations_page_two
 
   describe "get_details" do
     setup %{team: team} do
@@ -125,7 +170,7 @@ defmodule Pears.SlackTest do
 
     test "exchanges a code for an access token and saves it in the session", %{team: team} do
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
-      assert [%{name: "general"}] = details.channels
+      assert [%{name: "general"}, %{name: "random"}] = details.channels
     end
 
     test "handles invalid responses" do

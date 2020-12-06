@@ -11,8 +11,8 @@ defmodule Pears.SlackClient do
   end
 
   @decorate trace("slack_client.channels")
-  def channels(token, list_conversations \\ &Conversations.list/1) do
-    list_conversations.(%{token: token})
+  def channels(token, next_cursor, list_conversations \\ &Conversations.list/1) do
+    list_conversations.(%{token: token, next_cursor: next_cursor})
   end
 
   @decorate trace("slack_client.send_message")
