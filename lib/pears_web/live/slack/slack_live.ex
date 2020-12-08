@@ -35,7 +35,7 @@ defmodule PearsWeb.SlackLive do
   end
 
   @impl true
-  @decorate trace("slack_live.channel_search", include: [:query])
+  @decorate trace("slack_live.channel_search", include: [:team_channel])
   def handle_event("channel-search", %{"team_channel" => team_channel}, socket) do
     matches =
       Enum.filter(socket.assigns.channels, fn channel ->
