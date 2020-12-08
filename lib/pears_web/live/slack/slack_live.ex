@@ -26,6 +26,7 @@ defmodule PearsWeb.SlackLive do
       {:error, _} ->
         {:ok,
          assign(socket,
+           found_channels: [],
            channels: [],
            team_channel: nil,
            has_token: false,
