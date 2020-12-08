@@ -79,7 +79,8 @@ defmodule Pears.Slack do
 
   defp do_send_message_to_team(team, message, slack_client) do
     case slack_client.send_message(team.slack_channel, message, team.slack_token) do
-      %{"ok" => true} ->
+      %{"ok" => true} = response ->
+        O11y.set_attribute(:response, response)
         {:ok, message}
 
       error ->
