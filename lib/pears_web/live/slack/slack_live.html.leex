@@ -29,17 +29,17 @@
       </section>
       <section aria-labelledby="step_2_heading">
         <div class="shadow sm:rounded-md sm:overflow-hidden">
-          <form phx-submit="save-team-channel" class="w-full">
+          <form phx-submit="save-team-channel" phx-change="channel-search" class="w-full">
             <div class="bg-white py-6 px-4 sm:p-6">
               <h2 id="step_2_heading" class="text-lg leading-6 font-medium text-gray-900">Step 2</h2>
               <div class="mt-6 grid grid-cols-1 gap-6">
                 <p class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</p>
-                <select id="team_channel" name="team_channel" value="<%= @team_channel %>" <%= if @no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
-                  <option></option>
-                  <%= for channel <- @channels do %>
-                    <option <%= if channel.name == @team_channel, do: "selected" %>><%= channel.name %></option>
+                <input type="text" name="team_channel" value="<%= @team_channel %>" list="channels" placeholder="Team channel..." class="block max-w-2xl px-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"/>
+                <datalist id="channels" class="max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <%= for channel <- @found_channels do %>
+                    <option value="<%= channel.name %>"><%= channel.name %></option>
                   <% end %>
-                </select>
+                </datalist>
               </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">

@@ -16,6 +16,7 @@ defmodule PearsWeb.SlackLive do
       {:ok, details} ->
         {:ok,
          assign(socket,
+           found_channels: [],
            channels: details.channels,
            team_channel: details.team_channel,
            has_token: details.has_token,
@@ -31,6 +32,17 @@ defmodule PearsWeb.SlackLive do
            no_channels: true
          )}
     end
+  end
+
+  @impl true
+  @decorate trace("slack_live.channel_search", include: [:query])
+  def handle_event("channel-search", %{"team_channel" => team_channel}, socket) do
+    matches =
+      Enum.filter(socket.assigns.channels, fn channel ->
+        String.starts_with?(channel.name, team_channel)
+      end)
+
+    {:noreply, assign(socket, found_channels: matches)}
   end
 
   @impl true
