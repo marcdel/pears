@@ -2,14 +2,14 @@
   <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
     <%= render(PearsWeb.LayoutView, "_live_settings_nav.html", socket: @socket) %>
     <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-      <section aria-labelledby="step_1_heading">
+      <section aria-labelledby="step-1-heading">
         <div class="shadow sm:rounded-md sm:overflow-hidden">
           <div class="bg-white py-6 px-4 sm:p-6">
-            <h2 id="step_1_heading" class="flex text-lg leading-6 font-medium text-gray-900">
+            <h2 id="step-1-heading" class="flex text-lg leading-6 font-medium text-gray-900">
               Step 1
               <%= if @has_token do %>
-              <span class="ml-2 text-green-600">
-                <svg  class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <span data-cy="step-1-complete" class="ml-2 text-green-600">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
@@ -27,14 +27,14 @@
           </div>
         </div>
       </section>
-      <section aria-labelledby="step_2_heading">
+      <section aria-labelledby="step-2-heading">
         <div class="shadow sm:rounded-md sm:overflow-hidden">
           <form phx-submit="save-team-channel" phx-change="channel-search" class="w-full">
             <div class="bg-white py-6 px-4 sm:p-6">
-              <h2 id="step_2_heading" class="flex text-lg leading-6 font-medium text-gray-900">
+              <h2 id="step-2-heading" class="flex text-lg leading-6 font-medium text-gray-900">
                 Step 2
                 <%= if @team_channel do %>
-                <span class="ml-2 text-green-600">
+                <span data-cy="step-2-complete" class="ml-2 text-green-600">
                   <svg  class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -43,8 +43,8 @@
                 <% end %>
               </h2>
               <div class="mt-6 grid grid-cols-1 gap-6">
-                <p class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</p>
-                <input type="text" name="team_channel" value="<%= @team_channel %>" <%= if @no_channels, do: "disabled" %> list="channels" placeholder="Team channel..." class="block max-w-2xl px-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"/>
+                <label for="team_channel" class="block text-sm font-medium text-gray-700">Select your team's channel. This is where we'll post updates about the days pairs.</label>
+                <input type="text" id="team_channel" name="team_channel" value="<%= @team_channel %>" <%= if @no_channels, do: "disabled" %> list="channels" placeholder="Team channel..." class="block max-w-2xl px-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"/>
                 <datalist id="channels" class="max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                   <%= for channel <- @found_channels do %>
                     <option value="<%= channel.name %>"><%= channel.name %></option>
