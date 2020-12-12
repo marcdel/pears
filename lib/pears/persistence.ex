@@ -70,6 +70,7 @@ defmodule Pears.Persistence do
       |> Repo.preload([
         {:pears, :track},
         {:tracks, :pears},
+        {:tracks, :anchor},
         {:snapshots, :matches},
         snapshots: from(s in SnapshotRecord, order_by: [desc: s.inserted_at])
       ])
@@ -154,7 +155,7 @@ defmodule Pears.Persistence do
     case %TrackRecord{}
          |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})
          |> Repo.insert() do
-      {:ok, track} -> {:ok, Repo.preload(track, [:pears])}
+      {:ok, track} -> {:ok, Repo.preload(track, [:pears, :anchor])}
       error -> error
     end
   end
@@ -173,6 +174,30 @@ defmodule Pears.Persistence do
     else
       error -> error
     end
+  end
+
+  @decorate trace("persistence.toggle_anchor", include: [:team_name, :track_name, :pear_name])
+  def toggle_anchor(team_name, track_name, pear_name) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, track} <- find_track_by_name(team, track_name),
+         {:ok, pear} <- find_pear_by_name(team, pear_name),
+         {:ok, track} <- do_toggle_anchor(track, pear) do
+      {:ok, track}
+    end
+  end
+
+  defp do_toggle_anchor(%{anchor: %{id: anchor_id}}, %{id: anchor_id} = pear) do
+    pear
+    |> Repo.preload([:anchoring, :track])
+    |> PearRecord.changeset(%{anchoring_id: nil})
+    |> Repo.update()
+  end
+
+  defp do_toggle_anchor(track, pear) do
+    pear
+    |> Repo.preload([:anchoring, :track])
+    |> PearRecord.anchor_track_changeset(%{anchoring_id: track.id})
+    |> Repo.update()
   end
 
   @decorate trace(

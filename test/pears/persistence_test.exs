@@ -122,6 +122,27 @@ defmodule Pears.PersistenceTest do
       assert {:ok, track} = Persistence.rename_track("New Team", "Track One", "New Track")
       assert track.name == "New Track"
     end
+
+    test "toggle_anchor/3" do
+      create_team("New Team")
+      Persistence.add_track_to_team("New Team", "Track One")
+      Persistence.add_pear_to_team("New Team", "Pear One")
+      Persistence.add_pear_to_track("New Team", "Pear One", "Track One")
+
+      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Track One", "Pear One")
+
+      {:ok, team} = Persistence.get_team_by_name("New Team")
+      {:ok, track} = Persistence.find_track_by_name(team, "Track One")
+
+      assert track.anchor.id == pear.id
+
+      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Track One", "Pear One")
+
+      {:ok, team} = Persistence.get_team_by_name("New Team")
+      {:ok, track} = Persistence.find_track_by_name(team, "Track One")
+
+      assert track.anchor == nil
+    end
   end
 
   describe "snapshots" do

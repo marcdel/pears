@@ -10,6 +10,7 @@ defmodule Pears.Persistence.TrackRecord do
     field :locked, :boolean
     belongs_to :team, TeamRecord, foreign_key: :team_id
     has_many :pears, PearRecord, foreign_key: :track_id
+    has_one :anchor, PearRecord, foreign_key: :anchoring_id
 
     timestamps()
   end
