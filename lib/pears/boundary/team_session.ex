@@ -154,6 +154,7 @@ defmodule Pears.Boundary.TeamSession do
       team
       |> Team.add_track(track_record.name, track_record.id)
       |> maybe_lock_track(track_record)
+      |> maybe_set_anchor(track_record)
     end)
   end
 
@@ -171,6 +172,12 @@ defmodule Pears.Boundary.TeamSession do
 
   defp maybe_lock_track(team, %{locked: true, name: track_name}) do
     Team.lock_track(team, track_name)
+  end
+
+  defp maybe_set_anchor(team, %{anchor: nil}), do: team
+
+  defp maybe_set_anchor(team, %{name: track_name, anchor: %{name: pear_name}}) do
+    Team.toggle_anchor(team, pear_name, track_name)
   end
 
   @decorate trace("team_session.add_history", include: [[:team, :name]])

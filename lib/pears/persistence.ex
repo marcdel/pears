@@ -177,27 +177,44 @@ defmodule Pears.Persistence do
   end
 
   @decorate trace("persistence.toggle_anchor", include: [:team_name, :track_name, :pear_name])
-  def toggle_anchor(team_name, track_name, pear_name) do
+  def toggle_anchor(team_name, pear_name, track_name) do
     with {:ok, team} <- get_team_by_name(team_name),
-         {:ok, track} <- find_track_by_name(team, track_name),
          {:ok, pear} <- find_pear_by_name(team, pear_name),
-         {:ok, track} <- do_toggle_anchor(track, pear) do
-      {:ok, track}
+         {:ok, track} <- find_track_by_name(team, track_name),
+         {:ok, pear} <- do_toggle_anchor(pear, track) do
+      {:ok, pear}
     end
   end
 
-  defp do_toggle_anchor(%{anchor: %{id: anchor_id}}, %{id: anchor_id} = pear) do
-    pear
-    |> Repo.preload([:anchoring, :track])
-    |> PearRecord.changeset(%{anchoring_id: nil})
-    |> Repo.update()
-  end
-
-  defp do_toggle_anchor(track, pear) do
+  @decorate trace("persistence.add_anchor", include: [[:pear, :name], [:track, :name]])
+  defp do_toggle_anchor(pear, %{anchor: nil} = track) do
     pear
     |> Repo.preload([:anchoring, :track])
     |> PearRecord.anchor_track_changeset(%{anchoring_id: track.id})
     |> Repo.update()
+  end
+
+  @decorate trace("persistence.remove_anchor", include: [[:pear, :name], :_track_name])
+  defp do_toggle_anchor(%{id: anchor_id} = pear, %{anchor: %{id: anchor_id}, name: _track_name}) do
+    pear
+    |> Repo.preload([:anchoring, :track])
+    |> PearRecord.anchor_track_changeset(%{anchoring_id: nil})
+    |> Repo.update()
+  end
+
+  @decorate trace("persistence.add_anchor", include: [[:pear, :name], [:track, :name]])
+  defp do_toggle_anchor(new_anchor, %{anchor: prev_anchor} = track) do
+    Repo.transaction(fn ->
+      prev_anchor
+      |> Repo.preload([:anchoring, :track])
+      |> PearRecord.anchor_track_changeset(%{anchoring_id: nil})
+      |> Repo.update()
+
+      new_anchor
+      |> Repo.preload([:anchoring, :track])
+      |> PearRecord.anchor_track_changeset(%{anchoring_id: track.id})
+      |> Repo.update()
+    end)
   end
 
   @decorate trace(

@@ -129,14 +129,14 @@ defmodule Pears.PersistenceTest do
       Persistence.add_pear_to_team("New Team", "Pear One")
       Persistence.add_pear_to_track("New Team", "Pear One", "Track One")
 
-      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Track One", "Pear One")
+      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Pear One", "Track One")
 
       {:ok, team} = Persistence.get_team_by_name("New Team")
       {:ok, track} = Persistence.find_track_by_name(team, "Track One")
 
       assert track.anchor.id == pear.id
 
-      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Track One", "Pear One")
+      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Pear One", "Track One")
 
       {:ok, team} = Persistence.get_team_by_name("New Team")
       {:ok, track} = Persistence.find_track_by_name(team, "Track One")

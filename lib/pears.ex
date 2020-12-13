@@ -162,6 +162,7 @@ defmodule Pears do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _pear} <- validate_pear_on_team(team, pear_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
+         _pear <- Persistence.toggle_anchor(team_name, pear_name, track_name),
          updated_team <- Team.toggle_anchor(team, pear_name, track_name),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do

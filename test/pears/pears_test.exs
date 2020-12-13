@@ -206,15 +206,34 @@ defmodule PearsTest do
   test "can toggle a pear as anchor for a track", %{name: name} do
     Pears.add_team(name)
     Pears.add_pear(name, "Pear One")
+    Pears.add_pear(name, "Pear Two")
     Pears.add_track(name, "Track One")
     Pears.add_pear_to_track(name, "Pear One", "Track One")
+    Pears.add_pear_to_track(name, "Pear Two", "Track One")
 
-    {:ok, team} = Pears.toggle_anchor(name, "Pear One", "Track One")
+    {:ok, _} = Pears.toggle_anchor(name, "Pear One", "Track One")
+
+    TeamManager.remove_team(name)
+    TeamSession.end_session(name)
+    {:ok, team} = Pears.lookup_team_by(name: name)
 
     anchor = team.tracks |> Map.values() |> List.first() |> Map.get(:anchor)
     assert anchor == "Pear One"
 
-    {:ok, team} = Pears.toggle_anchor(name, "Pear One", "Track One")
+    {:ok, _} = Pears.toggle_anchor(name, "Pear Two", "Track One")
+
+    TeamManager.remove_team(name)
+    TeamSession.end_session(name)
+    {:ok, team} = Pears.lookup_team_by(name: name)
+
+    anchor = team.tracks |> Map.values() |> List.first() |> Map.get(:anchor)
+    assert anchor == "Pear Two"
+
+    {:ok, _} = Pears.toggle_anchor(name, "Pear Two", "Track One")
+
+    TeamManager.remove_team(name)
+    TeamSession.end_session(name)
+    {:ok, team} = Pears.lookup_team_by(name: name)
 
     anchor = team.tracks |> Map.values() |> List.first() |> Map.get(:anchor)
     assert anchor == nil

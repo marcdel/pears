@@ -24,8 +24,6 @@ defmodule Pears.Persistence.PearRecord do
 
   @doc false
   def anchor_track_changeset(pear_record, attrs) do
-    pear_record
-    |> cast(attrs, [:anchoring_id])
-    |> validate_required([:anchoring_id])
+    cast(pear_record, attrs, [:anchoring_id])
   end
 end
