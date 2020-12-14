@@ -1,7 +1,7 @@
 <main class="max-w-8xl mx-auto pb-10 lg:py-12 lg:px-8">
   <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
     <%= render(PearsWeb.LayoutView, "_live_settings_nav.html", socket: @socket) %>
-    <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
+    <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-6">
       <section aria-labelledby="step-1-heading">
         <div class="shadow sm:rounded-md sm:overflow-hidden">
           <div class="bg-white py-6 px-4 sm:p-6">
@@ -43,7 +43,7 @@
                 <% end %>
               </h2>
               <div class="mt-6 grid grid-cols-1 gap-6">
-                <label for="team_channel" class="block text-sm font-medium text-gray-700">Select your team's channel. This is where we'll post updates about the days pairs.</label>
+                <label for="team_channel" class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</label>
                 <select id="team_channel" name="team_channel" value="<%= @team_channel %>" <%= if @no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                   <option></option>
                   <%= for channel <- @channels do %>
