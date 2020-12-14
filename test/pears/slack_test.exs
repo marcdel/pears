@@ -3,6 +3,7 @@ defmodule Pears.SlackTest do
 
   alias Pears.Persistence
   alias Pears.Slack
+  alias Pears.SlackFixtures
 
   setup [:team]
 
@@ -136,6 +137,9 @@ defmodule Pears.SlackTest do
     "warning" => "superfluous_charset"
   }
 
+  @users_page_one SlackFixtures.list_users_response(1)
+  @users_page_two SlackFixtures.list_users_response(2)
+
   def retrieve_access_tokens(code, _redirect_uri) do
     case code do
       @valid_code -> @valid_token_response
@@ -161,6 +165,9 @@ defmodule Pears.SlackTest do
   def channels(_token, ""), do: @conversations_page_one
   def channels(_token, _next_cursor), do: @conversations_page_two
 
+  def users(_token, ""), do: @users_page_one
+  def users(_token, _next_cursor), do: @users_page_two
+
   describe "get_details" do
     setup %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
@@ -168,9 +175,14 @@ defmodule Pears.SlackTest do
       :ok
     end
 
-    test "exchanges a code for an access token and saves it in the session", %{team: team} do
+    test "returns a list of all channels in the slack organization", %{team: team} do
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
       assert [%{name: "general"}, %{name: "random"}] = details.channels
+    end
+
+    test "returns a list of all users in the slack organization", %{team: team} do
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      assert [%{name: "marc"}, %{name: "marc"}] = details.users
     end
 
     test "handles invalid responses" do

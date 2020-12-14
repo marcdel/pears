@@ -17,6 +17,7 @@ defmodule PearsWeb.SlackLive do
         {:ok,
          assign(socket,
            channels: details.channels,
+           users: details.users,
            team_channel: details.team_channel,
            has_token: details.has_token,
            no_channels: Enum.empty?(details.channels)
@@ -26,6 +27,7 @@ defmodule PearsWeb.SlackLive do
         {:ok,
          assign(socket,
            channels: [],
+           users: [],
            team_channel: nil,
            has_token: false,
            no_channels: true

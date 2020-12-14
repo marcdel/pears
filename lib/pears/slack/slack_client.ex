@@ -4,6 +4,7 @@ defmodule Pears.SlackClient do
   alias Slack.Web.Chat, as: Chat
   alias Slack.Web.Conversations, as: Conversations
   alias Slack.Web.Oauth.V2, as: Auth
+  alias Slack.Web.Users, as: Users
 
   @decorate trace("slack_client.retrieve_access_tokens")
   def retrieve_access_tokens(code, redirect_uri, oauth_access \\ &Auth.access/4) do
@@ -13,6 +14,11 @@ defmodule Pears.SlackClient do
   @decorate trace("slack_client.channels")
   def channels(token, cursor, list_conversations \\ &Conversations.list/1) do
     list_conversations.(%{token: token, cursor: cursor})
+  end
+
+  @decorate trace("slack_client.users")
+  def users(token, cursor, list_users \\ &Users.list/1) do
+    list_users.(%{token: token, cursor: cursor})
   end
 
   @decorate trace("slack_client.send_message")

@@ -30,6 +30,17 @@ defmodule Pears.SlackClientTest do
     assert token == @valid_token
   end
 
+  test "can get the list of users for a given token" do
+    fake_users_fn = fn %{token: token, cursor: cursor} ->
+      send(self(), {:fetch_users, token, cursor})
+    end
+
+    SlackClient.users(@valid_token, "", fake_users_fn)
+
+    assert_receive {:fetch_users, token, ""}
+    assert token == @valid_token
+  end
+
   test "can send a message to the specified channel" do
     fake_message_fn = fn channel, text, %{token: token} ->
       send(self(), {:message, channel, text, token})
