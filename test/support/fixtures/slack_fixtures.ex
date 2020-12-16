@@ -58,7 +58,7 @@ defmodule Pears.SlackFixtures do
             "status_expiration" => 0,
             "status_text" => "",
             "status_text_canonical" => "",
-            "team" => "T4ZC03H0Q",
+            "team" => "UTTTTTTTTTTL",
             "title" => ""
           },
           "real_name" => "Marc Delagrammatikas",

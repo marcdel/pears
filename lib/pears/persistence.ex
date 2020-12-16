@@ -118,6 +118,26 @@ defmodule Pears.Persistence do
   end
 
   @decorate trace(
+              "persistence.add_pear_slack_details",
+              include: [:team_name, :pear_name, :attrs, :error]
+            )
+  def add_pear_slack_details(team_name, pear_name, attrs) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, pear} <- find_pear_by_name(team, pear_name),
+         {:ok, updated_pear} <- do_add_pear_slack_details(pear, attrs) do
+      {:ok, updated_pear}
+    else
+      error -> error
+    end
+  end
+
+  defp do_add_pear_slack_details(pear, attrs) do
+    pear
+    |> PearRecord.slack_details_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @decorate trace(
               "persistence.add_pear_to_track",
               include: [:team_name, :pear_name, :track_name, :error]
             )

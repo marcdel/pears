@@ -76,6 +76,20 @@ defmodule Pears.PersistenceTest do
              |> Enum.map(& &1.id)
              |> Enum.member?(pear.id)
     end
+
+    test "add_pear_slack_details/3" do
+      create_team("New Team")
+      {:ok, _} = Persistence.add_pear_to_team("New Team", "Pear One")
+      params = %{slack_id: "UTTTTTTTTTTL", slack_name: "onesie"}
+
+      {:ok, _} = Persistence.add_pear_slack_details("New Team", "Pear One", params)
+
+      {:ok, team} = Persistence.get_team_by_name("New Team")
+      {:ok, pear} = Persistence.find_pear_by_name(team, "Pear One")
+
+      assert pear.slack_id == "UTTTTTTTTTTL"
+      assert pear.slack_name == "onesie"
+    end
   end
 
   describe "tracks" do
