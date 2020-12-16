@@ -11,13 +11,25 @@ defmodule Pears.SlackFixtures do
         _ -> ""
       end
 
+    id =
+      case page do
+        1 -> "XXXXXXXXXX"
+        _ -> "YYYYYYYYYY"
+      end
+
+    name =
+      case page do
+        1 -> "marc"
+        _ -> "milo"
+      end
+
     %{
       "cache_ts" => 1_607_922_521,
       "members" => [
         %{
           "color" => "9f69e7",
           "deleted" => false,
-          "id" => "XXXXXXXXXX",
+          "id" => id,
           "is_admin" => true,
           "is_app_user" => false,
           "is_bot" => false,
@@ -25,11 +37,11 @@ defmodule Pears.SlackFixtures do
           "is_primary_owner" => true,
           "is_restricted" => false,
           "is_ultra_restricted" => false,
-          "name" => "marc",
+          "name" => name,
           "profile" => %{
             "avatar_hash" => "41b4d5781156",
-            "display_name" => "marc",
-            "display_name_normalized" => "marc",
+            "display_name" => name,
+            "display_name_normalized" => name,
             "fields" => nil,
             "first_name" => "Marc",
             "image_1024" =>

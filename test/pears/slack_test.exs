@@ -3,6 +3,7 @@ defmodule Pears.SlackTest do
 
   alias Pears.Persistence
   alias Pears.Slack
+  alias Pears.Slack.User
   alias Pears.SlackFixtures
 
   setup [:team]
@@ -182,7 +183,26 @@ defmodule Pears.SlackTest do
 
     test "returns a list of all users in the slack organization", %{team: team} do
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
-      assert [%{name: "marc"}, %{name: "marc"}] = details.users
+
+      assert [%{id: "XXXXXXXXXX", name: "marc"}, %{id: "YYYYYYYYYY", name: "milo"}] =
+               details.users
+    end
+
+    test "returns a list of all pears in the team and their slack details", %{team: team} do
+      {:ok, team} = Pears.add_pear(team.name, "marc")
+      {:ok, team} = Pears.add_pear(team.name, "milo")
+
+      Persistence.add_pear_slack_details(team.name, "milo", %{
+        slack_id: "XXXXXXXXXX",
+        slack_name: "miloooooo"
+      })
+
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+
+      assert [
+               %{slack_id: nil, slack_name: nil, name: "marc"},
+               %{slack_id: "XXXXXXXXXX", slack_name: "miloooooo", name: "milo"}
+             ] = details.pears
     end
 
     test "handles invalid responses" do
@@ -210,6 +230,40 @@ defmodule Pears.SlackTest do
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
       assert team_record.slack_channel == "random"
+    end
+  end
+
+  describe "save_slack_names" do
+    test "saves the slack id and slack name for each pear", %{team: team} do
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Pears.add_pear(team.name, "Marc")
+      {:ok, _} = Pears.add_pear(team.name, "Milo")
+      {:ok, _} = Pears.add_pear(team.name, "Jackie")
+      users = [%User{id: "XXXXXXXXXX", name: "marc"}, %User{id: "YYYYYYYYYY", name: "milo"}]
+      params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY", "Jackie" => ""}
+
+      {:ok, returned_pears} = Slack.save_slack_names(team.name, users, params)
+
+      {:ok, team_record} = Persistence.get_team_by_name(team.name)
+
+      returned_pears =
+        returned_pears
+        |> Enum.sort_by(&Map.get(&1, :name))
+        |> Enum.map(fn pear -> {pear.name, pear.slack_id, pear.slack_name} end)
+
+      updated_pears =
+        team_record
+        |> Map.get(:pears)
+        |> Enum.sort_by(&Map.get(&1, :name))
+        |> Enum.map(fn pear -> {pear.name, pear.slack_id, pear.slack_name} end)
+
+      assert returned_pears == updated_pears
+
+      assert updated_pears == [
+               {"Jackie", nil, nil},
+               {"Marc", "XXXXXXXXXX", "marc"},
+               {"Milo", "YYYYYYYYYY", "milo"}
+             ]
     end
   end
 

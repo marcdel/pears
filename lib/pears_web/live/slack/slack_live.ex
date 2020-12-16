@@ -17,6 +17,7 @@ defmodule PearsWeb.SlackLive do
         {:ok,
          assign(socket,
            channels: details.channels,
+           pears: details.pears,
            users: details.users,
            team_channel: details.team_channel,
            has_token: details.has_token,
@@ -27,6 +28,7 @@ defmodule PearsWeb.SlackLive do
         {:ok,
          assign(socket,
            channels: [],
+           pears: [],
            users: [],
            team_channel: nil,
            has_token: false,
@@ -46,6 +48,24 @@ defmodule PearsWeb.SlackLive do
          socket
          |> assign(team: team, team_channel: team_channel)
          |> put_flash(:info, "Team channel successfully saved!")}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}
+    end
+  end
+
+  @impl true
+  @decorate trace("slack_live.save_slack_handles", include: [:team_name, :params])
+  def handle_event("save-slack-handles", params, socket) do
+    team_name = team_name(socket)
+    users = socket.assigns.users
+
+    case Slack.save_slack_names(team_name, users, params) do
+      {:ok, pears} ->
+        {:noreply,
+         socket
+         |> assign(pears: pears)
+         |> put_flash(:info, "Slack handles successfully saved!")}
 
       _ ->
         {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}

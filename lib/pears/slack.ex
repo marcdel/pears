@@ -7,6 +7,7 @@ defmodule Pears.Slack do
   alias Pears.Persistence
   alias Pears.Slack.Channel
   alias Pears.Slack.Details
+  alias Pears.Slack.User
   alias Pears.SlackClient
 
   @decorate trace("slack.link_url")
@@ -34,9 +35,10 @@ defmodule Pears.Slack do
   @decorate trace("slack.get_details", include: [:team_name])
   def get_details(team_name, slack_client \\ SlackClient) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         {:ok, pears} <- get_pears(team),
          {:ok, channels} <- fetch_channels(team.slack_token, slack_client),
          {:ok, users} <- fetch_users(team.slack_token, slack_client) do
-      {:ok, Details.new(team, channels, users)}
+      {:ok, Details.new(team, channels, users, pears)}
     end
   end
 
@@ -68,6 +70,29 @@ defmodule Pears.Slack do
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team) do
       {:ok, updated_team}
     end
+  end
+
+  @decorate trace("slack.save_slack_names", include: [:team_name, :params])
+  def save_slack_names(team_name, users, params) do
+    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         {:ok, pears} <- get_pears(team),
+         [ok: pears] <- do_save_slack_names(team, users, pears, params) do
+      {:ok, pears}
+    end
+  end
+
+  defp do_save_slack_names(team, users, pears, params) do
+    Enum.map(params, fn
+      {pear_name, ""} ->
+        {:ok, Enum.find(pears, fn pear -> pear.name == pear_name end)}
+
+      {pear_name, slack_id} ->
+        user = Enum.find(users, fn user -> user.id == slack_id end)
+        attrs = %{slack_id: user.id, slack_name: user.name}
+        Persistence.add_pear_slack_details(team.name, pear_name, attrs)
+    end)
+    |> Enum.group_by(fn {success, _} -> success end, fn {_, result} -> result end)
+    |> Enum.into([])
   end
 
   defp do_send_message_to_team(%{slack_token: nil}, _message, _slack_client) do
@@ -126,6 +151,13 @@ defmodule Pears.Slack do
     end
   end
 
+  @decorate trace("slack.get_pears", include: [:team_name])
+  defp get_pears(%{name: team_name}) do
+    with {:ok, team} <- Persistence.get_team_by_name(team_name) do
+      {:ok, Enum.sort_by(team.pears, &Map.get(&1, :name))}
+    end
+  end
+
   defp fetch_channels(nil, _slack_client), do: {:error, :no_token}
 
   defp fetch_channels(token, slack_client) do
@@ -176,7 +208,7 @@ defmodule Pears.Slack do
         users =
           response
           |> Map.get("members")
-          |> Enum.map(&Channel.from_json/1)
+          |> Enum.map(&User.from_json/1)
 
         O11y.set_attribute(:user_count, Enum.count(users))
 
