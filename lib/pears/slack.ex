@@ -14,7 +14,7 @@ defmodule Pears.Slack do
   def link_url do
     state = "onboard"
     client_id = "169408119024.1514845190500"
-    scope = Enum.join(["channels:read", "chat:write.public", "chat:write"], ",")
+    scope = Enum.join(["channels:read", "users:read", "chat:write.public", "chat:write"], ",")
 
     "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri()}&state=#{state}&client_id=#{
       client_id
