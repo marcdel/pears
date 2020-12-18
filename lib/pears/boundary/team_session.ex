@@ -10,11 +10,17 @@ defmodule Pears.Boundary.TeamSession do
   @timeout :timer.minutes(60)
 
   defmodule State do
-    defstruct [:team, :session_facilitator]
+    defstruct [:team, :session_facilitator, slack_channels: [], slack_users: []]
 
     def new(team) do
       %__MODULE__{team: team, session_facilitator: Team.facilitator(team)}
     end
+
+    def add_slack_channels(state, channels), do: Map.put(state, :slack_channels, channels)
+    def slack_channels(state), do: Map.get(state, :slack_channels, [])
+
+    def add_slack_users(state, users), do: Map.put(state, :slack_users, users)
+    def slack_users(state), do: Map.get(state, :slack_users, [])
 
     def update_team(%{session_facilitator: nil} = state, team) do
       state
@@ -86,6 +92,26 @@ defmodule Pears.Boundary.TeamSession do
   @decorate trace("team_session.update_team", include: [:team_name])
   def update_team(team_name, team) do
     GenServer.call(via(team_name), {:update_team, team})
+  end
+
+  @decorate trace("team_session.slack_channels", include: [:team_name])
+  def slack_channels(team_name) do
+    GenServer.call(via(team_name), :slack_channels)
+  end
+
+  @decorate trace("team_session.add_slack_channels", include: [:team_name])
+  def add_slack_channels(team_name, channels) do
+    GenServer.call(via(team_name), {:add_slack_channels, channels})
+  end
+
+  @decorate trace("team_session.slack_users", include: [:team_name])
+  def slack_users(team_name) do
+    GenServer.call(via(team_name), :slack_users)
+  end
+
+  @decorate trace("team_session.add_slack_users", include: [:team_name])
+  def add_slack_users(team_name, users) do
+    GenServer.call(via(team_name), {:add_slack_users, users})
   end
 
   @decorate trace("team_session.facilitator", include: [:team_name])
@@ -202,6 +228,22 @@ defmodule Pears.Boundary.TeamSession do
 
   def handle_call({:update_team, updated_team}, _from, state) do
     {:reply, {:ok, updated_team}, State.update_team(state, updated_team), @timeout}
+  end
+
+  def handle_call(:slack_channels, _from, state) do
+    {:reply, {:ok, State.slack_channels(state)}, state, @timeout}
+  end
+
+  def handle_call({:add_slack_channels, slack_channels}, _from, state) do
+    {:reply, {:ok, slack_channels}, State.add_slack_channels(state, slack_channels), @timeout}
+  end
+
+  def handle_call(:slack_users, _from, state) do
+    {:reply, {:ok, State.slack_users(state)}, state, @timeout}
+  end
+
+  def handle_call({:add_slack_users, slack_users}, _from, state) do
+    {:reply, {:ok, slack_users}, State.add_slack_users(state, slack_users), @timeout}
   end
 
   def handle_call(:get_facilitator, _from, state) do

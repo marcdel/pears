@@ -36,8 +36,8 @@ defmodule Pears.Slack do
   def get_details(team_name, slack_client \\ SlackClient) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          {:ok, pears} <- get_pears(team),
-         {:ok, channels} <- fetch_channels(team.slack_token, slack_client),
-         {:ok, users} <- fetch_users(team.slack_token, slack_client) do
+         {:ok, channels} <- load_or_fetch_channels(team_name, team.slack_token, slack_client),
+         {:ok, users} <- load_or_fetch_users(team_name, team.slack_token, slack_client) do
       {:ok, Details.new(team, channels, users, pears)}
     end
   end
@@ -158,6 +158,13 @@ defmodule Pears.Slack do
     end
   end
 
+  defp load_or_fetch_channels(team_name, token, slack_client) do
+    with {:ok, []} <- TeamSession.slack_channels(team_name),
+         {:ok, channels} <- fetch_channels(token, slack_client) do
+      TeamSession.add_slack_channels(team_name, channels)
+    end
+  end
+
   defp fetch_channels(nil, _slack_client), do: {:error, :no_token}
 
   defp fetch_channels(token, slack_client) do
@@ -189,6 +196,13 @@ defmodule Pears.Slack do
       error ->
         O11y.set_attribute(:error, error)
         {:error, :invalid_token}
+    end
+  end
+
+  defp load_or_fetch_users(team_name, token, slack_client) do
+    with {:ok, []} <- TeamSession.slack_users(team_name),
+         {:ok, users} <- fetch_users(token, slack_client) do
+      TeamSession.add_slack_users(team_name, users)
     end
   end
 
