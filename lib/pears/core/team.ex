@@ -3,7 +3,7 @@ defmodule Pears.Core.Team do
 
   defstruct name: nil,
             id: nil,
-            slack_channel: nil,
+            slack_channel_name: nil,
             slack_token: nil,
             available_pears: %{},
             assigned_pears: %{},
@@ -257,9 +257,9 @@ defmodule Pears.Core.Team do
     |> matched_on_day?(potential_match, team)
   end
 
-  @decorate trace("team.set_slack_channel", include: [[:team, :name], :team_channel])
-  def set_slack_channel(team, slack_channel) do
-    Map.put(team, :slack_channel, slack_channel)
+  @decorate trace("team.set_slack_channel_name", include: [[:team, :name], :team_channel])
+  def set_slack_channel_name(team, slack_channel_name) do
+    Map.put(team, :slack_channel_name, slack_channel_name)
   end
 
   @decorate trace("team.set_slack_token", include: [[:team, :name]])

@@ -211,7 +211,7 @@ defmodule Pears.SlackTest do
       {:ok, _} = Pears.remove_team("no token")
     end
 
-    test "returns the team's slack_channel", %{team: team} do
+    test "returns the team's slack_channel_name", %{team: team} do
       {:ok, _} = Slack.save_team_channel(team.name, "cool team")
 
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
@@ -221,15 +221,15 @@ defmodule Pears.SlackTest do
   end
 
   describe "save_team_channel" do
-    test "sets the team slack_channel to the provided channel name", %{team: team} do
+    test "sets the team slack_channel_name to the provided channel name", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
 
       {:ok, team} = Slack.save_team_channel(team.name, "random")
 
-      assert team.slack_channel == "random"
+      assert team.slack_channel_name == "random"
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
-      assert team_record.slack_channel == "random"
+      assert team_record.slack_channel_name == "random"
     end
   end
 

@@ -43,19 +43,19 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace("persistence.set_slack_channel", include: [:team_name, :slack_channel])
-  def set_slack_channel(team_name, slack_channel) do
+  @decorate trace("persistence.set_slack_channel_name", include: [:team_name, :slack_channel_name])
+  def set_slack_channel_name(team_name, slack_channel_name) do
     with {:ok, team} <- get_team_by_name(team_name),
-         {:ok, updated_team} <- do_set_slack_channel(team, slack_channel) do
+         {:ok, updated_team} <- do_set_slack_channel_name(team, slack_channel_name) do
       {:ok, updated_team}
     else
       error -> error
     end
   end
 
-  defp do_set_slack_channel(team_record, slack_channel) do
+  defp do_set_slack_channel_name(team_record, slack_channel_name) do
     case team_record
-         |> TeamRecord.slack_channel_changeset(%{slack_channel: slack_channel})
+         |> TeamRecord.slack_channel_name_changeset(%{slack_channel_name: slack_channel_name})
          |> Repo.update() do
       {:ok, team} -> {:ok, team}
       error -> error

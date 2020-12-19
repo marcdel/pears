@@ -10,14 +10,14 @@ defmodule Pears.Boundary.TeamSession do
   @timeout :timer.minutes(60)
 
   defmodule State do
-    defstruct [:team, :session_facilitator, slack_channels: [], slack_users: []]
+    defstruct [:team, :session_facilitator, slack_channel_names: [], slack_users: []]
 
     def new(team) do
       %__MODULE__{team: team, session_facilitator: Team.facilitator(team)}
     end
 
-    def add_slack_channels(state, channels), do: Map.put(state, :slack_channels, channels)
-    def slack_channels(state), do: Map.get(state, :slack_channels, [])
+    def add_slack_channel_names(state, channels), do: Map.put(state, :slack_channel_names, channels)
+    def slack_channel_names(state), do: Map.get(state, :slack_channel_names, [])
 
     def add_slack_users(state, users), do: Map.put(state, :slack_users, users)
     def slack_users(state), do: Map.get(state, :slack_users, [])
@@ -94,14 +94,14 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), {:update_team, team})
   end
 
-  @decorate trace("team_session.slack_channels", include: [:team_name])
-  def slack_channels(team_name) do
-    GenServer.call(via(team_name), :slack_channels)
+  @decorate trace("team_session.slack_channel_names", include: [:team_name])
+  def slack_channel_names(team_name) do
+    GenServer.call(via(team_name), :slack_channel_names)
   end
 
-  @decorate trace("team_session.add_slack_channels", include: [:team_name])
-  def add_slack_channels(team_name, channels) do
-    GenServer.call(via(team_name), {:add_slack_channels, channels})
+  @decorate trace("team_session.add_slack_channel_names", include: [:team_name])
+  def add_slack_channel_names(team_name, channels) do
+    GenServer.call(via(team_name), {:add_slack_channel_names, channels})
   end
 
   @decorate trace("team_session.slack_users", include: [:team_name])
@@ -152,7 +152,7 @@ defmodule Pears.Boundary.TeamSession do
   defp map_to_team(%{name: team_name} = team_record) do
     Team.new(name: team_name)
     |> Team.set_slack_token(team_record.slack_token)
-    |> Team.set_slack_channel(team_record.slack_channel)
+    |> Team.set_slack_channel_name(team_record.slack_channel_name)
     |> add_pears(team_record)
     |> add_tracks(team_record)
     |> assign_pears(team_record)
@@ -230,12 +230,12 @@ defmodule Pears.Boundary.TeamSession do
     {:reply, {:ok, updated_team}, State.update_team(state, updated_team), @timeout}
   end
 
-  def handle_call(:slack_channels, _from, state) do
-    {:reply, {:ok, State.slack_channels(state)}, state, @timeout}
+  def handle_call(:slack_channel_names, _from, state) do
+    {:reply, {:ok, State.slack_channel_names(state)}, state, @timeout}
   end
 
-  def handle_call({:add_slack_channels, slack_channels}, _from, state) do
-    {:reply, {:ok, slack_channels}, State.add_slack_channels(state, slack_channels), @timeout}
+  def handle_call({:add_slack_channel_names, slack_channel_names}, _from, state) do
+    {:reply, {:ok, slack_channel_names}, State.add_slack_channel_names(state, slack_channel_names), @timeout}
   end
 
   def handle_call(:slack_users, _from, state) do
