@@ -11,18 +11,24 @@ defmodule Pears.SlackTest do
   @valid_code "169403114024.1535385215366.e6118897ed25c4e0d78803d3217ac7a98edabf0cf97010a115ef264771a1f98c"
   @invalid_code "asljaskjasdaskda"
 
-  @valid_token "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+  @valid_token "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"
+  @valid_user_token "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
 
   @valid_token_response %{
     "access_token" => @valid_token,
     "app_id" => "XXXXXXXXXX",
-    "authed_user" => %{"id" => "UTTTTTTTTTTL"},
+    "authed_user" => %{
+      "access_token" => @valid_user_token,
+      "id" => "UTTTTTTTTTTL",
+      "scope" => "search:read",
+      "token_type" => "user"
+    },
     "bot_user_id" => "UTTTTTTTTTTR",
     "enterprise" => nil,
     "ok" => true,
     "response_metadata" => %{"warnings" => ["superfluous_charset"]},
     "scope" =>
-      "commands,chat:write,app_mentions:read,channels:read,im:read,im:write,im:history,users:read",
+      "commands,chat:write,app_mentions:read,channels:read,im:read,im:write,im:history,users:read,chat:write.public",
     "team" => %{"id" => "XXXXXXXXXX", "name" => "Team Installing Your Hook"},
     "token_type" => "bot",
     "warning" => "superfluous_charset"

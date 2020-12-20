@@ -15,10 +15,11 @@ defmodule Pears.Slack do
     state = "onboard"
     client_id = "169408119024.1514845190500"
     scope = Enum.join(["channels:read", "users:read", "chat:write.public", "chat:write"], ",")
+    user_scope = Enum.join([], ",")
 
     "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri()}&state=#{state}&client_id=#{
       client_id
-    }&scope=#{scope}&user_scope="
+    }&scope=#{scope}&user_scope=#{user_scope}"
   end
 
   @decorate trace("slack.onboard_team", include: [:team_name])
