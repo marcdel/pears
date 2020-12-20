@@ -30,7 +30,7 @@ defmodule PearsWeb.SlackLive do
            channels: [],
            pears: [],
            users: [],
-           team_channel: nil,
+           team_channel: %{id: nil, name: ""},
            has_token: false,
            no_channels: true
          )}
@@ -39,8 +39,9 @@ defmodule PearsWeb.SlackLive do
 
   @impl true
   @decorate trace("slack_live.save_team_channel", include: [])
-  def handle_event("save-team-channel", %{"team_channel" => team_channel}, socket) do
+  def handle_event("save-team-channel", %{"team_channel" => team_channel_id}, socket) do
     team_name = team_name(socket)
+    team_channel = team_channel(socket, team_channel_id)
 
     case Slack.save_team_channel(team_name, team_channel) do
       {:ok, team} ->
@@ -83,4 +84,8 @@ defmodule PearsWeb.SlackLive do
 
   defp team(socket), do: socket.assigns.team
   defp team_name(socket), do: team(socket).name
+
+  defp team_channel(socket, team_channel_id) do
+    Enum.find(socket.assigns.channels, &(&1.id == team_channel_id))
+  end
 end

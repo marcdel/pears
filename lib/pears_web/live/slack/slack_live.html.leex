@@ -33,7 +33,7 @@
             <div class="bg-white py-6 px-4 sm:p-6">
               <h2 id="step-2-heading" class="flex text-lg leading-6 font-medium text-gray-900">
                 Step 2
-                <%= if @team_channel do %>
+                <%= if @team_channel.id do %>
                 <span data-cy="step-2-complete" class="ml-2 text-green-600">
                   <svg  class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -44,10 +44,10 @@
               </h2>
               <div class="mt-6 grid grid-cols-1 gap-6">
                 <label for="team_channel" class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</label>
-                <select id="team_channel" name="team_channel" value="<%= @team_channel %>" <%= if @no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                <select id="team_channel" name="team_channel" value="<%= @team_channel.id %>" <%= if @no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                   <option></option>
                   <%= for channel <- @channels do %>
-                    <option <%= if channel.name == @team_channel, do: "selected" %>><%= channel.name %></option>
+                    <option <%= if channel.id == @team_channel.id, do: "selected" %> value="<%= channel.id %>"><%= channel.name %></option>
                   <% end %>
                 </select>
               </div>

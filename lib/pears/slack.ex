@@ -62,11 +62,11 @@ defmodule Pears.Slack do
     end
   end
 
-  @decorate trace("slack.save_team_channel", include: [:team_name, :channel_name])
-  def save_team_channel(team_name, channel_name) do
+  @decorate trace("slack.save_team_channel", include: [:team_name, :team_channel])
+  def save_team_channel(team_name, team_channel) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
-         {:ok, _} <- Persistence.set_slack_channel_name(team_name, channel_name),
-         updated_team <- Team.set_slack_channel_name(team, channel_name),
+         {:ok, _} <- Persistence.set_slack_channel(team_name, team_channel),
+         updated_team <- Team.set_slack_channel(team, team_channel),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team) do
       {:ok, updated_team}
     end
@@ -99,12 +99,12 @@ defmodule Pears.Slack do
     {:error, :slack_token_not_set}
   end
 
-  defp do_send_message_to_team(%{slack_channel_name: nil}, _message, _slack_client) do
-    {:error, :slack_channel_name_not_set}
+  defp do_send_message_to_team(%{slack_channel: nil}, _message, _slack_client) do
+    {:error, :slack_channel_not_set}
   end
 
   defp do_send_message_to_team(team, message, slack_client) do
-    case slack_client.send_message(team.slack_channel_name, message, team.slack_token) do
+    case slack_client.send_message(team.slack_channel.id, message, team.slack_token) do
       %{"ok" => true} = response ->
         O11y.set_attribute(:response, response)
         {:ok, message}
@@ -159,9 +159,9 @@ defmodule Pears.Slack do
   end
 
   defp load_or_fetch_channels(team_name, token, slack_client) do
-    with {:ok, []} <- TeamSession.slack_channel_names(team_name),
+    with {:ok, []} <- TeamSession.slack_channels(team_name),
          {:ok, channels} <- fetch_channels(token, slack_client) do
-      TeamSession.add_slack_channel_names(team_name, channels)
+      TeamSession.add_slack_channels(team_name, channels)
     end
   end
 

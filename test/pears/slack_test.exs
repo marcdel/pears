@@ -211,24 +211,25 @@ defmodule Pears.SlackTest do
       {:ok, _} = Pears.remove_team("no token")
     end
 
-    test "returns the team's slack_channel_name", %{team: team} do
-      {:ok, _} = Slack.save_team_channel(team.name, "cool team")
+    test "returns the team's slack_channel", %{team: team} do
+      {:ok, _} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "cool team"})
 
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
 
-      assert details.team_channel == "cool team"
+      assert details.team_channel == %{id: "UXXXXXXX", name: "cool team"}
     end
   end
 
   describe "save_team_channel" do
-    test "sets the team slack_channel_name to the provided channel name", %{team: team} do
+    test "sets the team slack_channel to the provided channel", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
 
-      {:ok, team} = Slack.save_team_channel(team.name, "random")
+      {:ok, team} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
 
-      assert team.slack_channel_name == "random"
+      assert team.slack_channel.name == "random"
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
+      assert team_record.slack_channel_id == "UXXXXXXX"
       assert team_record.slack_channel_name == "random"
     end
   end
@@ -284,12 +285,12 @@ defmodule Pears.SlackTest do
     end
 
     test "sends a message to the team's slack channel", %{team: team} do
-      {:ok, team} = Slack.save_team_channel(team.name, "random")
+      {:ok, team} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
       message = "Hey, friends!"
 
       {:ok, ^message} = Slack.send_message_to_team(team.name, message, __MODULE__)
 
-      assert_receive {:send_message, "random", message, token}
+      assert_receive {:send_message, "UXXXXXXX", message, token}
       assert token == @valid_token
     end
 
@@ -321,11 +322,11 @@ defmodule Pears.SlackTest do
 
     test "sends a summary of who is pairing on what", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
-      {:ok, _} = Slack.save_team_channel(team.name, "random")
+      {:ok, _} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
 
       {:ok, _} = Slack.send_daily_pears_summary(team.name, __MODULE__)
 
-      assert_receive {:send_message, "random", message, _}
+      assert_receive {:send_message, "UXXXXXXX", message, _}
 
       assert message == """
              Today's 🍐s are:
@@ -336,7 +337,7 @@ defmodule Pears.SlackTest do
 
     test "does not send a message if feature turned off", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
-      {:ok, _} = Slack.save_team_channel(team.name, "random")
+      {:ok, _} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
       FeatureFlags.disable(:send_daily_pears_summary, for_actor: team)
 
       Slack.send_daily_pears_summary(team.name, __MODULE__)

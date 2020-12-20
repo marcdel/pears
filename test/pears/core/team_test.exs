@@ -396,9 +396,9 @@ defmodule Pears.Core.TeamTest do
   end
 
   test "can set the team's slack channel", %{team: team} do
-    assert team.slack_channel_name == nil
-    team = Team.set_slack_channel_name(team, "random")
-    assert team.slack_channel_name == "random"
+    assert team.slack_channel == nil
+    team = Team.set_slack_channel(team, %{id: "UXXXXXXX", name: "random"})
+    assert team.slack_channel == %{id: "UXXXXXXX", name: "random"}
   end
 
   test "can set the team's slack token", %{team: team} do

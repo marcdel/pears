@@ -38,4 +38,13 @@ it('step 1 defaults to incomplete and step 2 is disabled', () => {
 
   cy.findByText(/Save channel/i)
     .should('be.disabled');
+
+  cy.contains('h2', 'Step 3')
+    .should('be.visible')
+
+  cy.get(`[data-cy="step-3-complete"]`)
+    .should('not.be.visible')
+
+  cy.findByText(/Save slack handles/i)
+    .should('be.disabled');
 })

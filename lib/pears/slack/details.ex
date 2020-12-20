@@ -8,7 +8,7 @@ defmodule Pears.Slack.Details do
       pears: pears,
       channels: channels,
       users: users,
-      team_channel: team.slack_channel_name
+      team_channel: team.slack_channel
     }
   end
 end

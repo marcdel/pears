@@ -18,9 +18,10 @@ defmodule Pears.PersistenceTest do
       assert team.slack_token == "sdkfhsdf2384"
     end
 
-    test "set_slack_channel_name/2" do
+    test "set_slack_channel/2" do
       create_team("New Team")
-      {:ok, team} = Persistence.set_slack_channel_name("New Team", "random")
+      {:ok, team} = Persistence.set_slack_channel("New Team", %{id: "UXXXXXXX", name: "random"})
+      assert team.slack_channel_id == "UXXXXXXX"
       assert team.slack_channel_name == "random"
     end
 
@@ -40,7 +41,7 @@ defmodule Pears.PersistenceTest do
       {:ok, _} = Persistence.delete_team("New Team")
       {:error, :not_found} = Persistence.get_team_by_name("New Team")
     end
-   end
+  end
 
   def create_team(name) do
     {:ok, team} = Persistence.create_team(name)
