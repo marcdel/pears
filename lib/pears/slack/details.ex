@@ -1,5 +1,13 @@
 defmodule Pears.Slack.Details do
-  defstruct [:token, :channels, :team_channel, pears: [], users: [], has_token: false]
+  defstruct [
+    :token,
+    :channels,
+    :team_channel,
+    pears: [],
+    users: [],
+    has_token: false,
+    all_pears_updated: false
+  ]
 
   def new(team, channels, users, pears) do
     %__MODULE__{
@@ -8,7 +16,8 @@ defmodule Pears.Slack.Details do
       pears: pears,
       channels: channels,
       users: users,
-      team_channel: team.slack_channel
+      team_channel: team.slack_channel,
+      all_pears_updated: Enum.all?(pears, fn pear -> pear.slack_id != nil end)
     }
   end
 end

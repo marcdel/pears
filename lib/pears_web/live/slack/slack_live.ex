@@ -21,7 +21,8 @@ defmodule PearsWeb.SlackLive do
            users: details.users,
            team_channel: details.team_channel,
            has_token: details.has_token,
-           no_channels: Enum.empty?(details.channels)
+           no_channels: Enum.empty?(details.channels),
+           all_pears_updated: details.all_pears_updated
          )}
 
       {:error, _} ->
