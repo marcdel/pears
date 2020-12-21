@@ -33,7 +33,8 @@ defmodule PearsWeb.SlackLive do
            users: [],
            team_channel: %{id: nil, name: ""},
            has_token: false,
-           no_channels: true
+           no_channels: true,
+           all_pears_updated: false
          )}
     end
   end
