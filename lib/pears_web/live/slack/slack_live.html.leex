@@ -7,7 +7,7 @@
           <div class="bg-white py-6 px-4 sm:p-6">
             <h2 id="step-1-heading" class="flex text-lg leading-6 font-medium text-gray-900">
               Step 1
-              <%= if @has_token do %>
+              <%= if @details.has_token do %>
               <span data-cy="step-1-complete" class="ml-2 text-green-600">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -33,7 +33,7 @@
             <div class="bg-white py-6 px-4 sm:p-6">
               <h2 id="step-2-heading" class="flex text-lg leading-6 font-medium text-gray-900">
                 Step 2
-                <%= if @team_channel.id do %>
+                <%= if @details.team_channel.id do %>
                 <span data-cy="step-2-complete" class="ml-2 text-green-600">
                   <svg  class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -44,16 +44,16 @@
               </h2>
               <div class="mt-6 grid grid-cols-1 gap-6">
                 <label for="team_channel" class="text-med text-gray-500">Select your team's channel. This is where we'll post updates about the days pairs.</label>
-                <select id="team_channel" name="team_channel" value="<%= @team_channel.id %>" <%= if @no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                <select id="team_channel" name="team_channel" value="<%= @details.team_channel.id %>" <%= if @details.no_channels, do: "disabled" %> class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                   <option></option>
-                  <%= for channel <- @channels do %>
-                    <option <%= if channel.id == @team_channel.id, do: "selected" %> value="<%= channel.id %>"><%= channel.name %></option>
+                  <%= for channel <- @details.channels do %>
+                    <option <%= if channel.id == @details.team_channel.id, do: "selected" %> value="<%= channel.id %>"><%= channel.name %></option>
                   <% end %>
                 </select>
               </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-              <button type="submit" <%= if @no_channels, do: "disabled" %> class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
+              <button type="submit" <%= if @details.no_channels, do: "disabled" %> class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
                 Save channel
               </button>
             </div>
@@ -66,7 +66,7 @@
             <div class="bg-white py-6 px-4 sm:p-6">
               <h2 id="step-3-heading" class="flex text-lg leading-6 font-medium text-gray-900">
                 Step 3
-                <%= if @all_pears_updated do %>
+                <%= if @details.all_pears_updated do %>
                 <span data-cy="step-3-complete" class="ml-2 text-green-600">
                   <svg  class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -94,7 +94,7 @@
                             </tr>
                           </thead>
                           <tbody class="bg-white divide-y divide-gray-200">
-                            <%= for pear <- @pears do %>
+                            <%= for pear <- @details.pears do %>
                               <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                   <div class="text-sm text-gray-900">
@@ -109,7 +109,7 @@
                                   <% else %>
                                     <select name="<%= pear.name %>" value="<%= pear.slack_name %>" class="block max-w-2xl pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                                       <option></option>
-                                      <%= for user <- @users do %>
+                                      <%= for user <- @details.users do %>
                                         <option <%= if user.name == pear.slack_name, do: "selected" %> value="<%= user.id %>"><%= user.name %></option>
                                       <% end %>
                                     </select>
@@ -127,7 +127,7 @@
               </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-              <button type="submit" <%= if @no_channels, do: "disabled" %> class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
+              <button type="submit" <%= if @details.no_channels, do: "disabled" %> class="disabled:opacity-50 bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
                 Save slack handles
               </button>
             </div>

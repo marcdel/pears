@@ -33,13 +33,15 @@ defmodule Pears.Slack do
     end
   end
 
-  @decorate trace("slack.get_details", include: [:team_name])
+  @decorate trace("slack.get_details", include: [:team_name, :_error])
   def get_details(team_name, slack_client \\ SlackClient) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          {:ok, pears} <- get_pears(team),
          {:ok, channels} <- load_or_fetch_channels(team_name, team.slack_token, slack_client),
          {:ok, users} <- load_or_fetch_users(team_name, team.slack_token, slack_client) do
       {:ok, Details.new(team, channels, users, pears)}
+    else
+      _error -> {:error, Details.empty()}
     end
   end
 
@@ -64,21 +66,24 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.save_team_channel", include: [:team_name, :team_channel])
-  def save_team_channel(team_name, team_channel) do
+  def save_team_channel(details, team_name, team_channel) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          {:ok, _} <- Persistence.set_slack_channel(team_name, team_channel),
          updated_team <- Team.set_slack_channel(team, team_channel),
-         {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team) do
-      {:ok, updated_team}
+         {:ok, _} <- TeamSession.update_team(team_name, updated_team),
+         updated_details <- %{details | team_channel: team_channel} do
+      {:ok, updated_details}
+    else
+      _ -> {:ok, details}
     end
   end
 
   @decorate trace("slack.save_slack_names", include: [:team_name, :params])
-  def save_slack_names(team_name, users, params) do
+  def save_slack_names(details, team_name, params) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
-         {:ok, pears} <- get_pears(team),
-         [ok: pears] <- do_save_slack_names(team, users, pears, params) do
-      {:ok, pears}
+         updated_pears <- do_save_slack_names(team, details.users, details.pears, params),
+         updated_details <- update_pears_on_details(details, updated_pears) do
+      {:ok, updated_details}
     end
   end
 
@@ -89,11 +94,26 @@ defmodule Pears.Slack do
 
       {pear_name, slack_id} ->
         user = Enum.find(users, fn user -> user.id == slack_id end)
-        attrs = %{slack_id: user.id, slack_name: user.name}
-        Persistence.add_pear_slack_details(team.name, pear_name, attrs)
+
+        Persistence.add_pear_slack_details(team.name, pear_name, %{
+          slack_id: user.id,
+          slack_name: user.name
+        })
     end)
     |> Enum.group_by(fn {success, _} -> success end, fn {_, result} -> result end)
-    |> Enum.into([])
+    |> Map.get(:ok, [])
+  end
+
+  defp update_pears_on_details(details, updated_pears) do
+    updated_detail_pears =
+      updated_pears
+      |> Enum.reduce(Enum.group_by(details.pears, & &1.id), fn updated_pear, pears_map ->
+        Map.put(pears_map, updated_pear.id, updated_pear)
+      end)
+      |> Map.values()
+      |> List.flatten()
+
+    %{details | pears: updated_detail_pears}
   end
 
   defp do_send_message_to_team(%{slack_token: nil}, _message, _slack_client) do

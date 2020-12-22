@@ -3,7 +3,7 @@ defmodule Pears.SlackTest do
 
   alias Pears.Persistence
   alias Pears.Slack
-  alias Pears.Slack.User
+  alias Pears.Slack.Details
   alias Pears.SlackFixtures
 
   setup [:team]
@@ -213,12 +213,14 @@ defmodule Pears.SlackTest do
 
     test "handles invalid responses" do
       {:ok, _} = Pears.add_team("no token")
-      assert {:error, :no_token} = Slack.get_details("no token", __MODULE__)
+      assert {:error, details} = Slack.get_details("no token", __MODULE__)
+      assert details == Details.empty()
       {:ok, _} = Pears.remove_team("no token")
     end
 
     test "returns the team's slack_channel", %{team: team} do
-      {:ok, _} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "cool team"})
+      {:ok, _} =
+        Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "cool team"})
 
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
 
@@ -229,10 +231,12 @@ defmodule Pears.SlackTest do
   describe "save_team_channel" do
     test "sets the team slack_channel to the provided channel", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
 
-      {:ok, team} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
+      {:ok, updated_details} =
+        Slack.save_team_channel(details, team.name, %{id: "UXXXXXXX", name: "random"})
 
-      assert team.slack_channel.name == "random"
+      assert updated_details.team_channel == %{id: "UXXXXXXX", name: "random"}
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
       assert team_record.slack_channel_id == "UXXXXXXX"
@@ -246,15 +250,16 @@ defmodule Pears.SlackTest do
       {:ok, _} = Pears.add_pear(team.name, "Marc")
       {:ok, _} = Pears.add_pear(team.name, "Milo")
       {:ok, _} = Pears.add_pear(team.name, "Jackie")
-      users = [%User{id: "XXXXXXXXXX", name: "marc"}, %User{id: "YYYYYYYYYY", name: "milo"}]
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+
       params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY", "Jackie" => ""}
 
-      {:ok, returned_pears} = Slack.save_slack_names(team.name, users, params)
+      {:ok, updated_details} = Slack.save_slack_names(details, team.name, params)
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
 
       returned_pears =
-        returned_pears
+        updated_details.pears
         |> Enum.sort_by(&Map.get(&1, :name))
         |> Enum.map(fn pear -> {pear.name, pear.slack_id, pear.slack_name} end)
 
@@ -291,7 +296,9 @@ defmodule Pears.SlackTest do
     end
 
     test "sends a message to the team's slack channel", %{team: team} do
-      {:ok, team} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
+      {:ok, _} =
+        Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
+
       message = "Hey, friends!"
 
       {:ok, ^message} = Slack.send_message_to_team(team.name, message, __MODULE__)
@@ -328,7 +335,9 @@ defmodule Pears.SlackTest do
 
     test "sends a summary of who is pairing on what", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
-      {:ok, _} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
+
+      {:ok, _} =
+        Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
 
       {:ok, _} = Slack.send_daily_pears_summary(team.name, __MODULE__)
 
@@ -343,7 +352,10 @@ defmodule Pears.SlackTest do
 
     test "does not send a message if feature turned off", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
-      {:ok, _} = Slack.save_team_channel(team.name, %{id: "UXXXXXXX", name: "random"})
+
+      {:ok, _} =
+        Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
+
       FeatureFlags.disable(:send_daily_pears_summary, for_actor: team)
 
       Slack.send_daily_pears_summary(team.name, __MODULE__)

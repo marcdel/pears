@@ -14,28 +14,10 @@ defmodule PearsWeb.SlackLive do
 
     case Slack.get_details(team_name) do
       {:ok, details} ->
-        {:ok,
-         assign(socket,
-           channels: details.channels,
-           pears: details.pears,
-           users: details.users,
-           team_channel: details.team_channel,
-           has_token: details.has_token,
-           no_channels: Enum.empty?(details.channels),
-           all_pears_updated: details.all_pears_updated
-         )}
+        {:ok, assign(socket, details: details)}
 
-      {:error, _} ->
-        {:ok,
-         assign(socket,
-           channels: [],
-           pears: [],
-           users: [],
-           team_channel: %{id: nil, name: ""},
-           has_token: false,
-           no_channels: true,
-           all_pears_updated: false
-         )}
+      {:error, details} ->
+        {:ok, assign(socket, details: details)}
     end
   end
 
@@ -44,12 +26,13 @@ defmodule PearsWeb.SlackLive do
   def handle_event("save-team-channel", %{"team_channel" => team_channel_id}, socket) do
     team_name = team_name(socket)
     team_channel = team_channel(socket, team_channel_id)
+    details = socket.assigns.details
 
-    case Slack.save_team_channel(team_name, team_channel) do
-      {:ok, team} ->
+    case Slack.save_team_channel(details, team_name, team_channel) do
+      {:ok, details} ->
         {:noreply,
          socket
-         |> assign(team: team, team_channel: team_channel)
+         |> assign(details: details)
          |> put_flash(:info, "Team channel successfully saved!")}
 
       _ ->
@@ -61,13 +44,13 @@ defmodule PearsWeb.SlackLive do
   @decorate trace("slack_live.save_slack_handles", include: [:team_name, :params])
   def handle_event("save-slack-handles", params, socket) do
     team_name = team_name(socket)
-    users = socket.assigns.users
+    details = socket.assigns.details
 
-    case Slack.save_slack_names(team_name, users, params) do
-      {:ok, pears} ->
+    case Slack.save_slack_names(details, team_name, params) do
+      {:ok, details} ->
         {:noreply,
          socket
-         |> assign(pears: pears)
+         |> assign(details: details)
          |> put_flash(:info, "Slack handles successfully saved!")}
 
       _ ->
