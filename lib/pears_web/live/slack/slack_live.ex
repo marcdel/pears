@@ -71,6 +71,6 @@ defmodule PearsWeb.SlackLive do
   defp team_name(socket), do: team(socket).name
 
   defp team_channel(socket, team_channel_id) do
-    Enum.find(socket.assigns.channels, &(&1.id == team_channel_id))
+    Enum.find(socket.assigns.details.channels, &(&1.id == team_channel_id))
   end
 end
