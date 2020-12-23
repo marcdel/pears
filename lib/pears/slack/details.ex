@@ -3,7 +3,7 @@ defmodule Pears.Slack.Details do
 
   defstruct [
     :token,
-    team_channel: %Channel{},
+    team_channel: Channel.empty(),
     channels: [],
     pears: [],
     users: [],
