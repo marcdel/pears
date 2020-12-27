@@ -175,7 +175,11 @@ defmodule Pears.Boundary.TeamSession do
   @decorate trace("team_session.add_pears", include: [[:team, :name]])
   defp add_pears(team, team_record) do
     Enum.reduce(team_record.pears, team, fn pear_record, team ->
-      Team.add_pear(team, pear_record.name, pear_record.id)
+      Team.add_pear(team, pear_record.name,
+        id: pear_record.id,
+        slack_name: pear_record.slack_name,
+        slack_id: pear_record.slack_id
+      )
     end)
   end
 

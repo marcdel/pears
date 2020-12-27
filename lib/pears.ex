@@ -70,7 +70,12 @@ defmodule Pears do
   def add_pear(team_name, pear_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, pear_record} <- Persistence.add_pear_to_team(team_name, pear_name),
-         updated_team <- Team.add_pear(team, pear_name, pear_record.id),
+         updated_team <-
+           Team.add_pear(team, pear_name,
+             id: pear_record.id,
+             slack_name: pear_record.slack_name,
+             slack_id: pear_record.slack_id
+           ),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}

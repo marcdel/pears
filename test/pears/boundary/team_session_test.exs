@@ -20,6 +20,13 @@ defmodule Pears.Boundary.TeamSessionTest do
       {:ok, _} = Persistence.set_slack_token(name, "my slack token")
       {:ok, _} = Persistence.set_slack_channel(name, %{id: "UXXXXXXX", name: "general"})
       {:ok, _} = Persistence.add_pear_to_team(name, "pear1")
+
+      {:ok, _} =
+        Persistence.add_pear_slack_details(name, "pear1", %{
+          slack_id: "UYYYYYYY",
+          slack_name: "Pear 1"
+        })
+
       {:ok, _} = Persistence.add_pear_to_team(name, "pear2")
       {:ok, _} = Persistence.add_pear_to_team(name, "pear3")
       {:ok, _} = Persistence.add_track_to_team(name, "track one")
@@ -39,6 +46,8 @@ defmodule Pears.Boundary.TeamSessionTest do
       assert saved_team.slack_channel == %{id: "UXXXXXXX", name: "general"}
       assert Enum.empty?(saved_team.available_pears)
       assert Enum.count(saved_team.assigned_pears) == 3
+      assert Map.get(saved_team.assigned_pears, "pear1").slack_id == "UYYYYYYY"
+      assert Map.get(saved_team.assigned_pears, "pear1").slack_name == "Pear 1"
       assert Enum.count(saved_team.tracks) == 2
 
       assert Enum.count(saved_team.history) == 1

@@ -21,8 +21,8 @@ defmodule Pears.Core.Team do
   end
 
   @decorate trace("team.add_pear", include: [[:team, :name], :pear_name])
-  def add_pear(team, pear_name, pear_id \\ nil) do
-    pear = Pear.new(name: pear_name, id: pear_id)
+  def add_pear(team, pear_name, params \\ []) do
+    pear = Pear.new(Keyword.merge(params, name: pear_name))
     updated_available_pears = AvailablePears.add_pear(team.available_pears, pear)
     Map.put(team, :available_pears, updated_available_pears)
   end
