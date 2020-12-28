@@ -20,11 +20,31 @@ defmodule Pears.Core.Team do
     Map.put(team, :id, team.name)
   end
 
-  @decorate trace("team.add_pear", include: [[:team, :name], :pear_name])
+  @decorate trace("team.add_pear", include: [[:team, :name], :pear_name, :params])
   def add_pear(team, pear_name, params \\ []) do
     pear = Pear.new(Keyword.merge(params, name: pear_name))
     updated_available_pears = AvailablePears.add_pear(team.available_pears, pear)
     Map.put(team, :available_pears, updated_available_pears)
+  end
+
+  @decorate trace("team.update_pear", include: [[:team, :name], :pear_name, :params])
+  def update_pear(team, pear_name, params \\ []) do
+    assigned_pear = find_assigned_pear(team, pear_name)
+    available_pear = find_available_pear(team, pear_name)
+
+    cond do
+      assigned_pear != nil ->
+        updated_pear = Pear.update(assigned_pear, params)
+        assigned_pears = Map.put(team.assigned_pears, pear_name, updated_pear)
+        updated_team = Map.put(team, :assigned_pears, assigned_pears)
+        updated_team
+
+      available_pear != nil ->
+        updated_pear = Pear.update(available_pear, params)
+        available_pears = Map.put(team.available_pears, pear_name, updated_pear)
+        updated_team = Map.put(team, :available_pears, available_pears)
+        updated_team
+    end
   end
 
   @decorate trace("team.remove_pear", include: [[:team, :name], :pear_name])

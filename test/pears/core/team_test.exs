@@ -22,6 +22,23 @@ defmodule Pears.Core.TeamTest do
     |> refute_pear_in_track("pear2", "refactor track")
   end
 
+  test "can update available and assigned pears", %{team: team} do
+    team =
+      team
+      |> Team.add_track("track1")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.update_pear("pear1", slack_id: "XXXXXXXX")
+      |> Team.update_pear("pear2", slack_id: "YYYYYYYY")
+
+    [pear1] = Map.values(team.assigned_pears)
+    [pear2] = Map.values(team.available_pears)
+
+    assert pear1.slack_id == "XXXXXXXX"
+    assert pear2.slack_id == "YYYYYYYY"
+  end
+
   test "can add and remove a track of work", %{team: team} do
     team
     |> Team.add_track("refactor track")

@@ -5,6 +5,10 @@ defmodule Pears.Core.Pear do
     struct!(__MODULE__, fields)
   end
 
+  def update(pear, params) do
+    struct!(pear, params)
+  end
+
   def set_order(pear, order) do
     %{pear | order: order}
   end
