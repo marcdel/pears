@@ -14,7 +14,13 @@ defmodule Pears.Slack do
   def link_url do
     state = "onboard"
     client_id = "169408119024.1514845190500"
-    scope = Enum.join(["channels:read", "users:read", "chat:write.public", "chat:write"], ",")
+
+    scope =
+      Enum.join(
+        ["channels:read", "users:read", "chat:write.public", "chat:write", "im:write"],
+        ","
+      )
+
     user_scope = Enum.join([], ",")
 
     "https://slack.com/oauth/v2/authorize?redirect_uri=#{redirect_uri()}&state=#{state}&client_id=#{
@@ -42,6 +48,17 @@ defmodule Pears.Slack do
       {:ok, Details.new(team, channels, users, pears)}
     else
       _error -> {:error, Details.empty()}
+    end
+  end
+
+  @decorate trace("slack.send_end_of_session_questions", include: [:team_name])
+  def send_end_of_session_questions(team_name, slack_client \\ SlackClient) do
+    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         true <- FeatureFlags.enabled?(:send_end_of_session_questions, for: team),
+         {:ok, messages} <- do_send_end_of_session_questions(team, slack_client) do
+      {:ok, messages}
+    else
+      error -> error
     end
   end
 
@@ -80,25 +97,33 @@ defmodule Pears.Slack do
 
   @decorate trace("slack.save_slack_names", include: [:team_name, :params])
   def save_slack_names(details, team_name, params) do
-    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
-         updated_pears <- do_save_slack_names(team, details.users, details.pears, params),
+    with updated_pears <- do_save_slack_names(team_name, details.users, details.pears, params),
          updated_details <- update_pears_on_details(details, updated_pears) do
       {:ok, updated_details}
     end
   end
 
-  defp do_save_slack_names(team, users, pears, params) do
+  defp do_save_slack_names(team_name, users, pears, params) do
     Enum.map(params, fn
       {pear_name, ""} ->
         {:ok, Enum.find(pears, fn pear -> pear.name == pear_name end)}
 
       {pear_name, slack_id} ->
-        user = Enum.find(users, fn user -> user.id == slack_id end)
-
-        Persistence.add_pear_slack_details(team.name, pear_name, %{
-          slack_id: user.id,
-          slack_name: user.name
-        })
+        with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+             user <- Enum.find(users, fn user -> user.id == slack_id end),
+             {:ok, pear_record} <-
+               Persistence.add_pear_slack_details(team.name, pear_name, %{
+                 slack_id: user.id,
+                 slack_name: user.name
+               }),
+             updated_team <-
+               Team.update_pear(team, pear_name,
+                 slack_name: user.name,
+                 slack_id: user.id
+               ),
+             {:ok, _updated_team} <- TeamSession.update_team(team.name, updated_team) do
+          {:ok, pear_record}
+        end
     end)
     |> Enum.group_by(fn {success, _} -> success end, fn {_, result} -> result end)
     |> Map.get(:ok, [])
@@ -116,16 +141,57 @@ defmodule Pears.Slack do
     %{details | pears: updated_detail_pears}
   end
 
-  defp do_send_message_to_team(%{slack_token: nil}, _message, _slack_client) do
+  defp do_send_message_to_team(team, message, slack_client) do
+    channel_id = if team.slack_channel != nil, do: team.slack_channel.id, else: nil
+    do_send_message(team, channel_id, message, slack_client)
+  end
+
+  defp do_send_end_of_session_questions(team, slack_client) do
+    results =
+      team
+      |> Team.rotatable_tracks()
+      |> Enum.map(&do_send_message_to_pears(team, &1, slack_client))
+
+    {:ok, results}
+  end
+
+  defp do_send_message_to_pears(team, track, slack_client) do
+    message = build_end_of_session_question(track)
+
+    case find_or_create_group_chat(team, track, slack_client) do
+      {:ok, channel_id} -> do_send_message(team, channel_id, message, slack_client)
+      _ -> {:error, :error_creating_group_chat}
+    end
+  end
+
+  @decorate trace("slack.find_or_create_group_chat", include: [[:track, :pears], :user_ids])
+  defp find_or_create_group_chat(%{slack_token: token}, track, slack_client) do
+    user_ids =
+      track.pears
+      |> Map.values()
+      |> Enum.map(&Map.get(&1, :slack_id))
+
+    case slack_client.find_or_create_group_chat(user_ids, token) do
+      %{"ok" => true} = response ->
+        O11y.set_attribute(:response, response)
+        {:ok, get_in(response, ["channel", "id"])}
+
+      error ->
+        O11y.set_attribute(:error, error)
+        {:error, error}
+    end
+  end
+
+  defp do_send_message(%{slack_token: nil}, _channel, _message, _slack_client) do
     {:error, :slack_token_not_set}
   end
 
-  defp do_send_message_to_team(%{slack_channel: nil}, _message, _slack_client) do
+  defp do_send_message(_team, nil, _message, _slack_client) do
     {:error, :slack_channel_not_set}
   end
 
-  defp do_send_message_to_team(team, message, slack_client) do
-    case slack_client.send_message(team.slack_channel.id, message, team.slack_token) do
+  defp do_send_message(%{slack_token: token}, channel, message, slack_client) do
+    case slack_client.send_message(channel, message, token) do
       %{"ok" => true} = response ->
         O11y.set_attribute(:response, response)
         {:ok, message}
@@ -134,6 +200,70 @@ defmodule Pears.Slack do
         O11y.set_attribute(:error, error)
         {:error, error}
     end
+  end
+
+  defp build_end_of_session_question(track) do
+    pear_buttons =
+      track.pears
+      |> Map.values()
+      |> Enum.map(fn %{name: name} ->
+        %{
+          "type" => "button",
+          "text" => %{
+            "type" => "plain_text",
+            "text" => name
+          },
+          "value" => name
+        }
+      end)
+
+    [
+      %{
+        "type" => "section",
+        "text" => %{
+          "type" => "mrkdwn",
+          "text" =>
+            "Hey, friends! 👋\n\nTo make tomorrow's standup even smoother, I wanted to check whether you've decided who would like to continue working on your current track (#{
+              track.name
+            }) and who will rotate to another track."
+        }
+      },
+      %{
+        "type" => "divider"
+      },
+      %{
+        "type" => "section",
+        "text" => %{
+          "type" => "mrkdwn",
+          "text" => "*Who should anchor this track tomorrow?*"
+        }
+      },
+      %{
+        "type" => "actions",
+        "elements" =>
+          pear_buttons ++
+            [
+              %{
+                "type" => "button",
+                "text" => %{
+                  "type" => "plain_text",
+                  "text" => "🤝 Both",
+                  "emoji" => true
+                },
+                "value" => "both"
+              },
+              %{
+                "type" => "button",
+                "text" => %{
+                  "type" => "plain_text",
+                  "text" => "🎲 Feeling Lucky!",
+                  "emoji" => true
+                },
+                "value" => "random"
+              }
+            ]
+      }
+    ]
   end
 
   defp build_daily_pears_summary(team) do

@@ -89,4 +89,27 @@ defmodule Pears.SlackFixtures do
       "warning" => "superfluous_charset"
     }
   end
+
+  def open_chat_response(params) do
+    id = Keyword.get(params, :id, "D069C7QFK")
+
+    %{
+      "ok" => true,
+      "no_op" => true,
+      "already_open" => true,
+      "channel" => %{
+        "id" => id,
+        "created" => 1_460_147_748,
+        "is_im" => true,
+        "is_org_shared" => false,
+        "user" => "U069C7QF3",
+        "last_read" => "0000000000.000000",
+        "latest" => nil,
+        "unread_count" => 0,
+        "unread_count_display" => 0,
+        "is_open" => true,
+        "priority" => 0
+      }
+    }
+  end
 end

@@ -36,8 +36,15 @@ defmodule Pears.Core.Team do
       assigned_pear != nil ->
         updated_pear = Pear.update(assigned_pear, params)
         assigned_pears = Map.put(team.assigned_pears, pear_name, updated_pear)
-        updated_team = Map.put(team, :assigned_pears, assigned_pears)
-        updated_team
+
+        track = Map.get(team.tracks, updated_pear.track)
+        updated_pears = Map.put(track.pears, pear_name, updated_pear)
+        updated_track = Map.put(track, :pears, updated_pears)
+        updated_tracks = Map.put(team.tracks, updated_pear.track, updated_track)
+
+        team
+        |> Map.put(:assigned_pears, assigned_pears)
+        |> Map.put(:tracks, updated_tracks)
 
       available_pear != nil ->
         updated_pear = Pear.update(available_pear, params)
@@ -311,6 +318,14 @@ defmodule Pears.Core.Team do
         true -> count
       end
     end)
+  end
+
+  @decorate trace("team.rotatable_tracks", include: [[:team, :name]])
+  def rotatable_tracks(team) do
+    team.tracks
+    |> Map.values()
+    |> Enum.reject(&Track.incomplete?/1)
+    |> Enum.reject(&Track.locked?/1)
   end
 
   @decorate trace("team.potential_matches", include: [[:team, :name]])

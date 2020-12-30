@@ -196,6 +196,24 @@ defmodule Pears.Core.TeamTest do
     assert matches.available == ["pear2"]
   end
 
+  test "can return unlocked tracks with more than one pear" do
+    tracks =
+      [
+        {"pear1", "incomplete track"},
+        "pear2",
+        {"pear3", "pear4", "full track"},
+        {"pear5", "locked track"},
+        {"pear6", "pear7", "full locked track"}
+      ]
+      |> TeamBuilders.from_matches()
+      |> Team.lock_track("locked track")
+      |> Team.lock_track("full locked track")
+      |> Team.rotatable_tracks()
+
+    assert Enum.count(tracks) == 1
+    assert hd(tracks).name == "full track"
+  end
+
   test "can lock/unlock a track", %{team: team} do
     team
     |> Team.add_track("track one")

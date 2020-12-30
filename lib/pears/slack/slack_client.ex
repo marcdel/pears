@@ -21,9 +21,21 @@ defmodule Pears.SlackClient do
     list_users.(%{token: token, cursor: cursor})
   end
 
+  def send_message(channel, text, token, post_chat_message \\ &Chat.post_message/3)
+
   @decorate trace("slack_client.send_message")
-  def send_message(channel, text, token, post_chat_message \\ &Chat.post_message/3) do
+  def send_message(channel, text, token, post_chat_message) when is_binary(text) do
     post_chat_message.(channel, text, %{token: token})
+  end
+
+  @decorate trace("slack_client.send_message")
+  def send_message(channel, blocks, token, post_chat_message) when is_list(blocks) do
+    post_chat_message.(channel, "", %{blocks: Jason.encode!(blocks), token: token})
+  end
+
+  @decorate trace("slack_client.find_or_create_group_chat")
+  def find_or_create_group_chat(users, token, open_conversation \\ &Conversations.open/1) do
+    open_conversation.(%{users: Enum.join(users, ","), token: token})
   end
 
   defp client_id, do: Application.fetch_env!(:pears, :slack_client_id)

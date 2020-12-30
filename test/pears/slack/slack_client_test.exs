@@ -51,4 +51,40 @@ defmodule Pears.SlackClientTest do
     assert_receive {:message, "general", "Hiiii!!", token}
     assert token == @valid_token
   end
+
+  test "can send a message with blocks to the specified channel" do
+    fake_message_fn = fn channel, "", %{token: token, blocks: blocks_json} ->
+      send(self(), {:message, channel, blocks_json, token})
+    end
+
+    blocks = [
+      %{
+        "type" => "section",
+        "text" => %{
+          "type" => "mrkdwn",
+          "text" => "Hello, *user*!"
+        }
+      }
+    ]
+
+    SlackClient.send_message("USER1", blocks, @valid_token, fake_message_fn)
+
+    assert_receive {:message, "USER1", blocks_json, token}
+
+    assert blocks_json ==
+             "[{\"text\":{\"text\":\"Hello, *user*!\",\"type\":\"mrkdwn\"},\"type\":\"section\"}]"
+
+    assert token == @valid_token
+  end
+
+  test "can open a chat message between pears bot and multiple users" do
+    fake_open_fn = fn %{users: users, token: token} ->
+      send(self(), {:open_chat, users, token})
+    end
+
+    SlackClient.find_or_create_group_chat(["USER1", "USER2"], @valid_token, fake_open_fn)
+
+    assert_receive {:open_chat, "USER1,USER2", token}
+    assert token == @valid_token
+  end
 end

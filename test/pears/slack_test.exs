@@ -147,6 +147,8 @@ defmodule Pears.SlackTest do
   @users_page_one SlackFixtures.list_users_response(1)
   @users_page_two SlackFixtures.list_users_response(2)
 
+  @valid_open_chat_response SlackFixtures.open_chat_response(id: "GROUPCHATID")
+
   def retrieve_access_tokens(code, _redirect_uri) do
     case code do
       @valid_code -> @valid_token_response
@@ -279,8 +281,17 @@ defmodule Pears.SlackTest do
     end
   end
 
-  def send_message(channel, text, token) do
+  def send_message(channel, text, token) when is_binary(text) do
     send(self(), {:send_message, channel, text, token})
+
+    case channel do
+      nil -> %{"ok" => false}
+      _ -> %{"ok" => true}
+    end
+  end
+
+  def send_message(channel, blocks, token) when is_list(blocks) do
+    send(self(), {:send_message, channel, blocks, token})
 
     case channel do
       nil -> %{"ok" => false}
@@ -315,22 +326,11 @@ defmodule Pears.SlackTest do
   end
 
   describe "send_daily_pears_summary" do
+    setup [:four_pears_two_tracks]
+
     setup %{team: team} do
       FeatureFlags.enable(:send_daily_pears_summary, for_actor: team)
-
-      Pears.add_pear(team.name, "Pear One")
-      Pears.add_pear(team.name, "Pear Two")
-      Pears.add_track(team.name, "Track One")
-      Pears.add_pear_to_track(team.name, "Pear One", "Track One")
-      Pears.add_pear_to_track(team.name, "Pear Two", "Track One")
-
-      Pears.add_pear(team.name, "Pear Three")
-      Pears.add_pear(team.name, "Pear Four")
-      Pears.add_track(team.name, "Track Two")
-      Pears.add_pear_to_track(team.name, "Pear Three", "Track Two")
-      Pears.add_pear_to_track(team.name, "Pear Four", "Track Two")
-
-      {:ok, team: team}
+      :ok
     end
 
     test "sends a summary of who is pairing on what", %{team: team} do
@@ -373,6 +373,114 @@ defmodule Pears.SlackTest do
       {:error, _} = Slack.send_daily_pears_summary(team.name)
       refute_receive {:send_message, _, _, _}
     end
+  end
+
+  def find_or_create_group_chat(users, token) do
+    send(self(), {:open_chat, users, token})
+    @valid_open_chat_response
+  end
+
+  describe "send_end_of_session_questions" do
+    setup %{team: team} do
+      FeatureFlags.enable(:send_end_of_session_questions, for_actor: team)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      :ok
+    end
+
+    test "sends a message to each set of pears", %{team: team} do
+      {:ok, _} = Pears.add_pear(team.name, "Marc")
+      {:ok, _} = Pears.add_pear(team.name, "Milo")
+      {:ok, _} = Pears.add_track(team.name, "Feature 1")
+      {:ok, _} = Pears.add_pear_to_track(team.name, "Marc", "Feature 1")
+      {:ok, _} = Pears.add_pear_to_track(team.name, "Milo", "Feature 1")
+      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+
+      params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY"}
+      {:ok, _} = Slack.save_slack_names(details, team.name, params)
+
+      {:ok, _} = Slack.send_end_of_session_questions(team.name, __MODULE__)
+
+      assert_receive {:open_chat, ["XXXXXXXXXX", "YYYYYYYYYY"], token}
+      assert token == @valid_token
+
+      assert_receive {:send_message, "GROUPCHATID", blocks, token}
+      assert token == @valid_token
+
+      assert blocks == [
+               %{
+                 "text" => %{
+                   "text" =>
+                     "Hey, friends! 👋\n\nTo make tomorrow's standup even smoother, I wanted to check whether you've decided who would like to continue working on your current track (Feature 1) and who will rotate to another track.",
+                   "type" => "mrkdwn"
+                 },
+                 "type" => "section"
+               },
+               %{"type" => "divider"},
+               %{
+                 "text" => %{
+                   "text" => "*Who should anchor this track tomorrow?*",
+                   "type" => "mrkdwn"
+                 },
+                 "type" => "section"
+               },
+               %{
+                 "elements" => [
+                   %{
+                     "text" => %{"text" => "Marc", "type" => "plain_text"},
+                     "type" => "button",
+                     "value" => "Marc"
+                   },
+                   %{
+                     "text" => %{"text" => "Milo", "type" => "plain_text"},
+                     "type" => "button",
+                     "value" => "Milo"
+                   },
+                   %{
+                     "text" => %{"emoji" => true, "text" => "🤝 Both", "type" => "plain_text"},
+                     "type" => "button",
+                     "value" => "both"
+                   },
+                   %{
+                     "text" => %{
+                       "emoji" => true,
+                       "text" => "🎲 Feeling Lucky!",
+                       "type" => "plain_text"
+                     },
+                     "type" => "button",
+                     "value" => "random"
+                   }
+                 ],
+                 "type" => "actions"
+               }
+             ]
+    end
+
+    test "does not send messages to teammates without slack ids", %{team: team} do
+      {:ok, _} = Pears.add_pear(team.name, "Marc")
+      {:ok, _} = Pears.add_track(team.name, "Feature 1")
+      {:ok, _} = Pears.add_pear_to_track(team.name, "Marc", "Feature 1")
+
+      {:ok, _} = Slack.send_end_of_session_questions(team.name, __MODULE__)
+
+      refute_receive {:open_chat, _, _}
+      refute_receive {:send_message, _, _, _}
+    end
+  end
+
+  defp four_pears_two_tracks(%{team: team}) do
+    Pears.add_pear(team.name, "Pear One")
+    Pears.add_pear(team.name, "Pear Two")
+    Pears.add_track(team.name, "Track One")
+    Pears.add_pear_to_track(team.name, "Pear One", "Track One")
+    Pears.add_pear_to_track(team.name, "Pear Two", "Track One")
+
+    Pears.add_pear(team.name, "Pear Three")
+    Pears.add_pear(team.name, "Pear Four")
+    Pears.add_track(team.name, "Track Two")
+    Pears.add_pear_to_track(team.name, "Pear Three", "Track Two")
+    Pears.add_pear_to_track(team.name, "Pear Four", "Track Two")
+
+    {:ok, team: team}
   end
 
   defp team(_) do
