@@ -37,3 +37,6 @@ npm-debug.log
 # cypress failures
 ui_tests/cypress/videos
 ui_tests/cypress/screenshots
+
+# CTags
+tags
