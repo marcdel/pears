@@ -4,6 +4,7 @@ defmodule Pears.SlackTest do
   alias Pears.Persistence
   alias Pears.Slack
   alias Pears.Slack.Details
+  alias Pears.Slack.Messages.EndOfSessionQuestion
   alias Pears.SlackFixtures
 
   setup [:team]
@@ -392,8 +393,9 @@ defmodule Pears.SlackTest do
       {:ok, _} = Pears.add_pear(team.name, "Milo")
       {:ok, _} = Pears.add_track(team.name, "Feature 1")
       {:ok, _} = Pears.add_pear_to_track(team.name, "Marc", "Feature 1")
-      {:ok, _} = Pears.add_pear_to_track(team.name, "Milo", "Feature 1")
+      {:ok, team} = Pears.add_pear_to_track(team.name, "Milo", "Feature 1")
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      track = Map.get(team.tracks, "Feature 1")
 
       params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY"}
       {:ok, _} = Slack.save_slack_names(details, team.name, params)
@@ -406,53 +408,7 @@ defmodule Pears.SlackTest do
       assert_receive {:send_message, "GROUPCHATID", blocks, token}
       assert token == @valid_token
 
-      assert blocks == [
-               %{
-                 "text" => %{
-                   "text" =>
-                     "Hey, friends! 👋\n\nTo make tomorrow's standup even smoother, I wanted to check whether you've decided who would like to continue working on your current track (Feature 1) and who will rotate to another track.",
-                   "type" => "mrkdwn"
-                 },
-                 "type" => "section"
-               },
-               %{"type" => "divider"},
-               %{
-                 "text" => %{
-                   "text" => "*Who should anchor this track tomorrow?*",
-                   "type" => "mrkdwn"
-                 },
-                 "type" => "section"
-               },
-               %{
-                 "elements" => [
-                   %{
-                     "text" => %{"text" => "Marc", "type" => "plain_text"},
-                     "type" => "button",
-                     "value" => "Marc"
-                   },
-                   %{
-                     "text" => %{"text" => "Milo", "type" => "plain_text"},
-                     "type" => "button",
-                     "value" => "Milo"
-                   },
-                   %{
-                     "text" => %{"emoji" => true, "text" => "🤝 Both", "type" => "plain_text"},
-                     "type" => "button",
-                     "value" => "both"
-                   },
-                   %{
-                     "text" => %{
-                       "emoji" => true,
-                       "text" => "🎲 Feeling Lucky!",
-                       "type" => "plain_text"
-                     },
-                     "type" => "button",
-                     "value" => "random"
-                   }
-                 ],
-                 "type" => "actions"
-               }
-             ]
+      assert blocks == EndOfSessionQuestion.new(track)
     end
 
     test "does not send messages to teammates without slack ids", %{team: team} do
