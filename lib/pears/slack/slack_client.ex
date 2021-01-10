@@ -30,7 +30,10 @@ defmodule Pears.SlackClient do
 
   @decorate trace("slack_client.send_message")
   def send_message(channel, blocks, token, post_chat_message) when is_list(blocks) do
-    post_chat_message.(channel, "", %{blocks: Jason.encode!(blocks), token: token})
+    post_chat_message.(channel, "A message from the Pears app...", %{
+      blocks: Jason.encode!(blocks),
+      token: token
+    })
   end
 
   @decorate trace("slack_client.find_or_create_group_chat")

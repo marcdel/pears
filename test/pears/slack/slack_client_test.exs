@@ -53,8 +53,8 @@ defmodule Pears.SlackClientTest do
   end
 
   test "can send a message with blocks to the specified channel" do
-    fake_message_fn = fn channel, "", %{token: token, blocks: blocks_json} ->
-      send(self(), {:message, channel, blocks_json, token})
+    fake_message_fn = fn channel, text, %{token: token, blocks: blocks_json} ->
+      send(self(), {:message, channel, text, blocks_json, token})
     end
 
     blocks = [
@@ -69,7 +69,9 @@ defmodule Pears.SlackClientTest do
 
     SlackClient.send_message("USER1", blocks, @valid_token, fake_message_fn)
 
-    assert_receive {:message, "USER1", blocks_json, token}
+    assert_receive {:message, "USER1", text, blocks_json, token}
+
+    assert text == "A message from the Pears app..."
 
     assert blocks_json ==
              "[{\"text\":{\"text\":\"Hello, *user*!\",\"type\":\"mrkdwn\"},\"type\":\"section\"}]"

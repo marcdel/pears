@@ -20,8 +20,8 @@ defmodule Pears.Slack.Messages.EndOfSessionQuestion do
         "text" => %{
           "type" => "mrkdwn",
           "text" =>
-          "Hey, friends! 👋\n\nTo make tomorrow's standup even smoother, I wanted to check whether you've decided who would like to continue working on your current track (#{
-            track.name
+            "Hey, friends! 👋\n\nTo make tomorrow's standup even smoother, I wanted to check whether you've decided who would like to continue working on your current track (#{
+              track.name
             }) and who will rotate to another track."
         }
       },
@@ -38,28 +38,28 @@ defmodule Pears.Slack.Messages.EndOfSessionQuestion do
       %{
         "type" => "actions",
         "elements" =>
-        pear_buttons ++
-          [
-            %{
-              "type" => "button",
-              "text" => %{
-                "type" => "plain_text",
-                "text" => "🤝 Both",
-                "emoji" => true
+          pear_buttons ++
+            [
+              %{
+                "type" => "button",
+                "text" => %{
+                  "type" => "plain_text",
+                  "text" => "🤝 Both",
+                  "emoji" => true
+                },
+                "value" => "both"
               },
-              "value" => "both"
-            },
-            %{
-              "type" => "button",
-              "text" => %{
-                "type" => "plain_text",
-                "text" => "🎲 Feeling Lucky!",
-                "emoji" => true
-              },
-              "value" => "random"
-            }
-          ]
+              %{
+                "type" => "button",
+                "text" => %{
+                  "type" => "plain_text",
+                  "text" => "🎲 Feeling Lucky!",
+                  "emoji" => true
+                },
+                "value" => "random"
+              }
+            ]
       }
-      ]
+    ]
   end
 end

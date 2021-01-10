@@ -7,8 +7,8 @@ defmodule Pears.Slack do
   alias Pears.Persistence
   alias Pears.Slack.Channel
   alias Pears.Slack.Details
-  alias Pears.Slack.Messages.EndOfSessionQuestion
   alias Pears.Slack.Messages.DailyPairsMessage
+  alias Pears.Slack.Messages.EndOfSessionQuestion
   alias Pears.Slack.User
   alias Pears.SlackClient
 
