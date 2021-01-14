@@ -1,6 +1,12 @@
 defmodule Pears.SlackTest do
   use Pears.DataCase, async: true
 
+  import Mox
+
+  # Make sure mocks are verified when the test exits
+  setup :verify_on_exit!
+
+  alias Pears.MockSlackClient
   alias Pears.Persistence
   alias Pears.Slack
   alias Pears.Slack.Details
@@ -150,6 +156,11 @@ defmodule Pears.SlackTest do
 
   @valid_open_chat_response SlackFixtures.open_chat_response(id: "GROUPCHATID")
 
+  setup do
+    stub_with(MockSlackClient, FakeSlackClient)
+    :ok
+  end
+
   def retrieve_access_tokens(code, _redirect_uri) do
     case code do
       @valid_code -> @valid_token_response
@@ -159,7 +170,9 @@ defmodule Pears.SlackTest do
 
   describe "onboard_team" do
     test "exchanges a code for an access token and saves it", %{team: team} do
-      {:ok, team} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      expect(MockSlackClient, :retrieve_access_tokens, fn _code, _url -> @valid_token_response end)
+
+      {:ok, team} = Slack.onboard_team(team.name, @valid_code)
       assert team.slack_token == @valid_token
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
@@ -167,7 +180,11 @@ defmodule Pears.SlackTest do
     end
 
     test "handles invalid responses", %{team: team} do
-      {:error, _} = Slack.onboard_team(team.name, @invalid_code, __MODULE__)
+      expect(MockSlackClient, :retrieve_access_tokens, fn _code, _url ->
+        @invalid_token_response
+      end)
+
+      {:error, _} = Slack.onboard_team(team.name, @invalid_code)
     end
   end
 
@@ -180,7 +197,7 @@ defmodule Pears.SlackTest do
 
   describe "get_details" do
     setup %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
 
       :ok
     end
@@ -233,7 +250,7 @@ defmodule Pears.SlackTest do
 
   describe "save_team_channel" do
     test "sets the team slack_channel to the provided channel", %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       {:ok, details} = Slack.get_details(team.name, __MODULE__)
 
       {:ok, updated_details} =
@@ -249,7 +266,7 @@ defmodule Pears.SlackTest do
 
   describe "save_slack_names" do
     test "saves the slack id and slack name for each pear", %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       {:ok, _} = Pears.add_pear(team.name, "Marc")
       {:ok, _} = Pears.add_pear(team.name, "Milo")
       {:ok, _} = Pears.add_pear(team.name, "Jackie")
@@ -302,7 +319,7 @@ defmodule Pears.SlackTest do
 
   describe "send_message_to_team" do
     setup %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
 
       :ok
     end
@@ -335,7 +352,7 @@ defmodule Pears.SlackTest do
     end
 
     test "sends a summary of who is pairing on what", %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
 
       {:ok, _} =
         Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
@@ -352,7 +369,7 @@ defmodule Pears.SlackTest do
     end
 
     test "does not send a message if feature turned off", %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
 
       {:ok, _} =
         Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
@@ -365,7 +382,7 @@ defmodule Pears.SlackTest do
     end
 
     test "does not send a message if no channel is specified", %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       {:error, _} = Slack.send_daily_pears_summary(team.name)
       refute_receive {:send_message, _, _, _}
     end
@@ -384,7 +401,7 @@ defmodule Pears.SlackTest do
   describe "send_end_of_session_questions" do
     setup %{team: team} do
       FeatureFlags.enable(:send_end_of_session_questions, for_actor: team)
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code, __MODULE__)
+      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       :ok
     end
 

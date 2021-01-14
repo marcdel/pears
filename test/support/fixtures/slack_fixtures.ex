@@ -4,6 +4,31 @@ defmodule Pears.SlackFixtures do
   responses for the slack API endpoints.
   """
 
+  @valid_token "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"
+  @valid_user_token "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
+
+  def valid_token_response do
+    %{
+      "access_token" => @valid_token,
+      "app_id" => "XXXXXXXXXX",
+      "authed_user" => %{
+        "access_token" => @valid_user_token,
+        "id" => "UTTTTTTTTTTL",
+        "scope" => "search:read",
+        "token_type" => "user"
+      },
+      "bot_user_id" => "UTTTTTTTTTTR",
+      "enterprise" => nil,
+      "ok" => true,
+      "response_metadata" => %{"warnings" => ["superfluous_charset"]},
+      "scope" =>
+        "commands,chat:write,app_mentions:read,channels:read,im:read,im:write,im:history,users:read,chat:write.public",
+      "team" => %{"id" => "XXXXXXXXXX", "name" => "Team Installing Your Hook"},
+      "token_type" => "bot",
+      "warning" => "superfluous_charset"
+    }
+  end
+
   def list_users_response(page \\ 1) do
     next_cursor =
       case page do

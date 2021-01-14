@@ -12,6 +12,10 @@ defmodule Pears.Slack do
   alias Pears.Slack.User
   alias Pears.SlackClient
 
+  def slack_client do
+    Application.get_env(:pears, :slack_client, Pears.SlackClient)
+  end
+
   @decorate trace("slack.link_url")
   def link_url do
     state = "onboard"
@@ -31,8 +35,8 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.onboard_team", include: [:team_name])
-  def onboard_team(team_name, slack_code, slack_client \\ SlackClient) do
-    with {:ok, token} <- fetch_tokens(slack_code, slack_client),
+  def onboard_team(team_name, slack_code) do
+    with {:ok, token} <- fetch_tokens(slack_code),
          {:ok, _} <- Persistence.set_slack_token(team_name, token),
          {:ok, team} <- TeamSession.find_or_start_session(team_name),
          updated_team <- Team.set_slack_token(team, token),
@@ -204,8 +208,8 @@ defmodule Pears.Slack do
     end
   end
 
-  defp fetch_tokens(slack_code, slack_client) do
-    case slack_client.retrieve_access_tokens(slack_code, redirect_uri()) do
+  defp fetch_tokens(slack_code) do
+    case slack_client().retrieve_access_tokens(slack_code, redirect_uri()) do
       %{"ok" => true} = response ->
         {:ok, Map.get(response, "access_token")}
 

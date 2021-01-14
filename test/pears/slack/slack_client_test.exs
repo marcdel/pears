@@ -59,7 +59,7 @@ defmodule Pears.SlackClientTest do
       %{"ok" => true}
     end
 
-    SlackClient.send_message("general", "Hiiii!!", @valid_token, fake_message_fn)
+    send_message.("general", "Hiiii!!", @valid_token, fake_message_fn)
 
     assert_receive {:message, "general", "Hiiii!!", token}
     assert token == @valid_token
