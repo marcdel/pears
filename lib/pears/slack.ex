@@ -46,11 +46,11 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.get_details", include: [:team_name, :_error])
-  def get_details(team_name, slack_client \\ SlackClient) do
+  def get_details(team_name) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          {:ok, pears} <- get_pears(team),
-         {:ok, channels} <- load_or_fetch_channels(team_name, team.slack_token, slack_client),
-         {:ok, users} <- load_or_fetch_users(team_name, team.slack_token, slack_client) do
+         {:ok, channels} <- load_or_fetch_channels(team_name, team.slack_token),
+         {:ok, users} <- load_or_fetch_users(team_name, team.slack_token) do
       {:ok, Details.new(team, channels, users, pears)}
     else
       _error -> {:error, Details.empty()}
@@ -226,25 +226,25 @@ defmodule Pears.Slack do
     end
   end
 
-  defp load_or_fetch_channels(team_name, token, slack_client) do
+  defp load_or_fetch_channels(team_name, token) do
     with {:ok, []} <- TeamSession.slack_channels(team_name),
-         {:ok, channels} <- fetch_channels(token, slack_client) do
+         {:ok, channels} <- fetch_channels(token) do
       TeamSession.add_slack_channels(team_name, channels)
     end
   end
 
-  defp fetch_channels(nil, _slack_client), do: {:error, :no_token}
+  defp fetch_channels(nil), do: {:error, :no_token}
 
-  defp fetch_channels(token, slack_client) do
-    case do_fetch_channels(token, "", slack_client) do
+  defp fetch_channels(token) do
+    case do_fetch_channels(token, "") do
       {:error, :invalid_token} -> {:error, :invalid_token}
       channels -> {:ok, Enum.sort_by(channels, &Map.get(&1, :name))}
     end
   end
 
   @decorate trace("slack.fetch_channels", include: [:cursor, :next_cursor])
-  defp do_fetch_channels(token, cursor, slack_client) do
-    case slack_client.channels(token, cursor) do
+  defp do_fetch_channels(token, cursor) do
+    case slack_client().channels(token, cursor) do
       %{"ok" => true} = response ->
         channels =
           response
@@ -258,7 +258,7 @@ defmodule Pears.Slack do
             channels
 
           %{"response_metadata" => %{"next_cursor" => next_cursor}} ->
-            channels ++ do_fetch_channels(token, next_cursor, slack_client)
+            channels ++ do_fetch_channels(token, next_cursor)
         end
 
       error ->
@@ -267,25 +267,25 @@ defmodule Pears.Slack do
     end
   end
 
-  defp load_or_fetch_users(team_name, token, slack_client) do
+  defp load_or_fetch_users(team_name, token) do
     with {:ok, []} <- TeamSession.slack_users(team_name),
-         {:ok, users} <- fetch_users(token, slack_client) do
+         {:ok, users} <- fetch_users(token) do
       TeamSession.add_slack_users(team_name, users)
     end
   end
 
-  defp fetch_users(nil, _slack_client), do: {:error, :no_token}
+  defp fetch_users(nil), do: {:error, :no_token}
 
-  defp fetch_users(token, slack_client) do
-    case do_fetch_users(token, "", slack_client) do
+  defp fetch_users(token) do
+    case do_fetch_users(token, "") do
       {:error, :invalid_token} -> {:error, :invalid_token}
       users -> {:ok, Enum.sort_by(users, &Map.get(&1, :name))}
     end
   end
 
   @decorate trace("slack.fetch_users", include: [:cursor, :next_cursor])
-  defp do_fetch_users(token, cursor, slack_client) do
-    case slack_client.users(token, cursor) do
+  defp do_fetch_users(token, cursor) do
+    case slack_client().users(token, cursor) do
       %{"ok" => true} = response ->
         users =
           response
@@ -299,7 +299,7 @@ defmodule Pears.Slack do
             users
 
           %{"response_metadata" => %{"next_cursor" => next_cursor}} ->
-            users ++ do_fetch_users(token, next_cursor, slack_client)
+            users ++ do_fetch_users(token, next_cursor)
         end
 
       error ->

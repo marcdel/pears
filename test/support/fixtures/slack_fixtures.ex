@@ -4,27 +4,44 @@ defmodule Pears.SlackFixtures do
   responses for the slack API endpoints.
   """
 
+  @valid_code "169403114024.1535385215366.e6118897ed25c4e0d78803d3217ac7a98edabf0cf97010a115ef264771a1f98c"
   @valid_token "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"
   @valid_user_token "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
 
-  def valid_token_response do
-    %{
-      "access_token" => @valid_token,
-      "app_id" => "XXXXXXXXXX",
-      "authed_user" => %{
-        "access_token" => @valid_user_token,
-        "id" => "UTTTTTTTTTTL",
-        "scope" => "search:read",
-        "token_type" => "user"
+  def valid_code, do: @valid_code
+  def valid_token, do: @valid_token
+  def valid_user_token, do: @valid_user_token
+
+  def valid_token_response(attrs \\ %{}) do
+    Map.merge(
+      %{
+        "access_token" => @valid_token,
+        "app_id" => "XXXXXXXXXX",
+        "authed_user" => %{
+          "access_token" => @valid_user_token,
+          "id" => "UTTTTTTTTTTL",
+          "scope" => "search:read",
+          "token_type" => "user"
+        },
+        "bot_user_id" => "UTTTTTTTTTTR",
+        "enterprise" => nil,
+        "ok" => true,
+        "response_metadata" => %{"warnings" => ["superfluous_charset"]},
+        "scope" =>
+          "commands,chat:write,app_mentions:read,channels:read,im:read,im:write,im:history,users:read,chat:write.public",
+        "team" => %{"id" => "XXXXXXXXXX", "name" => "Team Installing Your Hook"},
+        "token_type" => "bot",
+        "warning" => "superfluous_charset"
       },
-      "bot_user_id" => "UTTTTTTTTTTR",
-      "enterprise" => nil,
-      "ok" => true,
+      attrs
+    )
+  end
+
+  def invalid_token_response do
+    %{
+      "error" => "invalid_code",
+      "ok" => false,
       "response_metadata" => %{"warnings" => ["superfluous_charset"]},
-      "scope" =>
-        "commands,chat:write,app_mentions:read,channels:read,im:read,im:write,im:history,users:read,chat:write.public",
-      "team" => %{"id" => "XXXXXXXXXX", "name" => "Team Installing Your Hook"},
-      "token_type" => "bot",
       "warning" => "superfluous_charset"
     }
   end
@@ -135,6 +152,106 @@ defmodule Pears.SlackFixtures do
         "is_open" => true,
         "priority" => 0
       }
+    }
+  end
+
+  def conversations_response(page: 1) do
+    %{
+      "channels" => [
+        %{
+          "created" => 123_456_789,
+          "creator" => "UTTTTTTTTTTL",
+          "id" => "XXXXXXXXXX",
+          "is_archived" => false,
+          "is_channel" => true,
+          "is_ext_shared" => false,
+          "is_general" => true,
+          "is_group" => false,
+          "is_im" => false,
+          "is_member" => false,
+          "is_mpim" => false,
+          "is_org_shared" => false,
+          "is_pending_ext_shared" => false,
+          "is_private" => false,
+          "is_shared" => false,
+          "name" => "random",
+          "name_normalized" => "random",
+          "num_members" => 1,
+          "parent_conversation" => nil,
+          "pending_connected_team_ids" => [],
+          "pending_shared" => [],
+          "previous_names" => [],
+          "purpose" => %{
+            "creator" => "",
+            "last_set" => 0,
+            "value" =>
+              "A place for non-work-related flimflam, faffing, hodge-podge or jibber-jabber you'd prefer to keep out of more focused work-related channels."
+          },
+          "shared_team_ids" => ["XXXXXXXXXX"],
+          "topic" => %{
+            "creator" => "",
+            "last_set" => 0,
+            "value" => "Company-wide announcements and work-based matters"
+          },
+          "unlinked" => 0
+        }
+      ],
+      "ok" => true,
+      "response_metadata" => %{
+        "next_cursor" => "page_two",
+        "warnings" => ["superfluous_charset"]
+      },
+      "warning" => "superfluous_charset"
+    }
+  end
+
+  def conversations_response(page: 2) do
+    %{
+      "channels" => [
+        %{
+          "created" => 123_456_789,
+          "creator" => "UTTTTTTTTTTL",
+          "id" => "XXXXXXXXXX",
+          "is_archived" => false,
+          "is_channel" => true,
+          "is_ext_shared" => false,
+          "is_general" => true,
+          "is_group" => false,
+          "is_im" => false,
+          "is_member" => false,
+          "is_mpim" => false,
+          "is_org_shared" => false,
+          "is_pending_ext_shared" => false,
+          "is_private" => false,
+          "is_shared" => false,
+          "name" => "general",
+          "name_normalized" => "general",
+          "num_members" => 1,
+          "parent_conversation" => nil,
+          "pending_connected_team_ids" => [],
+          "pending_shared" => [],
+          "previous_names" => [],
+          "purpose" => %{
+            "creator" => "",
+            "last_set" => 0,
+            "value" =>
+              "This channel is for team-wide communication and announcements. All team members are in this channel."
+          },
+          "shared_team_ids" => ["XXXXXXXXXX"],
+          "topic" => %{
+            "creator" => "",
+            "last_set" => 0,
+            "value" => "Company-wide announcements and work-based matters"
+          },
+          "unlinked" => 0
+        }
+      ],
+      "ok" => true,
+      "response_metadata" => %{
+        "next_cursor" => "",
+        "warnings" => ["superfluous_charset"]
+      },
+      "warning" => "superfluous_charset"
     }
   end
 end

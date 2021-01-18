@@ -14,27 +14,25 @@ defmodule FakeSlackClient do
 
   @behaviour Pears.SlackClient.Behaviour
 
-  def retrieve_access_tokens(_code, _url) do
+  defp no_op, do: nil
+
+  def retrieve_access_tokens(_code, _url, _get_tokens \\ no_op()) do
     SlackFixtures.valid_token_response()
   end
 
-  def channels(token, cursor, list_conversations \\ &Conversations.list/1) do
+  def channels(_token, _cursor, _list_conversations \\ no_op()) do
+    SlackFixtures.conversations_response(page: 2)
+  end
+
+  def users(_token, _cursor, _list_users \\ no_op()) do
+    SlackFixtures.list_users_response(2)
+  end
+
+  def send_message(_channel, _text, _token, _post_chat_message \\ no_op()) do
     %{}
   end
 
-  def users(token, cursor, list_users \\ &Users.list/1) do
-    %{}
-  end
-
-  def send_message(channel, text, token, post_chat_message) when is_binary(text) do
-    %{}
-  end
-
-  def send_message(channel, blocks, token, post_chat_message) when is_list(blocks) do
-    %{}
-  end
-
-  def find_or_create_group_chat(users, token, open_conversation \\ &Conversations.open/1) do
+  def find_or_create_group_chat(_users, _token, _open_conversation \\ no_op()) do
     %{}
   end
 end

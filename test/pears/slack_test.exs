@@ -15,144 +15,8 @@ defmodule Pears.SlackTest do
 
   setup [:team]
 
-  @valid_code "169403114024.1535385215366.e6118897ed25c4e0d78803d3217ac7a98edabf0cf97010a115ef264771a1f98c"
-  @invalid_code "asljaskjasdaskda"
-
-  @valid_token "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"
-  @valid_user_token "xoxp-XXXXXXXX-XXXXXXXX-XXXXX"
-
-  @valid_token_response %{
-    "access_token" => @valid_token,
-    "app_id" => "XXXXXXXXXX",
-    "authed_user" => %{
-      "access_token" => @valid_user_token,
-      "id" => "UTTTTTTTTTTL",
-      "scope" => "search:read",
-      "token_type" => "user"
-    },
-    "bot_user_id" => "UTTTTTTTTTTR",
-    "enterprise" => nil,
-    "ok" => true,
-    "response_metadata" => %{"warnings" => ["superfluous_charset"]},
-    "scope" =>
-      "commands,chat:write,app_mentions:read,channels:read,im:read,im:write,im:history,users:read,chat:write.public",
-    "team" => %{"id" => "XXXXXXXXXX", "name" => "Team Installing Your Hook"},
-    "token_type" => "bot",
-    "warning" => "superfluous_charset"
-  }
-
-  @invalid_token_response %{
-    "error" => "invalid_code",
-    "ok" => false,
-    "response_metadata" => %{"warnings" => ["superfluous_charset"]},
-    "warning" => "superfluous_charset"
-  }
-
-  @conversations_page_one %{
-    "channels" => [
-      %{
-        "created" => 123_456_789,
-        "creator" => "UTTTTTTTTTTL",
-        "id" => "XXXXXXXXXX",
-        "is_archived" => false,
-        "is_channel" => true,
-        "is_ext_shared" => false,
-        "is_general" => true,
-        "is_group" => false,
-        "is_im" => false,
-        "is_member" => false,
-        "is_mpim" => false,
-        "is_org_shared" => false,
-        "is_pending_ext_shared" => false,
-        "is_private" => false,
-        "is_shared" => false,
-        "name" => "random",
-        "name_normalized" => "random",
-        "num_members" => 1,
-        "parent_conversation" => nil,
-        "pending_connected_team_ids" => [],
-        "pending_shared" => [],
-        "previous_names" => [],
-        "purpose" => %{
-          "creator" => "",
-          "last_set" => 0,
-          "value" =>
-            "A place for non-work-related flimflam, faffing, hodge-podge or jibber-jabber you'd prefer to keep out of more focused work-related channels."
-        },
-        "shared_team_ids" => ["XXXXXXXXXX"],
-        "topic" => %{
-          "creator" => "",
-          "last_set" => 0,
-          "value" => "Company-wide announcements and work-based matters"
-        },
-        "unlinked" => 0
-      }
-    ],
-    "ok" => true,
-    "response_metadata" => %{
-      "next_cursor" => "page_two",
-      "warnings" => ["superfluous_charset"]
-    },
-    "warning" => "superfluous_charset"
-  }
-
-  @conversations_page_two %{
-    "channels" => [
-      %{
-        "created" => 123_456_789,
-        "creator" => "UTTTTTTTTTTL",
-        "id" => "XXXXXXXXXX",
-        "is_archived" => false,
-        "is_channel" => true,
-        "is_ext_shared" => false,
-        "is_general" => true,
-        "is_group" => false,
-        "is_im" => false,
-        "is_member" => false,
-        "is_mpim" => false,
-        "is_org_shared" => false,
-        "is_pending_ext_shared" => false,
-        "is_private" => false,
-        "is_shared" => false,
-        "name" => "general",
-        "name_normalized" => "general",
-        "num_members" => 1,
-        "parent_conversation" => nil,
-        "pending_connected_team_ids" => [],
-        "pending_shared" => [],
-        "previous_names" => [],
-        "purpose" => %{
-          "creator" => "",
-          "last_set" => 0,
-          "value" =>
-            "This channel is for team-wide communication and announcements. All team members are in this channel."
-        },
-        "shared_team_ids" => ["XXXXXXXXXX"],
-        "topic" => %{
-          "creator" => "",
-          "last_set" => 0,
-          "value" => "Company-wide announcements and work-based matters"
-        },
-        "unlinked" => 0
-      }
-    ],
-    "ok" => true,
-    "response_metadata" => %{
-      "next_cursor" => "",
-      "warnings" => ["superfluous_charset"]
-    },
-    "warning" => "superfluous_charset"
-  }
-
-  @invalid_conversations_response %{
-    "error" => "not_authed",
-    "ok" => false,
-    "response_metadata" => %{"warnings" => ["superfluous_charset"]},
-    "warning" => "superfluous_charset"
-  }
-
-  @users_page_one SlackFixtures.list_users_response(1)
-  @users_page_two SlackFixtures.list_users_response(2)
+  @valid_code SlackFixtures.valid_code()
+  @valid_token SlackFixtures.valid_token()
 
   @valid_open_chat_response SlackFixtures.open_chat_response(id: "GROUPCHATID")
 
@@ -161,39 +25,29 @@ defmodule Pears.SlackTest do
     :ok
   end
 
-  def retrieve_access_tokens(code, _redirect_uri) do
-    case code do
-      @valid_code -> @valid_token_response
-      @invalid_code -> @invalid_token_response
-    end
-  end
-
   describe "onboard_team" do
     test "exchanges a code for an access token and saves it", %{team: team} do
-      expect(MockSlackClient, :retrieve_access_tokens, fn _code, _url -> @valid_token_response end)
+      valid_token = "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"
 
-      {:ok, team} = Slack.onboard_team(team.name, @valid_code)
-      assert team.slack_token == @valid_token
+      expect(MockSlackClient, :retrieve_access_tokens, fn _code, _url ->
+        SlackFixtures.valid_token_response(%{access_token: valid_token})
+      end)
+
+      {:ok, team} = Slack.onboard_team(team.name, "valid_code")
+      assert team.slack_token == valid_token
 
       {:ok, team_record} = Persistence.get_team_by_name(team.name)
-      assert team_record.slack_token == @valid_token
+      assert team_record.slack_token == valid_token
     end
 
     test "handles invalid responses", %{team: team} do
       expect(MockSlackClient, :retrieve_access_tokens, fn _code, _url ->
-        @invalid_token_response
+        SlackFixtures.invalid_token_response()
       end)
 
-      {:error, _} = Slack.onboard_team(team.name, @invalid_code)
+      {:error, _} = Slack.onboard_team(team.name, "invalid_code")
     end
   end
-
-  def channels(nil, _next_cursor), do: @invalid_conversations_response
-  def channels(_token, ""), do: @conversations_page_one
-  def channels(_token, _next_cursor), do: @conversations_page_two
-
-  def users(_token, ""), do: @users_page_one
-  def users(_token, _next_cursor), do: @users_page_two
 
   describe "get_details" do
     setup %{team: team} do
@@ -203,12 +57,20 @@ defmodule Pears.SlackTest do
     end
 
     test "returns a list of all channels in the slack organization", %{team: team} do
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      MockSlackClient
+      |> expect(:channels, fn _, "" -> SlackFixtures.conversations_response(page: 1) end)
+      |> expect(:channels, fn _, _ -> SlackFixtures.conversations_response(page: 2) end)
+
+      {:ok, details} = Slack.get_details(team.name)
       assert [%{name: "general"}, %{name: "random"}] = details.channels
     end
 
     test "returns a list of all users in the slack organization", %{team: team} do
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      MockSlackClient
+      |> expect(:users, fn _, "" -> SlackFixtures.list_users_response(1) end)
+      |> expect(:users, fn _, _ -> SlackFixtures.list_users_response(2) end)
+
+      {:ok, details} = Slack.get_details(team.name)
 
       assert [%{id: "XXXXXXXXXX", name: "marc"}, %{id: "YYYYYYYYYY", name: "milo"}] =
                details.users
@@ -223,7 +85,7 @@ defmodule Pears.SlackTest do
         slack_name: "miloooooo"
       })
 
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      {:ok, details} = Slack.get_details(team.name)
 
       assert [
                %{slack_id: nil, slack_name: nil, name: "marc"},
@@ -233,7 +95,7 @@ defmodule Pears.SlackTest do
 
     test "handles invalid responses" do
       {:ok, _} = Pears.add_team("no token")
-      assert {:error, details} = Slack.get_details("no token", __MODULE__)
+      assert {:error, details} = Slack.get_details("no token")
       assert details == Details.empty()
       {:ok, _} = Pears.remove_team("no token")
     end
@@ -242,7 +104,7 @@ defmodule Pears.SlackTest do
       {:ok, _} =
         Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "cool team"})
 
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      {:ok, details} = Slack.get_details(team.name)
 
       assert details.team_channel == %{id: "UXXXXXXX", name: "cool team"}
     end
@@ -251,7 +113,7 @@ defmodule Pears.SlackTest do
   describe "save_team_channel" do
     test "sets the team slack_channel to the provided channel", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code)
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      {:ok, details} = Slack.get_details(team.name)
 
       {:ok, updated_details} =
         Slack.save_team_channel(details, team.name, %{id: "UXXXXXXX", name: "random"})
@@ -266,11 +128,15 @@ defmodule Pears.SlackTest do
 
   describe "save_slack_names" do
     test "saves the slack id and slack name for each pear", %{team: team} do
+      MockSlackClient
+      |> expect(:users, fn _, "" -> SlackFixtures.list_users_response(1) end)
+      |> expect(:users, fn _, _ -> SlackFixtures.list_users_response(2) end)
+
       {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       {:ok, _} = Pears.add_pear(team.name, "Marc")
       {:ok, _} = Pears.add_pear(team.name, "Milo")
       {:ok, _} = Pears.add_pear(team.name, "Jackie")
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      {:ok, details} = Slack.get_details(team.name)
 
       params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY", "Jackie" => ""}
 
@@ -406,12 +272,16 @@ defmodule Pears.SlackTest do
     end
 
     test "sends a message to each set of pears", %{team: team} do
+      MockSlackClient
+      |> expect(:users, fn _, "" -> SlackFixtures.list_users_response(1) end)
+      |> expect(:users, fn _, _ -> SlackFixtures.list_users_response(2) end)
+
       {:ok, _} = Pears.add_pear(team.name, "Marc")
       {:ok, _} = Pears.add_pear(team.name, "Milo")
       {:ok, _} = Pears.add_track(team.name, "Feature 1")
       {:ok, _} = Pears.add_pear_to_track(team.name, "Marc", "Feature 1")
       {:ok, team} = Pears.add_pear_to_track(team.name, "Milo", "Feature 1")
-      {:ok, details} = Slack.get_details(team.name, __MODULE__)
+      {:ok, details} = Slack.get_details(team.name)
       track = Map.get(team.tracks, "Feature 1")
 
       params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY"}
