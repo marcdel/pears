@@ -11,19 +11,13 @@ defmodule Pears.SlackTest do
   alias Pears.Slack
   alias Pears.Slack.Details
   alias Pears.Slack.Messages.EndOfSessionQuestion
+  alias Pears.Slack.User
   alias Pears.SlackFixtures
 
-  setup [:team]
+  setup [:team, :valid_token]
 
   @valid_code SlackFixtures.valid_code()
   @valid_token SlackFixtures.valid_token()
-
-  @valid_open_chat_response SlackFixtures.open_chat_response(id: "GROUPCHATID")
-
-  setup do
-    stub_with(MockSlackClient, FakeSlackClient)
-    :ok
-  end
 
   describe "onboard_team" do
     test "exchanges a code for an access token and saves it", %{team: team} do
@@ -53,13 +47,18 @@ defmodule Pears.SlackTest do
     setup %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code)
 
+      MockSlackClient
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+      |> stub(:users, fn _, _ -> SlackFixtures.users_response() end)
+
       :ok
     end
 
     test "returns a list of all channels in the slack organization", %{team: team} do
       MockSlackClient
-      |> expect(:channels, fn _, "" -> SlackFixtures.conversations_response(page: 1) end)
-      |> expect(:channels, fn _, _ -> SlackFixtures.conversations_response(page: 2) end)
+      |> expect(:channels, fn _, "" ->
+        SlackFixtures.channels_response([%{name: "general"}, %{name: "random"}])
+      end)
 
       {:ok, details} = Slack.get_details(team.name)
       assert [%{name: "general"}, %{name: "random"}] = details.channels
@@ -67,13 +66,19 @@ defmodule Pears.SlackTest do
 
     test "returns a list of all users in the slack organization", %{team: team} do
       MockSlackClient
-      |> expect(:users, fn _, "" -> SlackFixtures.list_users_response(1) end)
-      |> expect(:users, fn _, _ -> SlackFixtures.list_users_response(2) end)
+      |> expect(:users, fn _, "" ->
+        SlackFixtures.users_response([
+          %{id: "XXXXXXXXXX", name: "marc"},
+          %{id: "YYYYYYYYYY", name: "milo"}
+        ])
+      end)
 
       {:ok, details} = Slack.get_details(team.name)
 
-      assert [%{id: "XXXXXXXXXX", name: "marc"}, %{id: "YYYYYYYYYY", name: "milo"}] =
-               details.users
+      assert [
+               %User{id: "XXXXXXXXXX", name: "marc"},
+               %User{id: "YYYYYYYYYY", name: "milo"}
+             ] = details.users
     end
 
     test "returns a list of all pears in the team and their slack details", %{team: team} do
@@ -111,6 +116,14 @@ defmodule Pears.SlackTest do
   end
 
   describe "save_team_channel" do
+    setup do
+      MockSlackClient
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+      |> stub(:users, fn _, _ -> SlackFixtures.users_response() end)
+
+      :ok
+    end
+
     test "sets the team slack_channel to the provided channel", %{team: team} do
       {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       {:ok, details} = Slack.get_details(team.name)
@@ -127,10 +140,21 @@ defmodule Pears.SlackTest do
   end
 
   describe "save_slack_names" do
+    setup do
+      MockSlackClient
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+
+      :ok
+    end
+
     test "saves the slack id and slack name for each pear", %{team: team} do
       MockSlackClient
-      |> expect(:users, fn _, "" -> SlackFixtures.list_users_response(1) end)
-      |> expect(:users, fn _, _ -> SlackFixtures.list_users_response(2) end)
+      |> expect(:users, fn _, "" ->
+        SlackFixtures.users_response([
+          %{id: "XXXXXXXXXX", name: "marc"},
+          %{id: "YYYYYYYYYY", name: "milo"}
+        ])
+      end)
 
       {:ok, _} = Slack.onboard_team(team.name, @valid_code)
       {:ok, _} = Pears.add_pear(team.name, "Marc")
@@ -165,46 +189,28 @@ defmodule Pears.SlackTest do
     end
   end
 
-  def send_message(channel, text, token) when is_binary(text) do
-    send(self(), {:send_message, channel, text, token})
-
-    case channel do
-      nil -> %{"ok" => false}
-      _ -> %{"ok" => true}
-    end
-  end
-
-  def send_message(channel, blocks, token) when is_list(blocks) do
-    send(self(), {:send_message, channel, blocks, token})
-
-    case channel do
-      nil -> %{"ok" => false}
-      _ -> %{"ok" => true}
-    end
-  end
-
   describe "send_message_to_team" do
     setup %{team: team} do
-      {:ok, _} = Slack.onboard_team(team.name, @valid_code)
+      {:ok, team} = Slack.onboard_team(team.name, @valid_code)
 
-      :ok
+      {:ok, name: team.name, token: team.slack_token}
     end
 
-    test "sends a message to the team's slack channel", %{team: team} do
-      {:ok, _} =
-        Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
-
+    test "sends a message to the team's slack channel", %{name: name, token: token} do
+      channel = %{id: "UXXXXXXX", name: "random"}
       message = "Hey, friends!"
+      {:ok, _} = Slack.save_team_channel(Details.empty(), name, channel)
 
-      {:ok, ^message} = Slack.send_message_to_team(team.name, message, __MODULE__)
+      expect(MockSlackClient, :send_message, fn "UXXXXXXX", ^message, ^token ->
+        %{"ok" => true}
+      end)
 
-      assert_receive {:send_message, "UXXXXXXX", message, token}
-      assert token == @valid_token
+      {:ok, ^message} = Slack.send_message_to_team(name, message)
     end
 
-    test "handles invalid responses", %{team: team} do
+    test "handles invalid responses", %{name: name} do
       # Invalid because we haven't set the team channel
-      {:error, _} = Slack.send_message_to_team(team.name, "Hey, friends!", __MODULE__)
+      {:error, _} = Slack.send_message_to_team(name, "Hey, friends!")
       refute_receive {:send_message, _, _, _}
     end
   end
@@ -223,15 +229,17 @@ defmodule Pears.SlackTest do
       {:ok, _} =
         Slack.save_team_channel(Details.empty(), team.name, %{id: "UXXXXXXX", name: "random"})
 
-      {:ok, _} = Slack.send_daily_pears_summary(team.name, __MODULE__)
+      message = """
+      Today's 🍐s are:
+      \t- Pear One & Pear Two on Track One
+      \t- Pear Four & Pear Three on Track Two
+      """
 
-      assert_receive {:send_message, "UXXXXXXX", message, _}
+      expect(MockSlackClient, :send_message, fn "UXXXXXXX", ^message, _token ->
+        %{"ok" => true}
+      end)
 
-      assert message == """
-             Today's 🍐s are:
-             \t- Pear One & Pear Two on Track One
-             \t- Pear Four & Pear Three on Track Two
-             """
+      {:ok, _} = Slack.send_daily_pears_summary(team.name)
     end
 
     test "does not send a message if feature turned off", %{team: team} do
@@ -242,7 +250,7 @@ defmodule Pears.SlackTest do
 
       FeatureFlags.disable(:send_daily_pears_summary, for_actor: team)
 
-      Slack.send_daily_pears_summary(team.name, __MODULE__)
+      Slack.send_daily_pears_summary(team.name)
 
       refute_receive {:send_message, _, _, _}
     end
@@ -259,22 +267,26 @@ defmodule Pears.SlackTest do
     end
   end
 
-  def find_or_create_group_chat(users, token) do
-    send(self(), {:open_chat, users, token})
-    @valid_open_chat_response
-  end
-
   describe "send_end_of_session_questions" do
     setup %{team: team} do
       FeatureFlags.enable(:send_end_of_session_questions, for_actor: team)
+
+      MockSlackClient
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+
       {:ok, _} = Slack.onboard_team(team.name, @valid_code)
+
       :ok
     end
 
     test "sends a message to each set of pears", %{team: team} do
       MockSlackClient
-      |> expect(:users, fn _, "" -> SlackFixtures.list_users_response(1) end)
-      |> expect(:users, fn _, _ -> SlackFixtures.list_users_response(2) end)
+      |> expect(:users, fn _, "" ->
+        SlackFixtures.users_response([
+          %{id: "XXXXXXXXXX", name: "marc"},
+          %{id: "YYYYYYYYYY", name: "milo"}
+        ])
+      end)
 
       {:ok, _} = Pears.add_pear(team.name, "Marc")
       {:ok, _} = Pears.add_pear(team.name, "Milo")
@@ -287,15 +299,20 @@ defmodule Pears.SlackTest do
       params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY"}
       {:ok, _} = Slack.save_slack_names(details, team.name, params)
 
-      {:ok, _} = Slack.send_end_of_session_questions(team.name, __MODULE__)
+      MockSlackClient
+      |> expect(:find_or_create_group_chat, fn users, token ->
+        assert users == ["XXXXXXXXXX", "YYYYYYYYYY"]
+        assert token == @valid_token
+        SlackFixtures.open_chat_response(id: "GROUPCHATID")
+      end)
+      |> expect(:send_message, fn channel, blocks, token ->
+        assert channel == "GROUPCHATID"
+        assert blocks == EndOfSessionQuestion.new(track)
+        assert token == @valid_token
+        %{"ok" => true}
+      end)
 
-      assert_receive {:open_chat, ["XXXXXXXXXX", "YYYYYYYYYY"], token}
-      assert token == @valid_token
-
-      assert_receive {:send_message, "GROUPCHATID", blocks, token}
-      assert token == @valid_token
-
-      assert blocks == EndOfSessionQuestion.new(track)
+      {:ok, _} = Slack.send_end_of_session_questions(team.name)
     end
 
     test "does not send messages to teammates without slack ids", %{team: team} do
@@ -303,7 +320,7 @@ defmodule Pears.SlackTest do
       {:ok, _} = Pears.add_track(team.name, "Feature 1")
       {:ok, _} = Pears.add_pear_to_track(team.name, "Marc", "Feature 1")
 
-      {:ok, _} = Slack.send_end_of_session_questions(team.name, __MODULE__)
+      {:ok, _} = Slack.send_end_of_session_questions(team.name)
 
       refute_receive {:open_chat, _, _}
       refute_receive {:send_message, _, _, _}
@@ -329,5 +346,12 @@ defmodule Pears.SlackTest do
   defp team(_) do
     {:ok, team} = Pears.add_team(Ecto.UUID.generate())
     {:ok, team: team}
+  end
+
+  defp valid_token(_) do
+    MockSlackClient
+    |> stub(:retrieve_access_tokens, fn _code, _url -> SlackFixtures.valid_token_response() end)
+
+    :ok
   end
 end

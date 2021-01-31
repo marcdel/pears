@@ -10,7 +10,6 @@ defmodule Pears.Slack do
   alias Pears.Slack.Messages.DailyPairsMessage
   alias Pears.Slack.Messages.EndOfSessionQuestion
   alias Pears.Slack.User
-  alias Pears.SlackClient
 
   def slack_client do
     Application.get_env(:pears, :slack_client, Pears.SlackClient)
@@ -58,10 +57,10 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.send_end_of_session_questions", include: [:team_name])
-  def send_end_of_session_questions(team_name, slack_client \\ SlackClient) do
+  def send_end_of_session_questions(team_name) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          true <- FeatureFlags.enabled?(:send_end_of_session_questions, for: team),
-         {:ok, messages} <- do_send_end_of_session_questions(team, slack_client) do
+         {:ok, messages} <- do_send_end_of_session_questions(team) do
       {:ok, messages}
     else
       error -> error
@@ -69,11 +68,11 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.send_daily_pears_summary", include: [:team_name])
-  def send_daily_pears_summary(team_name, slack_client \\ SlackClient) do
+  def send_daily_pears_summary(team_name) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_name),
          true <- FeatureFlags.enabled?(:send_daily_pears_summary, for: team),
          {:ok, message} <- DailyPairsMessage.new(team),
-         :ok <- do_send_message_to_team(team, message, slack_client) do
+         :ok <- do_send_message_to_team(team, message) do
       :ok
     else
       error -> error
@@ -81,9 +80,9 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.send_message_to_team", include: [:team_name, :message])
-  def send_message_to_team(team_name, message, slack_client \\ SlackClient) do
+  def send_message_to_team(team_name, message) do
     case TeamSession.find_or_start_session(team_name) do
-      {:ok, team} -> do_send_message_to_team(team, message, slack_client)
+      {:ok, team} -> do_send_message_to_team(team, message)
       error -> error
     end
   end
@@ -147,37 +146,37 @@ defmodule Pears.Slack do
     %{details | pears: updated_detail_pears}
   end
 
-  defp do_send_message_to_team(team, message, slack_client) do
+  defp do_send_message_to_team(team, message) do
     channel_id = if team.slack_channel != nil, do: team.slack_channel.id, else: nil
-    do_send_message(team, channel_id, message, slack_client)
+    do_send_message(team, channel_id, message)
   end
 
-  defp do_send_end_of_session_questions(team, slack_client) do
+  defp do_send_end_of_session_questions(team) do
     results =
       team
       |> Team.rotatable_tracks()
-      |> Enum.map(&do_send_end_of_session_question(team, &1, slack_client))
+      |> Enum.map(&do_send_end_of_session_question(team, &1))
 
     {:ok, results}
   end
 
-  defp do_send_end_of_session_question(team, track, slack_client) do
+  defp do_send_end_of_session_question(team, track) do
     message = EndOfSessionQuestion.new(track)
 
-    case find_or_create_group_chat(team, track, slack_client) do
-      {:ok, channel_id} -> do_send_message(team, channel_id, message, slack_client)
+    case find_or_create_group_chat(team, track) do
+      {:ok, channel_id} -> do_send_message(team, channel_id, message)
       _ -> {:error, :error_creating_group_chat}
     end
   end
 
   @decorate trace("slack.find_or_create_group_chat", include: [[:track, :pears], :user_ids])
-  defp find_or_create_group_chat(%{slack_token: token}, track, slack_client) do
+  defp find_or_create_group_chat(%{slack_token: token}, track) do
     user_ids =
       track.pears
       |> Map.values()
       |> Enum.map(&Map.get(&1, :slack_id))
 
-    case slack_client.find_or_create_group_chat(user_ids, token) do
+    case slack_client().find_or_create_group_chat(user_ids, token) do
       %{"ok" => true} = response ->
         O11y.set_attribute(:response, response)
         {:ok, get_in(response, ["channel", "id"])}
@@ -188,16 +187,16 @@ defmodule Pears.Slack do
     end
   end
 
-  defp do_send_message(%{slack_token: nil}, _channel, _message, _slack_client) do
+  defp do_send_message(%{slack_token: nil}, _channel, _message) do
     {:error, :slack_token_not_set}
   end
 
-  defp do_send_message(_team, nil, _message, _slack_client) do
+  defp do_send_message(_team, nil, _message) do
     {:error, :slack_channel_not_set}
   end
 
-  defp do_send_message(%{slack_token: token}, channel, message, slack_client) do
-    case slack_client.send_message(channel, message, token) do
+  defp do_send_message(%{slack_token: token}, channel, message) do
+    case slack_client().send_message(channel, message, token) do
       %{"ok" => true} = response ->
         O11y.set_attribute(:response, response)
         {:ok, message}

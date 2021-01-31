@@ -20,8 +20,11 @@ defmodule Pears.SlackClient do
     @callback channels(String.t(), String.t(), list_conversations) :: map()
     @callback users(String.t(), String.t()) :: map()
     @callback users(String.t(), String.t(), list_users) :: map()
+    @callback send_message(String.t(), String.t(), String.t()) :: map()
     @callback send_message(String.t(), String.t(), String.t(), post_message) :: map()
+    @callback send_message(String.t(), [map()], String.t()) :: map()
     @callback send_message(String.t(), [map()], String.t(), post_message) :: map()
+    @callback find_or_create_group_chat([String.t()], String.t()) :: map()
     @callback find_or_create_group_chat([String.t()], String.t(), conversations_open) :: map()
   end
 

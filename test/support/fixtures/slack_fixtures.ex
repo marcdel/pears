@@ -46,89 +46,64 @@ defmodule Pears.SlackFixtures do
     }
   end
 
-  def list_users_response(page \\ 1) do
-    next_cursor =
-      case page do
-        1 -> "next_page"
-        _ -> ""
-      end
-
-    id =
-      case page do
-        1 -> "XXXXXXXXXX"
-        _ -> "YYYYYYYYYY"
-      end
-
-    name =
-      case page do
-        1 -> "marc"
-        _ -> "milo"
-      end
-
+  def users_response(users \\ [], next_cursor \\ "") when is_list(users) do
     %{
-      "cache_ts" => 1_607_922_521,
-      "members" => [
-        %{
-          "color" => "9f69e7",
-          "deleted" => false,
-          "id" => id,
-          "is_admin" => true,
-          "is_app_user" => false,
-          "is_bot" => false,
-          "is_owner" => true,
-          "is_primary_owner" => true,
-          "is_restricted" => false,
-          "is_ultra_restricted" => false,
-          "name" => name,
-          "profile" => %{
-            "avatar_hash" => "41b4d5781156",
-            "display_name" => name,
-            "display_name_normalized" => name,
-            "fields" => nil,
-            "first_name" => "Marc",
-            "image_1024" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_1024.png",
-            "image_192" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_192.png",
-            "image_24" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_24.png",
-            "image_32" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_32.png",
-            "image_48" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_48.png",
-            "image_512" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_512.png",
-            "image_72" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_72.png",
-            "image_original" =>
-              "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_original.png",
-            "is_custom_image" => true,
-            "last_name" => "Delagrammatikas",
-            "phone" => "",
-            "real_name" => "Marc Delagrammatikas",
-            "real_name_normalized" => "Marc Delagrammatikas",
-            "skype" => "",
-            "status_emoji" => "",
-            "status_expiration" => 0,
-            "status_text" => "",
-            "status_text_canonical" => "",
-            "team" => "UTTTTTTTTTTL",
-            "title" => ""
-          },
-          "real_name" => "Marc Delagrammatikas",
-          "team_id" => "UTTTTTTTTTTL",
-          "tz" => "America/Los_Angeles",
-          "tz_label" => "Pacific Standard Time",
-          "tz_offset" => -28_800,
-          "updated" => 1_603_908_738
-        }
-      ],
-      "ok" => true,
-      "response_metadata" => %{
-        "next_cursor" => "#{next_cursor}",
-        "warnings" => ["superfluous_charset"]
+      "members" => Enum.map(users, &user(Map.get(&1, :id), Map.get(&1, :name))),
+      "response_metadata" => %{"next_cursor" => next_cursor},
+      "ok" => true
+    }
+  end
+
+  def user(id, name) do
+    %{
+      "color" => "9f69e7",
+      "deleted" => false,
+      "id" => id,
+      "is_admin" => true,
+      "is_app_user" => false,
+      "is_bot" => false,
+      "is_owner" => true,
+      "is_primary_owner" => true,
+      "is_restricted" => false,
+      "is_ultra_restricted" => false,
+      "name" => name,
+      "profile" => %{
+        "avatar_hash" => "41b4d5781156",
+        "display_name" => name,
+        "display_name_normalized" => name,
+        "fields" => nil,
+        "first_name" => "Marc",
+        "image_1024" =>
+          "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_1024.png",
+        "image_192" =>
+          "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_192.png",
+        "image_24" => "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_24.png",
+        "image_32" => "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_32.png",
+        "image_48" => "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_48.png",
+        "image_512" =>
+          "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_512.png",
+        "image_72" => "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_72.png",
+        "image_original" =>
+          "https://avatars.slack-edge.com/2018-02-07/987654321_abcdefg123456_original.png",
+        "is_custom_image" => true,
+        "last_name" => "Delagrammatikas",
+        "phone" => "",
+        "real_name" => "Marc Delagrammatikas",
+        "real_name_normalized" => "Marc Delagrammatikas",
+        "skype" => "",
+        "status_emoji" => "",
+        "status_expiration" => 0,
+        "status_text" => "",
+        "status_text_canonical" => "",
+        "team" => "UTTTTTTTTTTL",
+        "title" => ""
       },
-      "warning" => "superfluous_charset"
+      "real_name" => "Marc Delagrammatikas",
+      "team_id" => "UTTTTTTTTTTL",
+      "tz" => "America/Los_Angeles",
+      "tz_label" => "Pacific Standard Time",
+      "tz_offset" => -28_800,
+      "updated" => 1_603_908_738
     }
   end
 
@@ -152,6 +127,58 @@ defmodule Pears.SlackFixtures do
         "is_open" => true,
         "priority" => 0
       }
+    }
+  end
+
+  def empty_conversations_response do
+    %{"channels" => [], "response_metadata" => %{"next_cursor" => ""}, "ok" => true}
+  end
+
+  def channels_response(channels \\ [], next_cursor \\ "") do
+    %{
+      "channels" => Enum.map(channels, &channel(Map.get(&1, :id), Map.get(&1, :name))),
+      "response_metadata" => %{"next_cursor" => next_cursor},
+      "ok" => true
+    }
+  end
+
+  defp channel(id, name) do
+    %{
+      "created" => 123_456_789,
+      "creator" => "UTTTTTTTTTTL",
+      "id" => id,
+      "is_archived" => false,
+      "is_channel" => true,
+      "is_ext_shared" => false,
+      "is_general" => true,
+      "is_group" => false,
+      "is_im" => false,
+      "is_member" => false,
+      "is_mpim" => false,
+      "is_org_shared" => false,
+      "is_pending_ext_shared" => false,
+      "is_private" => false,
+      "is_shared" => false,
+      "name" => name,
+      "name_normalized" => name,
+      "num_members" => 1,
+      "parent_conversation" => nil,
+      "pending_connected_team_ids" => [],
+      "pending_shared" => [],
+      "previous_names" => [],
+      "purpose" => %{
+        "creator" => "",
+        "last_set" => 0,
+        "value" =>
+          "A place for non-work-related flimflam, faffing, hodge-podge or jibber-jabber you'd prefer to keep out of more focused work-related channels."
+      },
+      "shared_team_ids" => ["XXXXXXXXXX"],
+      "topic" => %{
+        "creator" => "",
+        "last_set" => 0,
+        "value" => "Company-wide announcements and work-based matters"
+      },
+      "unlinked" => 0
     }
   end
 
