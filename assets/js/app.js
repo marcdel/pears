@@ -16,10 +16,13 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import NProgress from "nprogress"
 import {LiveSocket} from "phoenix_live_view"
+import Drag from './dragHook'
 
 let Hooks = {}
+Hooks.Drag = Drag
+
 Hooks.FocusInput = {
-  mounted(){
+  mounted() {
     this.el.focus()
 
     // Put cursor at the end of the text content
@@ -35,7 +38,7 @@ Hooks.FocusInput = {
 }
 
 Hooks.Pear = {
-  mounted(){
+  mounted() {
     this.el.addEventListener("dragstart", e => {
       e.dataTransfer.effectAllowed = "move"
 

@@ -24,13 +24,30 @@
       <%= live_component(@socket, PearsWeb.AddTrackButton, socket: @socket, team: @team) %>
     </div>
     <div class="flex space-x-3">
-      <%= unless FeatureFlags.enabled?(:hide_reset_button, for: @team) do %>
+      <%= unless hide_reset_button?(@team) do %>
         <%= live_component(@socket, PearsWeb.ResetButton) %>
       <% end %>
       <%= live_component(@socket, PearsWeb.SuggestButton) %>
       <%= live_component(@socket, PearsWeb.SaveButton) %>
     </div>
   </div>
+  <%= if new_drag_n_drop?(@team) do %>
+    <div phx-hook="Drag" id="drag">
+      <div class="dropzone grid gap-3" id="Unassigned">
+        <%= for pear <- list_pears(@team.available_pears) do %>
+          <div draggable="true" id="<%= pear.name %>" class="draggable p-4 bg-blue-700 text-white"><%= pear.name %></div>
+        <% end %>
+      </div>
+      <%= for track <- list_tracks(@team) do %>
+        <div class="dropzone grid gap-3 p-6 border-solid border-2 border-orange-300 rounded-md my-6" id="<%= track.name %>">
+          <%= track.name %>
+          <%= for pear <- list_pears(track.pears) do %>
+            <div draggable="true" id="<%= pear.name %>" class="draggable p-4 bg-orange-700 text-white"><%= pear.name %></div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
   <ul class="grid grid-cols-1 grid-rows-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
     <li class="col-span-1 row-span-2 bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-4 sm:px-6 border-b-2 border-gray-100 flex justify-between">

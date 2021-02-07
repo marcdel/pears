@@ -26,6 +26,14 @@ defmodule PearsWeb.TeamLive do
     {:noreply, apply_action(socket, socket.assigns.live_action)}
   end
 
+  def hide_reset_button?(team) do
+    FeatureFlags.enabled?(:hide_reset_button, for: team)
+  end
+
+  def new_drag_n_drop?(team) do
+    FeatureFlags.enabled?(:new_drag_n_drop, for: team)
+  end
+
   def list_tracks(team) do
     team.tracks
     |> Enum.sort_by(fn {_, %{id: id}} -> id end)
