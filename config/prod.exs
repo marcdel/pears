@@ -40,6 +40,19 @@ config :pears, slack_oauth_redirect_uri: "https://app.pears.dev/slack/oauth"
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :sentry,
+  dsn: get_env!.("SENTRY_DSN_URL"),
+  environment_name: :prod,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!(),
+  tags: %{
+    env: "production"
+  },
+  included_environments: [:prod]
+
+config :logger,
+  backends: [:console, Sentry.LoggerBackend, Timber.LoggerBackends.HTTP]
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

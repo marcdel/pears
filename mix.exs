@@ -63,6 +63,7 @@ defmodule Pears.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, ">= 1.5.0"},
       {:postgrex, ">= 0.0.0"},
+      {:sentry, "~> 8.0"},
       {:slack, "~> 0.23.5"},
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
