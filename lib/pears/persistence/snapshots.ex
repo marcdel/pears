@@ -1,9 +1,9 @@
 defmodule Pears.Persistence.Snapshots do
   use OpenTelemetryDecorator
-  require OpenTelemetry.Span
 
   import Ecto.Query, warn: false
 
+  alias Pears.O11y
   alias Pears.Persistence.SnapshotRecord
   alias Pears.Persistence.TeamRecord
   alias Pears.Repo
@@ -45,7 +45,7 @@ defmodule Pears.Persistence.Snapshots do
     deleted = Map.get(results, :ok, [])
     failed = Map.get(results, :error, [])
 
-    OpenTelemetry.Span.set_attributes(
+    O11y.set_attributes(
       deleted: deleted,
       deleted_count: length(deleted),
       failed: failed,
