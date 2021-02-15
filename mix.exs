@@ -46,7 +46,7 @@ defmodule Pears.MixProject do
       {:jason, "~> 1.0"},
       {:opentelemetry, "~> 0.5.0"},
       {:opentelemetry_api, "~> 0.5.0"},
-      {:open_telemetry_decorator, "~> 0.5.2"},
+      {:open_telemetry_decorator, "~> 0.5.3"},
       {:opentelemetry_ecto,
        git: "https://github.com/opentelemetry-beam/opentelemetry_ecto.git", tag: "master"},
       {:opentelemetry_honeycomb, "~> 0.5.0-rc.1"},
