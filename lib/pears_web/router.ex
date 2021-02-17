@@ -37,10 +37,11 @@ defmodule PearsWeb.Router do
     plug :accepts, ["json"]
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", PearsWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", PearsWeb do
+    pipe_through :api
+
+    post "/slack/interactions", SlackInteractionController, :create
+  end
 
   if Mix.env() in [:e2e, :ci] do
     forward("/e2e", PearsWeb.Plug.TestEndToEnd)
