@@ -24,7 +24,7 @@ env:
 
 jobs:
   check:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
@@ -79,7 +79,7 @@ jobs:
         run: mix credo --strict
 
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Unit Tests (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
@@ -132,7 +132,7 @@ jobs:
         run: mix test --trace
 
   e2e:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: E2E Tests (${{matrix.containers}})
     strategy:
       fail-fast: false
