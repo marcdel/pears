@@ -19,4 +19,14 @@ defmodule PearsWeb.SlackInteractionController do
         |> json(%{})
     end
   end
+
+  @decorate trace("slack_interaction.create")
+  def create(conn, params) do
+    O11y.set_attribute(:error, "no payload in params")
+    O11y.set_attribute(:params, params)
+
+    conn
+    |> put_status(400)
+    |> json(%{})
+  end
 end

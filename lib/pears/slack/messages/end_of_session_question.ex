@@ -1,19 +1,5 @@
 defmodule Pears.Slack.Messages.EndOfSessionQuestion do
   def new(track) do
-    pear_buttons =
-      track.pears
-      |> Map.values()
-      |> Enum.map(fn %{name: name} ->
-        %{
-          "type" => "button",
-          "text" => %{
-            "type" => "plain_text",
-            "text" => name
-          },
-          "value" => name
-        }
-      end)
-
     [
       %{
         "type" => "section",
@@ -37,28 +23,45 @@ defmodule Pears.Slack.Messages.EndOfSessionQuestion do
       },
       %{
         "type" => "actions",
-        "elements" =>
-          pear_buttons ++
-            [
-              %{
-                "type" => "button",
-                "text" => %{
-                  "type" => "plain_text",
-                  "text" => "🤝 Both",
-                  "emoji" => true
-                },
-                "value" => "both"
-              },
-              %{
-                "type" => "button",
-                "text" => %{
-                  "type" => "plain_text",
-                  "text" => "🎲 Feeling Lucky!",
-                  "emoji" => true
-                },
-                "value" => "random"
-              }
-            ]
+        "elements" => pear_buttons(track) ++ static_buttons()
+      }
+    ]
+  end
+
+  defp pear_buttons(track) do
+    track.pears
+    |> Map.values()
+    |> Enum.map(fn %{name: name} ->
+      %{
+        "type" => "button",
+        "text" => %{
+          "type" => "plain_text",
+          "text" => name
+        },
+        "value" => "anchor-#{name}"
+      }
+    end)
+  end
+
+  defp static_buttons do
+    [
+      %{
+        "type" => "button",
+        "text" => %{
+          "type" => "plain_text",
+          "text" => "🤝 Both",
+          "emoji" => true
+        },
+        "value" => "anchor-both"
+      },
+      %{
+        "type" => "button",
+        "text" => %{
+          "type" => "plain_text",
+          "text" => "🎲 Feeling Lucky!",
+          "emoji" => true
+        },
+        "value" => "anchor-random"
       }
     ]
   end
