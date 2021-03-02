@@ -3,6 +3,7 @@ defmodule PearsWeb.TeamLive do
   use PearsWeb, :live_view
 
   alias Pears.Accounts
+  alias Pears.O11y
   alias Pears.Slack
 
   @impl true
@@ -26,21 +27,21 @@ defmodule PearsWeb.TeamLive do
     {:noreply, apply_action(socket, socket.assigns.live_action)}
   end
 
-  def hide_reset_button?(team) do
+  defp hide_reset_button?(team) do
     FeatureFlags.enabled?(:hide_reset_button, for: team)
   end
 
-  def new_drag_n_drop?(team) do
+  defp new_drag_n_drop?(team) do
     FeatureFlags.enabled?(:new_drag_n_drop, for: team)
   end
 
-  def list_tracks(team) do
+  defp list_tracks(team) do
     team.tracks
     |> Enum.sort_by(fn {_, %{id: id}} -> id end)
     |> Enum.map(fn {_track_name, track} -> track end)
   end
 
-  def list_pears(pears) do
+  defp list_pears(pears) do
     pears
     |> Enum.sort_by(fn {_, %{order: order}} -> order end)
     |> Enum.map(fn {_pear_name, pear} -> pear end)
@@ -55,7 +56,13 @@ defmodule PearsWeb.TeamLive do
   @decorate trace("team_live.recommend_pears", include: [:team_name])
   def handle_event("recommend-pears", _params, socket) do
     team_name = team_name(socket)
-    {_, _updated_team} = Pears.recommend_pears(team_name)
+
+    case Pears.recommend_pears(team_name) do
+      {:ok, _updated_team} -> nil
+      {:error, error} -> O11y.set_attribute(:error, error)
+      error -> O11y.set_attribute(:error, error)
+    end
+
     {:noreply, socket}
   end
 
@@ -63,7 +70,13 @@ defmodule PearsWeb.TeamLive do
   @decorate trace("team_live.reset_pears", include: [:team_name])
   def handle_event("reset-pears", _params, socket) do
     team_name = team_name(socket)
-    {:ok, _updated_team} = Pears.reset_pears(team_name)
+
+    case Pears.reset_pears(team_name) do
+      {:ok, _updated_team} -> nil
+      {:error, error} -> O11y.set_attribute(:error, error)
+      error -> O11y.set_attribute(:error, error)
+    end
+
     {:noreply, socket}
   end
 
@@ -77,8 +90,12 @@ defmodule PearsWeb.TeamLive do
         Slack.send_daily_pears_summary(team_name)
         {:noreply, put_flash(socket, :info, "Today's assigned pears have been recorded!")}
 
-      {:error, _changeset} ->
+      {:error, changeset} ->
+        O11y.set_attribute(:error, changeset)
         {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}
+
+      error ->
+        O11y.set_attribute(:error, error)
     end
   end
 
@@ -155,7 +172,11 @@ defmodule PearsWeb.TeamLive do
     pear_name = Map.get(params, "pear")
     from_track = Map.get(params, "from")
 
-    Pears.remove_pear_from_track(team_name, pear_name, from_track)
+    case Pears.remove_pear_from_track(team_name, pear_name, from_track) do
+      {:ok, _updated_team} -> nil
+      {:error, error} -> O11y.set_attribute(:error, error)
+      error -> O11y.set_attribute(:error, error)
+    end
 
     {:noreply, unselect_pear(socket)}
   end
@@ -165,7 +186,11 @@ defmodule PearsWeb.TeamLive do
     team_name = team_name(socket)
     pear_name = Map.get(params, "pear")
 
-    Pears.remove_pear(team_name, pear_name)
+    case Pears.remove_pear(team_name, pear_name) do
+      {:ok, _updated_team} -> nil
+      {:error, error} -> O11y.set_attribute(:error, error)
+      error -> O11y.set_attribute(:error, error)
+    end
 
     {:noreply, unselect_pear(socket)}
   end
@@ -176,7 +201,11 @@ defmodule PearsWeb.TeamLive do
     pear_name = Map.get(params, "pear")
     to_track = Map.get(params, "to")
 
-    Pears.add_pear_to_track(team_name, pear_name, to_track)
+    case Pears.add_pear_to_track(team_name, pear_name, to_track) do
+      {:ok, _updated_team} -> nil
+      {:error, error} -> O11y.set_attribute(:error, error)
+      error -> O11y.set_attribute(:error, error)
+    end
 
     {:noreply, unselect_pear(socket)}
   end
@@ -188,7 +217,11 @@ defmodule PearsWeb.TeamLive do
     from_track = Map.get(params, "from")
     to_track = Map.get(params, "to")
 
-    Pears.move_pear_to_track(team_name, pear_name, from_track, to_track)
+    case Pears.move_pear_to_track(team_name, pear_name, from_track, to_track) do
+      {:ok, _updated_team} -> nil
+      {:error, error} -> O11y.set_attribute(:error, error)
+      error -> O11y.set_attribute(:error, error)
+    end
 
     {:noreply, unselect_pear(socket)}
   end
@@ -197,6 +230,7 @@ defmodule PearsWeb.TeamLive do
   @decorate trace("team_live.move_pear.failed", include: [:_team_name, :_params])
   def handle_event("move-pear", _params, socket) do
     _team_name = team_name(socket)
+    O11y.set_attribute(:error, "move_failed")
     {:noreply, unselect_pear(socket)}
   end
 
