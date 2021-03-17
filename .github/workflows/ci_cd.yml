@@ -36,6 +36,7 @@ jobs:
           apikey: ${{ secrets.HONEYCOMB_KEY }}
           dataset: pears_buildevents
           job-status: ${{ job.status }}
+          matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
@@ -100,6 +101,7 @@ jobs:
           apikey: ${{ secrets.HONEYCOMB_KEY }}
           dataset: pears_buildevents
           job-status: ${{ job.status }}
+          matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
@@ -155,6 +157,7 @@ jobs:
           apikey: ${{ secrets.HONEYCOMB_KEY }}
           dataset: pears_buildevents
           job-status: ${{ job.status }}
+          matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
@@ -221,6 +224,7 @@ jobs:
           apikey: ${{ secrets.HONEYCOMB_KEY }}
           dataset: pears_buildevents
           job-status: ${{ job.status }}
+          matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
         with:
           ref: master # Checkout out master instead of the latest commit
