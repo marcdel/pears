@@ -34,7 +34,7 @@ defmodule Pears.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 2.0"},
-      {:cloak_ecto, "~> 1.1.1"},
+      {:cloak_ecto, "~> 1.2.0"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ecto_sql, "~> 3.4"},
       {:floki, ">= 0.0.0", only: :test},
