@@ -38,7 +38,7 @@ defmodule Pears.MixProject do
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ecto_sql, "~> 3.4"},
       {:floki, ">= 0.0.0", only: :test},
-      {:fun_with_flags, "~> 1.7.0"},
+      {:fun_with_flags, "~> 1.8.0"},
       {:fun_with_flags_ui, "~> 0.7.2"},
       {:gettext, "~> 0.11"},
       {:hackney, ">= 1.11.0"},
