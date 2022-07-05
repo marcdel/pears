@@ -40,3 +40,10 @@ ui_tests/cypress/screenshots
 
 # CTags
 tags
+
+# Environment
+.env
+
+# Intellij
+pears.iml
+.idea
