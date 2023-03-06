@@ -1,5 +1,4 @@
 defmodule PearsWeb.Endpoint do
-  use Sentry.PlugCapture
   use Phoenix.Endpoint, otp_app: :pears
 
   # The session will be stored in the cookie and signed,
@@ -8,12 +7,9 @@ defmodule PearsWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_pears_key",
-    signing_salt: "/RQ3U+9t"
+    signing_salt: "sNCdLwiC",
+    same_site: "Lax"
   ]
-
-  socket "/socket", PearsWeb.UserSocket,
-    websocket: true,
-    longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
@@ -25,7 +21,7 @@ defmodule PearsWeb.Endpoint do
     at: "/",
     from: :pears,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: PearsWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -48,14 +44,8 @@ defmodule PearsWeb.Endpoint do
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 
-  plug Sentry.PlugContext
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-
-  # Timber logging
-  plug(Timber.Plug.HTTPContext)
-  plug(Timber.Plug.Event)
-
   plug PearsWeb.Router
 end

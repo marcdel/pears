@@ -16,55 +16,23 @@ defmodule PearsWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
+      # The default endpoint for testing
+      @endpoint PearsWeb.Endpoint
+
+      use PearsWeb, :verified_routes
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import PearsWeb.ConnCase
-
-      alias PearsWeb.Router.Helpers, as: Routes
-
-      # The default endpoint for testing
-      @endpoint PearsWeb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Sandbox.checkout(Pears.Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Pears.Repo, {:shared, self()})
-    end
-
+    Pears.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
-  end
-
-  @doc """
-  Setup helper that registers and logs in teams.
-
-      setup :register_and_log_in_team
-
-  It stores an updated connection and a registered team in the
-  test context.
-  """
-  def register_and_log_in_team(%{conn: conn}) do
-    team = Pears.AccountsFixtures.team_fixture()
-    %{conn: log_in_team(conn, team), team: team}
-  end
-
-  @doc """
-  Logs the given `team` into the `conn`.
-
-  It returns an updated `conn`.
-  """
-  def log_in_team(conn, team) do
-    token = Pears.Accounts.generate_team_session_token(team)
-
-    conn
-    |> Phoenix.ConnTest.init_test_session(%{})
-    |> Plug.Conn.put_session(:team_token, token)
   end
 end
