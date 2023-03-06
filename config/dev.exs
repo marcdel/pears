@@ -1,11 +1,12 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :pears, Pears.Repo,
   username: "postgres",
   password: "postgres",
-  database: "pears_dev",
   hostname: "localhost",
+  database: "pears_dev",
+  stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
@@ -14,20 +15,18 @@ config :pears, Pears.Repo,
 #
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
-# with webpack to recompile .js and .css sources.
+# with esbuild to bundle .js and .css sources.
 config :pears, PearsWeb.Endpoint,
-  http: [port: 4000],
-  debug_errors: true,
-  code_reloader: true,
+  # Binding to loopback ipv4 address prevents access from other machines.
+  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
+  http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  secret_key_base: "cBUInAjvvt2Bkobe5So4dXvuw0U4n3/uoBSWdIz2PLbYaub6tA8kqiALN3iZxuUc",
   watchers: [
-    node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
-      "--watch",
-      cd: Path.expand("../assets", __DIR__)
-    ]
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -38,7 +37,6 @@ config :pears, PearsWeb.Endpoint,
 #
 #     mix phx.gen.cert
 #
-# Note that this task requires Erlang/OTP 20 or later.
 # Run `mix help phx.gen.cert` for more information.
 #
 # The `http:` config above can be replaced with:
@@ -60,10 +58,12 @@ config :pears, PearsWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/pears_web/(live|views)/.*(ex)$",
-      ~r"lib/pears_web/templates/.*(eex)$"
+      ~r"lib/pears_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
+
+# Enable dev routes for dashboard and mailbox
+config :pears, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
@@ -75,11 +75,5 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :opentelemetry,
-  processors: [
-    otel_batch_processor: %{
-      exporter:
-        {OpenTelemetry.Honeycomb.Exporter,
-         write_key: Map.fetch!(System.get_env(), "HONEYCOMB_KEY"), dataset: "pears_dev"}
-    }
-  ]
+# Disable swoosh api client as it is only required for production adapters.
+config :swoosh, :api_client, false
