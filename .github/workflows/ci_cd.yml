@@ -37,11 +37,11 @@ jobs:
           dataset: pears_buildevents
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: main # Checkout out main instead of the latest commit
       - name: Set up Elixir
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{matrix.elixir}}
           otp-version: ${{matrix.otp}}
@@ -55,7 +55,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
       - name: Restore _build cache
-        uses: actions/cache@v1.1.2
+        uses: actions/cache@v2
         env:
           cache-name: _build
         with:
@@ -106,7 +106,7 @@ jobs:
         with:
           ref: main # Checkout out main instead of the latest commit
       - name: Set up Elixir
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{matrix.elixir}}
           otp-version: ${{matrix.otp}}
@@ -120,7 +120,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
       - name: Restore _build cache
-        uses: actions/cache@v1.1.2
+        uses: actions/cache@v2
         env:
           cache-name: _build
         with:
@@ -158,11 +158,11 @@ jobs:
           dataset: pears_buildevents
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: main # Checkout out main instead of the latest commit
       - name: Set up Elixir
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{matrix.elixir}}
           otp-version: ${{matrix.otp}}
@@ -176,7 +176,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
       - name: Restore _build cache
-        uses: actions/cache@v1.1.2
+        uses: actions/cache@v2
         env:
           cache-name: _build
         with:
@@ -193,7 +193,7 @@ jobs:
         env:
           MIX_ENV: ci
       - name: cypress test
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         with:
           wait-on: 'http://localhost:5000'
           working-directory: ui_tests
@@ -203,7 +203,7 @@ jobs:
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-videos
@@ -221,7 +221,7 @@ jobs:
           dataset: pears_buildevents
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: main # Checkout out main instead of the latest commit
           fetch-depth: 0 # Checkout the whole branch
