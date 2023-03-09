@@ -38,8 +38,6 @@ jobs:
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v3
-        with:
-          ref: main # Checkout out main instead of the latest commit
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
@@ -103,8 +101,6 @@ jobs:
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
-        with:
-          ref: main # Checkout out main instead of the latest commit
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
@@ -159,8 +155,6 @@ jobs:
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v3
-        with:
-          ref: main # Checkout out main instead of the latest commit
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
