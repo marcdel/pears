@@ -28,7 +28,7 @@ jobs:
     name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
-        otp: ["25.2.3"]
+        otp: ["26.0-rc1"]
         elixir: ["1.14.3"]
     steps:
       - uses: kvrhdn/gha-buildevents@main
@@ -84,7 +84,7 @@ jobs:
     name: Unit Tests (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
-        otp: ["25.2.3"]
+        otp: ["26.0-rc1"]
         elixir: ["1.14.3"]
     services:
       test_db:
@@ -139,7 +139,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: ["25.2.3"]
+        otp: ["26.0-rc1"]
         elixir: ["1.14.3"]
         containers: [1, 2, 3]
     services:
