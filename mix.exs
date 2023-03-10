@@ -43,7 +43,7 @@ defmodule Pears.MixProject do
       {:opentelemetry_api, "~> 1.2"},
       {:opentelemetry_exporter, "~> 1.4"},
       {:opentelemetry_ecto, "~> 1.1"},
-      {:open_telemetry_decorator, "~> 1.2.0"},
+      {:open_telemetry_decorator, "~> 1.2"},
       {:opentelemetry_phoenix, "~> 1.1"},
       {:sentry, "~> 8.0"},
       {:slack, "~> 0.23.5"},
