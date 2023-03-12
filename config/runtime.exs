@@ -63,22 +63,22 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-    # Configure OpenTelemetry Exporter
-    api_key = Map.fetch!(System.get_env(), "HONEYCOMB_KEY")
+  # Configure OpenTelemetry Exporter
+  api_key = Map.fetch!(System.get_env(), "HONEYCOMB_KEY")
 
-    config :opentelemetry, :processors,
-      otel_batch_processor: %{
-        exporter:
-          {:opentelemetry_exporter,
-           %{
-             protocol: :grpc,
-             headers: [
-               {'x-honeycomb-team', api_key},
-               {'x-honeycomb-dataset', 'pears'}
-             ],
-             endpoints: [{:https, 'api.honeycomb.io', 443, []}]
-           }}
-      }
+  config :opentelemetry, :processors,
+    otel_batch_processor: %{
+      exporter:
+        {:opentelemetry_exporter,
+         %{
+           protocol: :grpc,
+           headers: [
+             {'x-honeycomb-team', api_key},
+             {'x-honeycomb-dataset', 'pears'}
+           ],
+           endpoints: [{:https, 'api.honeycomb.io', 443, []}]
+         }}
+    }
 
   # ## SSL Support
   #
