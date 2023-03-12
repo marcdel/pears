@@ -37,7 +37,6 @@ defmodule Pears.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:fun_with_flags, "~> 1.10"},
       {:fun_with_flags_ui, "~> 0.8.1"},
-      {:redix, "~> 1.2"},
       {:hammox, "~> 0.7.0"},
       {:opentelemetry, "~> 1.2"},
       {:opentelemetry_api, "~> 1.2"},
