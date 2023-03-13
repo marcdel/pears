@@ -7,19 +7,27 @@ defmodule Pears.Application do
 
   @impl true
   def start(_type, _args) do
+    OpentelemetryPhoenix.setup()
+    OpentelemetryEcto.setup([:pears, :repo])
+
     children = [
       # Start the Telemetry supervisor
       PearsWeb.Telemetry,
       # Start the Ecto repository
       Pears.Repo,
+      Pears.Vault,
       # Start the PubSub system
       {Phoenix.PubSub, name: Pears.PubSub},
       # Start Finch
       {Finch, name: Pears.Finch},
       # Start the Endpoint (http/https)
-      PearsWeb.Endpoint
+      PearsWeb.Endpoint,
       # Start a worker by calling: Pears.Worker.start_link(arg)
       # {Pears.Worker, arg}
+      {Pears.Boundary.TeamManager, [name: Pears.Boundary.TeamManager]},
+      {Registry, [name: Pears.Registry.TeamSession, keys: :unique]},
+      {DynamicSupervisor, [name: Pears.Supervisor.TeamSession, strategy: :one_for_one]},
+      {Pears.Boundary.PruneSnapshots, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
