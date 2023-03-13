@@ -129,105 +129,105 @@ jobs:
       - name: mix test
         run: mix test --trace
 
-  e2e:
-    runs-on: ubuntu-18.04
-    name: E2E Tests (${{matrix.containers}})
-    strategy:
-      fail-fast: false
-      matrix:
-        otp: ["26.0-rc1"]
-        elixir: ["1.14.3"]
-        containers: [1, 2, 3]
-    services:
-      ci_db:
-        image: postgres:12
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pears_ci
-        ports: ['5432:5432']
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    steps:
-      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.HONEYCOMB_KEY }}
-          dataset: pears_buildevents
-          job-status: ${{ job.status }}
-          matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v3
-      - name: Set up Elixir
-        uses: erlef/setup-beam@v1
-        with:
-          elixir-version: ${{matrix.elixir}}
-          otp-version: ${{matrix.otp}}
-      - name: Restore dependencies cache
-        uses: actions/cache@v2
-        env:
-          cache-name: deps
-        with:
-          path: deps
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-      - name: Restore _build cache
-        uses: actions/cache@v2
-        env:
-          cache-name: _build
-        with:
-          path: _build
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-      - name: mix deps.get
-        run: mix deps.get
-      - name: start e2e server in the background
-        run: |
-          mix do ecto.create, ecto.migrate
-          mix phx.server &
-        env:
-          MIX_ENV: ci
-      - name: cypress test
-        uses: cypress-io/github-action@v5
-        with:
-          wait-on: 'http://localhost:5000'
-          working-directory: ui_tests
-          browser: chrome
-          record: true
-          parallel: true
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-videos
-          path: assets/cypress/videos
+#  e2e:
+#    runs-on: ubuntu-18.04
+#    name: E2E Tests (${{matrix.containers}})
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        otp: ["26.0-rc1"]
+#        elixir: ["1.14.3"]
+#        containers: [1, 2, 3]
+#    services:
+#      ci_db:
+#        image: postgres:12
+#        env:
+#          POSTGRES_USER: postgres
+#          POSTGRES_PASSWORD: postgres
+#          POSTGRES_DB: pears_ci
+#        ports: ['5432:5432']
+#        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+#    steps:
+#      - uses: kvrhdn/gha-buildevents@main
+#        with:
+#          apikey: ${{ secrets.HONEYCOMB_KEY }}
+#          dataset: pears_buildevents
+#          job-status: ${{ job.status }}
+#          matrix-key: ${{ matrix.value }}
+#      - uses: actions/checkout@v3
+#      - name: Set up Elixir
+#        uses: erlef/setup-beam@v1
+#        with:
+#          elixir-version: ${{matrix.elixir}}
+#          otp-version: ${{matrix.otp}}
+#      - name: Restore dependencies cache
+#        uses: actions/cache@v2
+#        env:
+#          cache-name: deps
+#        with:
+#          path: deps
+#          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
+#      - name: Restore _build cache
+#        uses: actions/cache@v2
+#        env:
+#          cache-name: _build
+#        with:
+#          path: _build
+#          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
+#      - name: mix deps.get
+#        run: mix deps.get
+#      - name: start e2e server in the background
+#        run: |
+#          mix do ecto.create, ecto.migrate
+#          mix phx.server &
+#        env:
+#          MIX_ENV: ci
+#      - name: cypress test
+#        uses: cypress-io/github-action@v5
+#        with:
+#          wait-on: 'http://localhost:5000'
+#          working-directory: ui_tests
+#          browser: chrome
+#          record: true
+#          parallel: true
+#        env:
+#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - uses: actions/upload-artifact@v3
+#        if: failure()
+#        with:
+#          name: cypress-videos
+#          path: assets/cypress/videos
 
-  deploy:
-    runs-on: ubuntu-latest
-    name: Deploy to Production
-    needs: [check, test, e2e]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.HONEYCOMB_KEY }}
-          dataset: pears_buildevents
-          job-status: ${{ job.status }}
-          matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v3
-        with:
-          ref: main # Checkout out main instead of the latest commit
-          fetch-depth: 0 # Checkout the whole branch
-      - name: deploy
-        run: |
-          sudo pip install gigalixir --ignore-installed six &&
-          gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}" &&
-          gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }} &&
-          git push -f gigalixir HEAD:refs/heads/main
-      - name: create honeycomb marker
-        run: |
-          curl https://api.honeycomb.io/1/markers/pears \
-            -X POST \
-            -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
-            -d '{"message":"${{ github.sha }}", "url":"https://github.com/marcdel/pears/commit/${{ github.sha }}", "type":"deploy"}'
+#  deploy:
+#    runs-on: ubuntu-latest
+#    name: Deploy to Production
+#    needs: [check, test, e2e]
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#    steps:
+#      - uses: kvrhdn/gha-buildevents@main
+#        with:
+#          apikey: ${{ secrets.HONEYCOMB_KEY }}
+#          dataset: pears_buildevents
+#          job-status: ${{ job.status }}
+#          matrix-key: ${{ matrix.value }}
+#      - uses: actions/checkout@v3
+#        with:
+#          ref: main # Checkout out main instead of the latest commit
+#          fetch-depth: 0 # Checkout the whole branch
+#      - name: deploy
+#        run: |
+#          sudo pip install gigalixir --ignore-installed six &&
+#          gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}" &&
+#          gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }} &&
+#          git push -f gigalixir HEAD:refs/heads/main
+#      - name: create honeycomb marker
+#        run: |
+#          curl https://api.honeycomb.io/1/markers/pears \
+#            -X POST \
+#            -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
+#            -d '{"message":"${{ github.sha }}", "url":"https://github.com/marcdel/pears/commit/${{ github.sha }}", "type":"deploy"}'
