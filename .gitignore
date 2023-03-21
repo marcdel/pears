@@ -40,3 +40,7 @@ ui_tests/cypress/screenshots
 
 # CTags
 tags
+
+# intellij
+.idea/
+*.iml
