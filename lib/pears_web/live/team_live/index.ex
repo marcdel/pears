@@ -14,33 +14,17 @@ defmodule PearsWeb.TeamLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :edit, %{"name" => name}) do
-    socket
-    |> assign(:page_title, "Edit Team")
-    |> assign(:team, Accounts.get_team_by_name(name))
-  end
-
   defp apply_action(socket, :new, _params) do
     socket
-    |> assign(:page_title, "New Team")
+    |> assign(:page_title, "Create your team")
     |> assign(:team, %Team{})
-  end
-
-  defp apply_action(socket, :index, _params) do
-    socket
-    |> assign(:page_title, "Listing Teams")
-    |> assign(:team, nil)
   end
 
   @impl true
   def handle_info({PearsWeb.TeamLive.FormComponent, {:saved, team}}, socket) do
-    {:noreply, stream_insert(socket, :teams, team)}
-  end
-
-  @impl true
-  def handle_event("delete", %{"name" => name}, socket) do
-    team = Accounts.get_team_by_name(name)
-
-    {:noreply, stream_delete(socket, :teams, team)}
+    {:noreply,
+     socket
+     |> put_flash(:info, "Team created successfully")
+     |> push_navigate(to: ~p"/teams/#{team.name}")}
   end
 end
