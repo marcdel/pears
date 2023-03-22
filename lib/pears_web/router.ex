@@ -17,12 +17,8 @@ defmodule PearsWeb.Router do
   scope "/", PearsWeb do
     pipe_through :browser
 
-    live "/teams", TeamLive.Index, :index
     live "/teams/new", TeamLive.Index, :new
-    live "/teams/:name/edit", TeamLive.Index, :edit
-
     live "/teams/:name", TeamLive.Show, :show
-    live "/teams/:name/show/edit", TeamLive.Show, :edit
 
     get "/", PageController, :home
   end

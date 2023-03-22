@@ -20,9 +20,9 @@ defmodule PearsWeb.TeamLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" />
-        <.input field={@form[:password]} type="text" label="Password" />
+        <.input field={@form[:password]} type="password" label="Password" />
         <:actions>
-          <.button phx-disable-with="Saving...">Save Team</.button>
+          <.button phx-disable-with="Saving...">Register</.button>
         </:actions>
       </.simple_form>
     </div>
@@ -50,27 +50,10 @@ defmodule PearsWeb.TeamLive.FormComponent do
   end
 
   def handle_event("save", %{"team" => team_params}, socket) do
-    save_team(socket, socket.assigns.action, team_params)
-  end
-
-  defp save_team(socket, :edit, team_params) do
-    notify_parent({:saved, socket.assigns.team})
-
-    {:noreply,
-      socket
-      |> put_flash(:info, "Team updated successfully")
-      |> push_patch(to: socket.assigns.patch)}
-  end
-
-  defp save_team(socket, :new, team_params) do
     case Accounts.register_team(team_params) do
       {:ok, team} ->
         notify_parent({:saved, team})
-
-        {:noreply,
-         socket
-         |> put_flash(:info, "Team created successfully")
-         |> push_patch(to: socket.assigns.patch)}
+        {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
