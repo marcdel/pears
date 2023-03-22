@@ -8,9 +8,9 @@ name: pears_ci
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   HONEYCOMB_KEY: ${{ secrets.HONEYCOMB_KEY }}
@@ -38,8 +38,6 @@ jobs:
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
-        with:
-          ref: master # Checkout out master instead of the latest commit
       - name: Set up Elixir
         uses: actions/setup-elixir@v1
         with:
@@ -103,8 +101,6 @@ jobs:
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
-        with:
-          ref: master # Checkout out master instead of the latest commit
       - name: Set up Elixir
         uses: actions/setup-elixir@v1
         with:
@@ -159,8 +155,6 @@ jobs:
           job-status: ${{ job.status }}
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
-        with:
-          ref: master # Checkout out master instead of the latest commit
       - name: Set up Elixir
         uses: actions/setup-elixir@v1
         with:
@@ -217,7 +211,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy to Production
     needs: [check, test, e2e]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: kvrhdn/gha-buildevents@main
         with:
@@ -227,14 +221,13 @@ jobs:
           matrix-key: ${{ matrix.value }}
       - uses: actions/checkout@v2
         with:
-          ref: master # Checkout out master instead of the latest commit
           fetch-depth: 0 # Checkout the whole branch
       - name: deploy
         run: |
           sudo pip install gigalixir --ignore-installed six &&
           gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}" &&
           gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }} &&
-          git push -f gigalixir HEAD:refs/heads/master
+          git push -f gigalixir HEAD:refs/heads/main
       - name: create honeycomb marker
         run: |
           curl https://api.honeycomb.io/1/markers/pears \
