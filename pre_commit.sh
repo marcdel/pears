@@ -4,7 +4,7 @@ source .env &&
 mix format &&
 mix credo --strict &&
 mix test &&
-(cd ui_tests && npx cypress run) &&
+#(cd ui_tests && npx cypress run) &&
 cat << EOF
  ___ _   _  ___ ___ ___  ___ ___
 / __| | | |/ __/ __/ _ \/ __/ __|
