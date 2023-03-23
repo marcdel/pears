@@ -52,7 +52,7 @@ defmodule PearsWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {PearsWeb.Layouts, :app}
+        layout: {PearsWeb.Layouts, :logged_out}
 
       unquote(html_helpers())
     end

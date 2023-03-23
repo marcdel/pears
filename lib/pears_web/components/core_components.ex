@@ -252,17 +252,20 @@ defmodule PearsWeb.CoreComponents do
 
   def button(assigns) do
     ~H"""
-    <button
-      type={@type}
-      class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
-        @class
-      ]}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </button>
+    <span class="block w-full rounded-md shadow-sm">
+      <button
+        type={@type}
+        class={[
+          "w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md",
+          "text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:border-green-700",
+          "focus:shadow-outline-green active:bg-green-700 transition duration-150 ease-in-out",
+          @class
+        ]}
+        {@rest}
+      >
+        <%= render_slot(@inner_block) %>
+      </button>
+    </span>
     """
   end
 
@@ -376,21 +379,21 @@ defmodule PearsWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
-      <input
-        type={@type}
-        name={@name}
-        id={@id || @name}
-        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "mt-2 block w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
-          "text-zinc-900 focus:outline-none focus:ring-4 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
-          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
-          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
-        ]}
-        {@rest}
-      />
+      <.label for={@id} class="block text-sm font-medium leading-5 text-gray-700"><%= @label %></.label>
+      <div class="mt-1 rounded-md shadow-sm">
+        <input
+          type={@type}
+          name={@name}
+          id={@id || @name}
+          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+          class={[
+            "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400",
+            "focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5",
+            @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+          ]}
+          {@rest}
+        />
+      </div>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -417,7 +420,7 @@ defmodule PearsWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-rose-600">
+    <p class="mt-2 text-sm text-red-600">
       <.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>

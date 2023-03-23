@@ -7,11 +7,6 @@ defmodule PearsWeb.TeamLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <.header>
-        <%= @title %>
-        <:subtitle>Use this form to manage team records in your database.</:subtitle>
-      </.header>
-
       <.simple_form
         for={@form}
         id="team-form"
@@ -21,6 +16,7 @@ defmodule PearsWeb.TeamLive.FormComponent do
       >
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:password]} type="password" label="Password" />
+
         <:actions>
           <.button phx-disable-with="Saving...">Register</.button>
         </:actions>
