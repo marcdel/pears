@@ -7,6 +7,10 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
+config :pears, slack_client_id: Map.fetch!(System.get_env(), "SLACK_CLIENT_ID")
+config :pears, slack_client_secret: Map.fetch!(System.get_env(), "SLACK_CLIENT_SECRET")
+config :pears, slack_oauth_redirect_uri: Map.get(System.get_env(), "SLACK_OAUTH_URL")
+
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server
