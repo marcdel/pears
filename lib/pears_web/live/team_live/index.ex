@@ -1,7 +1,6 @@
 defmodule PearsWeb.TeamLive.Index do
-  use PearsWeb, :live_view
+  use PearsWeb, :logged_out_live
 
-  alias Pears.Accounts
   alias Pears.Accounts.Team
 
   @impl true

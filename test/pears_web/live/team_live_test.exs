@@ -16,7 +16,7 @@ defmodule PearsWeb.TeamLiveTest do
     setup [:create_team]
 
     test "registers new team", %{conn: conn} do
-      {:ok, index_live, _html} = live(conn, ~p"/teams/new")
+      {:ok, index_live, _html} = live(conn, ~p"/teams/register")
 
       assert index_live
              |> form("#team-form", team: @invalid_attrs)

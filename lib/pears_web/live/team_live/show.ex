@@ -1,5 +1,5 @@
 defmodule PearsWeb.TeamLive.Show do
-  use PearsWeb, :live_view
+  use PearsWeb, :logged_out_live
 
   alias Pears.Accounts
 

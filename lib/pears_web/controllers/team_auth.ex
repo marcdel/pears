@@ -6,7 +6,6 @@ defmodule PearsWeb.TeamAuth do
   import Phoenix.Controller
 
   alias Pears.Accounts
-  alias PearsWeb.Router.Helpers, as: Routes
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change

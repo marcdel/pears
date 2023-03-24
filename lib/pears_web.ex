@@ -49,7 +49,7 @@ defmodule PearsWeb do
     end
   end
 
-  def live_view do
+  def logged_out_live do
     quote do
       use Phoenix.LiveView,
         layout: {PearsWeb.Layouts, :logged_out}
