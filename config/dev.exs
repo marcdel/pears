@@ -77,20 +77,3 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
-
-# Configure OpenTelemetry Exporter
-api_key = Map.fetch!(System.get_env(), "HONEYCOMB_KEY")
-
-config :opentelemetry, :processors,
-  otel_batch_processor: %{
-    exporter:
-      {:opentelemetry_exporter,
-       %{
-         protocol: :grpc,
-         headers: [
-           {'x-honeycomb-team', api_key},
-           {'x-honeycomb-dataset', 'pears_dev'}
-         ],
-         endpoints: [{:https, 'api.honeycomb.io', 443, []}]
-       }}
-  }
