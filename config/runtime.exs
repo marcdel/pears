@@ -68,7 +68,12 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   # Configure OpenTelemetry Exporter
-  api_key = Map.fetch!(System.get_env(), "HONEYCOMB_KEY")
+  api_key = System.fetch_env!("HONEYCOMB_KEY")
+  dataset = case config_env() do
+    :test -> "pears_test"
+    :dev  -> "pears_dev"
+    :prod -> "pears"
+  end
 
   config :opentelemetry, :processors,
     otel_batch_processor: %{
@@ -78,7 +83,7 @@ if config_env() == :prod do
            protocol: :grpc,
            headers: [
              {'x-honeycomb-team', api_key},
-             {'x-honeycomb-dataset', 'pears'}
+             {'x-honeycomb-dataset', dataset}
            ],
            endpoints: [{:https, 'api.honeycomb.io', 443, []}]
          }}
