@@ -69,11 +69,13 @@ if config_env() == :prod do
 
   # Configure OpenTelemetry Exporter
   api_key = System.fetch_env!("HONEYCOMB_KEY")
-  dataset = case config_env() do
-    :test -> "pears_test"
-    :dev  -> "pears_dev"
-    :prod -> "pears"
-  end
+
+  dataset =
+    case config_env() do
+      :test -> "pears_test"
+      :dev -> "pears_dev"
+      :prod -> "pears"
+    end
 
   config :opentelemetry, :processors,
     otel_batch_processor: %{
