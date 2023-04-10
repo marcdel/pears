@@ -28,11 +28,11 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(team: %{"email" => "with spaces", "password" => "too short"})
+        |> render_change(team: %{"name" => String.duplicate("name", 100), "password" => "short"})
 
       assert result =~ "Register"
-      assert result =~ "must have the @ sign and no spaces"
-      assert result =~ "should be at least 12 character"
+      assert result =~ "should be at most 160 character(s)"
+      assert result =~ "should be at least 6 character(s)"
     end
   end
 
@@ -40,8 +40,8 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
     test "creates account and logs the team in", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/teams/register")
 
-      email = unique_team_email()
-      form = form(lv, "#registration_form", team: valid_team_attributes(email: email))
+      name = unique_team_name()
+      form = form(lv, "#registration_form", team: valid_team_attributes(name: name))
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
@@ -50,20 +50,20 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/")
       response = html_response(conn, 200)
-      assert response =~ email
+      assert response =~ name
       assert response =~ "Settings"
       assert response =~ "Log out"
     end
 
-    test "renders errors for duplicated email", %{conn: conn} do
+    test "renders errors for duplicated name", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/teams/register")
 
-      team = team_fixture(%{email: "test@email.com"})
+      team = team_fixture(%{name: "popular name"})
 
       result =
         lv
         |> form("#registration_form",
-          team: %{"email" => team.email, "password" => "valid_password"}
+          team: %{"name" => team.name, "password" => "valid_password"}
         )
         |> render_submit()
 

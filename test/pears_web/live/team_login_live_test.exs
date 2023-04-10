@@ -32,7 +32,7 @@ defmodule PearsWeb.TeamLoginLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/teams/log_in")
 
       form =
-        form(lv, "#login_form", team: %{email: team.email, password: password, remember_me: true})
+        form(lv, "#login_form", team: %{name: team.name, password: password, remember_me: true})
 
       conn = submit_form(form, conn)
 
@@ -46,12 +46,12 @@ defmodule PearsWeb.TeamLoginLiveTest do
 
       form =
         form(lv, "#login_form",
-          team: %{email: "test@email.com", password: "123456", remember_me: true}
+          team: %{name: "Some Team", password: "123456", remember_me: true}
         )
 
       conn = submit_form(form, conn)
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid email or password"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid name or password"
 
       assert redirected_to(conn) == "/teams/log_in"
     end

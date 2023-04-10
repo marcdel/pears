@@ -11,7 +11,7 @@ defmodule PearsWeb.TeamSessionControllerTest do
     test "logs the team in", %{conn: conn, team: team} do
       conn =
         post(conn, ~p"/teams/log_in", %{
-          "team" => %{"email" => team.email, "password" => valid_team_password()}
+          "team" => %{"name" => team.name, "password" => valid_team_password()}
         })
 
       assert get_session(conn, :team_token)
@@ -20,16 +20,16 @@ defmodule PearsWeb.TeamSessionControllerTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, ~p"/")
       response = html_response(conn, 200)
-      assert response =~ team.email
-      assert response =~ ~p"/users/settings"
-      assert response =~ ~p"/users/log_out"
+      assert response =~ team.name
+      assert response =~ ~p"/teams/settings"
+      assert response =~ ~p"/teams/log_out"
     end
 
     test "logs the team in with remember me", %{conn: conn, team: team} do
       conn =
         post(conn, ~p"/teams/log_in", %{
           "team" => %{
-            "email" => team.email,
+            "name" => team.name,
             "password" => valid_team_password(),
             "remember_me" => "true"
           }
@@ -45,7 +45,7 @@ defmodule PearsWeb.TeamSessionControllerTest do
         |> init_test_session(team_return_to: "/foo/bar")
         |> post(~p"/teams/log_in", %{
           "team" => %{
-            "email" => team.email,
+            "name" => team.name,
             "password" => valid_team_password()
           }
         })
@@ -60,7 +60,7 @@ defmodule PearsWeb.TeamSessionControllerTest do
         |> post(~p"/teams/log_in", %{
           "_action" => "registered",
           "team" => %{
-            "email" => team.email,
+            "name" => team.name,
             "password" => valid_team_password()
           }
         })
@@ -75,7 +75,7 @@ defmodule PearsWeb.TeamSessionControllerTest do
         |> post(~p"/teams/log_in", %{
           "_action" => "password_updated",
           "team" => %{
-            "email" => team.email,
+            "name" => team.name,
             "password" => valid_team_password()
           }
         })
@@ -87,10 +87,10 @@ defmodule PearsWeb.TeamSessionControllerTest do
     test "redirects to login page with invalid credentials", %{conn: conn} do
       conn =
         post(conn, ~p"/teams/log_in", %{
-          "team" => %{"email" => "invalid@email.com", "password" => "invalid_password"}
+          "team" => %{"name" => "Team Name", "password" => "invalid_password"}
         })
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid email or password"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid name or password"
       assert redirected_to(conn) == ~p"/teams/log_in"
     end
   end
