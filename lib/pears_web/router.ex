@@ -17,15 +17,6 @@ defmodule PearsWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", PearsWeb do
-    pipe_through :browser
-
-    live "/teams/register", TeamLive.Index, :new
-    live "/teams/:name", TeamLive.Show, :show
-
-    get "/", PageController, :home
-  end
-
   # Other scopes may use custom stacks.
   # scope "/api", PearsWeb do
   #   pipe_through :api
@@ -69,6 +60,8 @@ defmodule PearsWeb.Router do
 
     live_session :require_authenticated_team,
       on_mount: [{PearsWeb.TeamAuth, :ensure_authenticated}] do
+      get "/", PageController, :home
+
       live "/teams/settings", TeamSettingsLive, :edit
       live "/teams/settings/confirm_email/:token", TeamSettingsLive, :confirm_email
     end

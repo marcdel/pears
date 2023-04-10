@@ -127,7 +127,7 @@ defmodule PearsWeb.TeamSettingsLiveTest do
         |> render_change(%{
           "current_password" => "invalid",
           "team" => %{
-            "password" => "too short",
+            "password" => "short",
             "password_confirmation" => "does not match"
           }
         })
@@ -145,7 +145,7 @@ defmodule PearsWeb.TeamSettingsLiveTest do
         |> form("#password_form", %{
           "current_password" => "invalid",
           "team" => %{
-            "password" => "too short",
+            "password" => "short",
             "password_confirmation" => "does not match"
           }
         })

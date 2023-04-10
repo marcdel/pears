@@ -75,7 +75,7 @@ defmodule PearsWeb.TeamResetPasswordLiveTest do
         lv
         |> form("#reset_password_form",
           team: %{
-            "password" => "too short",
+            "password" => "short",
             "password_confirmation" => "does not match"
           }
         )
