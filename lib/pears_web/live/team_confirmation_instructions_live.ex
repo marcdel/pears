@@ -16,8 +16,7 @@ defmodule PearsWeb.TeamConfirmationInstructionsLive do
 
     <p>
       <.link href={~p"/teams/register"}>Register</.link>
-      |
-      <.link href={~p"/teams/log_in"}>Log in</.link>
+      | <.link href={~p"/teams/log_in"}>Log in</.link>
     </p>
     """
   end

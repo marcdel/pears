@@ -1,8 +1,16 @@
 defmodule PearsWeb.PageControllerTest do
   use PearsWeb.ConnCase
+  import Pears.AccountsFixtures
 
   test "GET /", %{conn: conn} do
-    conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+    team = team_fixture()
+
+    html =
+      conn
+      |> log_in_team(team)
+      |> get(~p"/")
+      |> html_response(200)
+
+    assert html =~ team.name
   end
 end

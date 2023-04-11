@@ -124,7 +124,11 @@ defmodule Pears.Accounts do
 
   """
   def change_team_registration(%Team{} = team, attrs \\ %{}) do
-    Team.registration_changeset(team, attrs, hash_password: false, validate_name: false, validate_email: false)
+    Team.registration_changeset(team, attrs,
+      hash_password: false,
+      validate_name: false,
+      validate_email: false
+    )
   end
 
   ## Settings
