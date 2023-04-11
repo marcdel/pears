@@ -123,9 +123,9 @@ defmodule Pears.Accounts.Team do
     |> cast(attrs, [:name])
     |> validate_name(opts)
     |> case do
-         %{changes: %{name: _}} = changeset -> changeset
-         %{} = changeset -> add_error(changeset, :name, "did not change")
-       end
+      %{changes: %{name: _}} = changeset -> changeset
+      %{} = changeset -> add_error(changeset, :name, "did not change")
+    end
   end
 
   @doc """
