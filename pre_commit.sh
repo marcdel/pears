@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source .env &&
+mix compile --warnings-as-errors &&
 mix format &&
 mix credo --strict &&
 mix test &&

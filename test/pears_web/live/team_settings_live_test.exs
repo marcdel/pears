@@ -82,10 +82,67 @@ defmodule PearsWeb.TeamSettingsLiveTest do
     end
   end
 
-  describe "update password form" do
+  describe "update name form" do
     setup %{conn: conn} do
       password = valid_team_password()
       team = team_fixture(%{password: password})
+      %{conn: log_in_team(conn, team), team: team, password: password}
+    end
+
+    test "updates the team name", %{conn: conn, password: password} do
+      new_name = unique_team_name()
+
+      {:ok, lv, _html} = live(conn, ~p"/teams/settings")
+
+      result =
+        lv
+        |> form("#name_form", %{
+          "current_password" => password,
+          "team" => %{"name" => new_name}
+        })
+        |> render_submit()
+
+      assert result =~ "Name changed successfully."
+      assert Accounts.get_team_by_name(new_name)
+    end
+
+    test "renders errors with invalid data (phx-change)", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/teams/settings")
+
+      result =
+        lv
+        |> element("#name_form")
+        |> render_change(%{
+          "action" => "update_name",
+          "current_password" => "invalid",
+          "team" => %{"name" => String.duplicate("name", 100)}
+        })
+
+      assert result =~ "Change Name"
+      assert result =~ "should be at most 160 character(s)"
+    end
+
+    test "renders errors with invalid data (phx-submit)", %{conn: conn, team: team} do
+      {:ok, lv, _html} = live(conn, ~p"/teams/settings")
+
+      result =
+        lv
+        |> form("#name_form", %{
+          "current_password" => "invalid",
+          "team" => %{"name" => team.name}
+        })
+        |> render_submit()
+
+      assert result =~ "Change Name"
+      assert result =~ "did not change"
+      assert result =~ "is not valid"
+    end
+  end
+
+  describe "update password form" do
+    setup %{conn: conn} do
+      password = valid_team_password()
+      team = team_fixture(%{password: password}) |> Map.delete(:email)
       %{conn: log_in_team(conn, team), team: team, password: password}
     end
 
@@ -98,7 +155,7 @@ defmodule PearsWeb.TeamSettingsLiveTest do
         form(lv, "#password_form", %{
           "current_password" => password,
           "team" => %{
-            "email" => team.email,
+            "name" => team.name,
             "password" => new_password,
             "password_confirmation" => new_password
           }
@@ -115,7 +172,7 @@ defmodule PearsWeb.TeamSettingsLiveTest do
       assert Phoenix.Flash.get(new_password_conn.assigns.flash, :info) =~
                "Password updated successfully"
 
-      assert Accounts.get_team_by_email_and_password(team.email, new_password)
+      assert Accounts.get_team_by_name_and_password(team.name, new_password)
     end
 
     test "renders errors with invalid data (phx-change)", %{conn: conn} do

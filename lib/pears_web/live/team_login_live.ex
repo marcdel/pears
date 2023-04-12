@@ -16,7 +16,7 @@ defmodule PearsWeb.TeamLoginLive do
       </.header>
 
       <.simple_form for={@form} id="login_form" action={~p"/teams/log_in"} phx-update="ignore">
-        <.input field={@form[:name]} type="name" label="Name" required />
+        <.input field={@form[:name]} type="text" label="Name" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>
@@ -37,7 +37,7 @@ defmodule PearsWeb.TeamLoginLive do
 
   def mount(_params, _session, socket) do
     name = live_flash(socket.assigns.flash, :name)
-    form = to_form(%{"name" => name}, as: "team") |> IO.inspect()
+    form = to_form(%{"name" => name}, as: "team")
     {:ok, assign(socket, form: form), temporary_assigns: [form: form]}
   end
 end

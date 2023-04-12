@@ -5,6 +5,24 @@ defmodule PearsWeb.TeamSettingsLive do
 
   def render(assigns) do
     ~H"""
+    <.header>Change Name</.header>
+
+    <.simple_form for={@name_form} id="name_form" phx-submit="update_name" phx-change="validate_name">
+      <.input field={@name_form[:name]} type="text" label="Name" required />
+      <.input
+        field={@name_form[:current_password]}
+        name="current_password"
+        id="current_password_for_name"
+        type="password"
+        label="Current password"
+        value={@name_form_current_password}
+        required
+      />
+      <:actions>
+        <.button phx-disable-with="Changing...">Change Name</.button>
+      </:actions>
+    </.simple_form>
+
     <.header>Change Email</.header>
 
     <.simple_form
@@ -39,7 +57,7 @@ defmodule PearsWeb.TeamSettingsLive do
       phx-submit="update_password"
       phx-trigger-action={@trigger_submit}
     >
-      <.input field={@password_form[:email]} type="hidden" value={@current_email} />
+      <.input field={@password_form[:name]} type="hidden" value={@current_name} />
       <.input field={@password_form[:password]} type="password" label="New password" required />
       <.input
         field={@password_form[:password_confirmation]}
@@ -78,6 +96,7 @@ defmodule PearsWeb.TeamSettingsLive do
   def mount(_params, _session, socket) do
     team = socket.assigns.current_team
     email_changeset = Accounts.change_team_email(team)
+    name_changeset = Accounts.change_team_name(team)
     password_changeset = Accounts.change_team_password(team)
 
     socket =
@@ -86,6 +105,9 @@ defmodule PearsWeb.TeamSettingsLive do
       |> assign(:email_form_current_password, nil)
       |> assign(:current_email, team.email)
       |> assign(:email_form, to_form(email_changeset))
+      |> assign(:name_form_current_password, nil)
+      |> assign(:current_name, team.name)
+      |> assign(:name_form, to_form(name_changeset))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
 
@@ -121,6 +143,32 @@ defmodule PearsWeb.TeamSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, :email_form, to_form(Map.put(changeset, :action, :insert)))}
+    end
+  end
+
+  def handle_event("validate_name", params, socket) do
+    %{"current_password" => password, "team" => team_params} = params
+
+    name_form =
+      socket.assigns.current_team
+      |> Accounts.change_team_name(team_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, name_form: name_form, name_form_current_password: password)}
+  end
+
+  def handle_event("update_name", params, socket) do
+    %{"current_password" => password, "team" => team_params} = params
+    team = socket.assigns.current_team
+
+    case Accounts.update_team_name(team, password, team_params) do
+      {:ok, _} ->
+        info = "Name changed successfully."
+        {:noreply, socket |> put_flash(:info, info) |> assign(email_form_current_password: nil)}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, name_form: to_form(changeset))}
     end
   end
 
