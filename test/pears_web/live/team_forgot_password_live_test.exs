@@ -12,8 +12,8 @@ defmodule PearsWeb.TeamForgotPasswordLiveTest do
       {:ok, lv, html} = live(conn, ~p"/teams/reset_password")
 
       assert html =~ "Forgot your password?"
-      assert has_element?(lv, ~s|a[href="#{~p"/users/register"}"]|, "Register")
-      assert has_element?(lv, ~s|a[href="#{~p"/users/log_in"}"]|, "Log in")
+      assert has_element?(lv, ~s|a[href="#{~p"/teams/register"}"]|, "Register")
+      assert has_element?(lv, ~s|a[href="#{~p"/teams/log_in"}"]|, "Log in")
     end
 
     test "redirects if already logged in", %{conn: conn} do

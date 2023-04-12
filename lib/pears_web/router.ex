@@ -60,8 +60,6 @@ defmodule PearsWeb.Router do
 
     live_session :require_authenticated_team,
       on_mount: [{PearsWeb.TeamAuth, :ensure_authenticated}] do
-      get "/", PageController, :home
-
       live "/teams/settings", TeamSettingsLive, :edit
       live "/teams/settings/confirm_email/:token", TeamSettingsLive, :confirm_email
     end
@@ -70,6 +68,7 @@ defmodule PearsWeb.Router do
   scope "/", PearsWeb do
     pipe_through [:browser]
 
+    get "/", PageController, :home
     delete "/teams/log_out", TeamSessionController, :delete
 
     live_session :current_team,

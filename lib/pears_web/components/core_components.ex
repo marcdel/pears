@@ -379,7 +379,7 @@ defmodule PearsWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id} class="block text-sm font-medium leading-5 text-gray-700">
+      <.label for={@id}>
         <%= @label %>
       </.label>
       <div class="mt-1 rounded-md shadow-sm">

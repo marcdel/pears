@@ -151,7 +151,7 @@ defmodule Pears.PersistenceTest do
 
       assert track.anchor.id == pear.id
 
-      assert {:ok, pear} = Persistence.toggle_anchor("New Team", "Pear One", "Track One")
+      assert {:ok, _pear} = Persistence.toggle_anchor("New Team", "Pear One", "Track One")
 
       {:ok, team} = Persistence.get_team_by_name("New Team")
       {:ok, track} = Persistence.find_track_by_name(team, "Track One")
@@ -175,7 +175,7 @@ defmodule Pears.PersistenceTest do
 
       {:ok, %{snapshots: [snapshot]}} = Persistence.get_team_by_name("New Team")
 
-      assert [match_one, match_two] = snapshot.matches
+      assert length(snapshot.matches) == 2
 
       matches =
         snapshot.matches
