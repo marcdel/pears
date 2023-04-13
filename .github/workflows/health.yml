@@ -2,7 +2,7 @@ name: Check if app.pears.dev is up
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '0 * * * *'
 
 jobs:
   health_check:
@@ -19,3 +19,16 @@ jobs:
           follow-redirect: false
           max-attempts: 3
           retry-delay: 5s
+  slack_notification:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: general
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: app.pears.dev is down!
+          SLACK_MESSAGE: 'app.pears.dev is down! scale it back up here: https://console.gigalixir.com/#/apps/pears'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
