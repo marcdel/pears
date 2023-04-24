@@ -32,5 +32,11 @@ config :swoosh, :api_client, false
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+config :opentelemetry,
+  processors: [
+    {:otel_batch_processor,
+     %{scheduled_delay_ms: 1, exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}}}
+  ]
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

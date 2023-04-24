@@ -67,29 +67,37 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  # Configure OpenTelemetry Exporter
-  api_key = System.fetch_env!("HONEYCOMB_KEY")
+  case System.fetch_env("OTEL_EXPORTER") do
+    {:ok, "stdout"} ->
+      config :opentelemetry, traces_exporter: {:otel_exporter_stdout, []}
 
-  dataset =
-    case config_env() do
-      :test -> "pears_test"
-      :dev -> "pears_dev"
-      :prod -> "pears"
-    end
+    {:ok, "log"} ->
+      config :opentelemetry, traces_exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}
 
-  config :opentelemetry, :processors,
-    otel_batch_processor: %{
-      exporter:
-        {:opentelemetry_exporter,
-         %{
-           protocol: :grpc,
-           headers: [
-             {'x-honeycomb-team', api_key},
-             {'x-honeycomb-dataset', dataset}
-           ],
-           endpoints: [{:https, 'api.honeycomb.io', 443, []}]
-         }}
-    }
+    {:ok, "honeycomb"} ->
+      # Configure OpenTelemetry Exporter
+      api_key = System.fetch_env!("HONEYCOMB_KEY")
+
+      dataset =
+        case config_env() do
+          :test -> "pears_test"
+          :dev -> "pears_dev"
+          :prod -> "pears"
+        end
+
+      config :opentelemetry_exporter,
+        otlp_protocol: :grpc,
+        otlp_compression: :gzip,
+        otlp_endpoint: "https://api.honeycomb.io:443",
+        otlp_headers: [
+          {"x-honeycomb-team", api_key},
+          {"x-honeycomb-dataset", dataset}
+        ]
+
+    _ ->
+      # Disabled by default
+      config :opentelemetry, traces_exporter: :none
+  end
 
   # ## SSL Support
   #

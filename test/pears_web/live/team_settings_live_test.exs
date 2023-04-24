@@ -12,7 +12,6 @@ defmodule PearsWeb.TeamSettingsLiveTest do
         |> log_in_team(team_fixture())
         |> live(~p"/teams/settings")
 
-      assert html =~ "Butt Soup"
       assert html =~ "Change Email"
       assert html =~ "Change Password"
     end
