@@ -1,5 +1,6 @@
 defmodule PearsWeb.TeamLoginLive do
   use PearsWeb, :live_view
+  use OpenTelemetryDecorator
 
   def render(assigns) do
     ~H"""
@@ -35,6 +36,7 @@ defmodule PearsWeb.TeamLoginLive do
     """
   end
 
+  @decorate trace("PearsWeb.TeamLoginLive.mount", include: [:name, :socket])
   def mount(_params, _session, socket) do
     name = live_flash(socket.assigns.flash, :name)
     form = to_form(%{"name" => name}, as: "team")
