@@ -6,39 +6,63 @@ defmodule PearsWeb.TeamRegistrationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Register for an account
-        <:subtitle>
-          Already registered?
-          <.link navigate={~p"/teams/log_in"} class="font-semibold text-brand hover:underline">
-            Sign in
-          </.link>
-          to your account now.
-        </:subtitle>
-      </.header>
+    <.error :if={@check_errors}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+    <main class="min-h-screen bg-white flex">
+      <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-32">
+        <div class="mx-auto w-full max-w-sm lg:w-96">
+          <div>
+            <div
+              class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-green-300 transition duration-150 ease-in-out"
+              id="user-menu"
+              aria-label="User menu"
+              aria-haspopup="true"
+            >
+              <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-500">
+                <span class="text-lg font-medium leading-none text-white">🍐</span>
+              </span>
+            </div>
+            <h2 class="mt-6 text-3xl leading-9 font-extrabold text-gray-900 xl:w-64">
+              Create your team
+            </h2>
+            <p class="mt-2 text-sm leading-5 text-gray-600 max-w">
+              Or
+              <.link
+                navigate={~p"/teams/log_in"}
+                class="font-medium text-green-600 hover:text-green-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+              >
+                log in
+              </.link>
+            </p>
+          </div>
 
-      <.simple_form
-        for={@form}
-        id="registration_form"
-        phx-submit="save"
-        phx-change="validate"
-        phx-trigger-action={@trigger_submit}
-        action={~p"/teams/log_in?_action=registered"}
-        method="post"
-      >
-        <.error :if={@check_errors}>
-          Oops, something went wrong! Please check the errors below.
-        </.error>
+          <div class="mt-8">
+            <div class="mt-6">
+              <.simple_form
+                for={@form}
+                id="registration_form"
+                phx-submit="save"
+                phx-change="validate"
+                phx-trigger-action={@trigger_submit}
+                action={~p"/teams/log_in?_action=registered"}
+                method="post"
+              >
+                <.input field={@form[:name]} type="text" label="Name" required />
+                <.input field={@form[:password]} type="password" label="Password" required />
 
-        <.input field={@form[:name]} type="text" label="Name" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
-
-        <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
-        </:actions>
-      </.simple_form>
-    </div>
+                <:actions>
+                  <.button phx-disable-with="Registering account...">Register</.button>
+                </:actions>
+              </.simple_form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col items-center justify-center w-0 flex-1">
+        <img class="inset-0 object-cover" src={~p"/images/login.svg"} alt="" />
+      </div>
+    </main>
     """
   end
 
@@ -66,7 +90,13 @@ defmodule PearsWeb.TeamRegistrationLive do
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
+        socket =
+          socket
+          # |> assign(check_errors: true) # Show the <.error> component
+          |> put_flash(:error, "Oops, something went wrong! Please check the errors below.")
+          |> assign_form(changeset)
+
+        {:noreply, socket}
     end
   end
 

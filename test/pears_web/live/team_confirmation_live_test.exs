@@ -29,7 +29,7 @@ defmodule PearsWeb.TeamConfirmationLiveTest do
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/teams/log_in")
 
       assert {:ok, conn} = result
 
@@ -47,7 +47,7 @@ defmodule PearsWeb.TeamConfirmationLiveTest do
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/teams/log_in")
 
       assert {:ok, conn} = result
 
@@ -64,7 +64,7 @@ defmodule PearsWeb.TeamConfirmationLiveTest do
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/teams/log_in")
 
       assert {:ok, conn} = result
       refute Phoenix.Flash.get(conn.assigns.flash, :error)
@@ -77,7 +77,7 @@ defmodule PearsWeb.TeamConfirmationLiveTest do
         lv
         |> form("#confirmation_form")
         |> render_submit()
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/teams/log_in")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Team confirmation link is invalid or it has expired"

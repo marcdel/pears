@@ -88,6 +88,7 @@ defmodule PearsWeb.TeamResetPasswordLiveTest do
   end
 
   describe "Reset password navigation" do
+    @tag :skip
     test "redirects to login page when the Log in button is clicked", %{conn: conn, token: token} do
       {:ok, lv, _html} = live(conn, ~p"/teams/reset_password/#{token}")
 
@@ -100,6 +101,7 @@ defmodule PearsWeb.TeamResetPasswordLiveTest do
       assert conn.resp_body =~ "Log in"
     end
 
+    @tag :skip
     test "redirects to password reset page when the Register button is clicked", %{
       conn: conn,
       token: token

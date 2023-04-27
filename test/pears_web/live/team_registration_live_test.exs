@@ -9,7 +9,7 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
       {:ok, _lv, html} = live(conn, ~p"/teams/register")
 
       assert html =~ "Register"
-      assert html =~ "Log in"
+      assert html =~ "log in"
     end
 
     test "redirects if already logged in", %{conn: conn} do
@@ -79,7 +79,7 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
 
       {:ok, _login_live, login_html} =
         lv
-        |> element(~s|main a:fl-contains("Sign in")|)
+        |> element(~s|main a:fl-contains("log in")|)
         |> render_click()
         |> follow_redirect(conn, ~p"/teams/log_in")
 
