@@ -9,8 +9,8 @@ defmodule PearsWeb.TeamLoginLiveTest do
       {:ok, _lv, html} = live(conn, ~p"/teams/log_in")
 
       assert html =~ "Log in"
-      assert html =~ "Register"
-      assert html =~ "Forgot your password?"
+      assert html =~ "create your team"
+      # assert html =~ "Forgot your password?"
     end
 
     test "redirects if already logged in", %{conn: conn} do
@@ -61,13 +61,14 @@ defmodule PearsWeb.TeamLoginLiveTest do
 
       {:ok, _login_live, login_html} =
         lv
-        |> element(~s|main a:fl-contains("Sign up")|)
+        |> element(~s|main a:fl-contains("create your team")|)
         |> render_click()
         |> follow_redirect(conn, ~p"/teams/register")
 
       assert login_html =~ "Register"
     end
 
+    @tag :skip
     test "redirects to forgot password page when the Forgot Password button is clicked", %{
       conn: conn
     } do

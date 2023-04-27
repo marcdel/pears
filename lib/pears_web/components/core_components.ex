@@ -226,7 +226,7 @@ defmodule PearsWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="space-y-8 bg-white mt-10">
+      <div>
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -317,8 +317,8 @@ defmodule PearsWeb.CoreComponents do
       assign_new(assigns, :checked, fn -> Phoenix.HTML.Form.normalize_value("checkbox", value) end)
 
     ~H"""
-    <div phx-feedback-for={@name}>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+    <div phx-feedback-for={@name} class="pb-5">
+      <label class="flex items-center gap-2 text-sm leading-4 text-zinc-600">
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
@@ -331,14 +331,14 @@ defmodule PearsWeb.CoreComponents do
         />
         <%= @label %>
       </label>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.input_error :for={msg <- @errors}><%= msg %></.input_error>
     </div>
     """
   end
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div phx-feedback-for={@name} class="pb-5">
       <.label for={@id}><%= @label %></.label>
       <select
         id={@id}
@@ -350,14 +350,14 @@ defmodule PearsWeb.CoreComponents do
         <option :if={@prompt} value=""><%= @prompt %></option>
         <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.input_error :for={msg <- @errors}><%= msg %></.input_error>
     </div>
     """
   end
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div phx-feedback-for={@name} class="pb-5">
       <.label for={@id}><%= @label %></.label>
       <textarea
         id={@id || @name}
@@ -371,14 +371,14 @@ defmodule PearsWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.input_error :for={msg <- @errors}><%= msg %></.input_error>
     </div>
     """
   end
 
   def input(assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div phx-feedback-for={@name} class="pb-5">
       <.label for={@id}>
         <%= @label %>
       </.label>
@@ -396,7 +396,7 @@ defmodule PearsWeb.CoreComponents do
           {@rest}
         />
       </div>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.input_error :for={msg <- @errors}><%= msg %></.input_error>
     </div>
     """
   end
@@ -409,7 +409,7 @@ defmodule PearsWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm font-medium leading-5 text-gray-700">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -422,10 +422,40 @@ defmodule PearsWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="mt-2 text-sm text-red-600">
-      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none" />
-      <%= render_slot(@inner_block) %>
-    </p>
+    <div class="rounded-md bg-red-100 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <!-- Heroicon name: x-circle -->
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm leading-5 font-medium text-red-800" role="alert">
+            <%= render_slot(@inner_block) %>
+          </p>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Generates a generic error message for an input field.
+  """
+  slot :inner_block, required: true
+
+  def input_error(assigns) do
+    ~H"""
+    <div class="py-2">
+      <p class="text-sm leading-5 font-medium text-red-600" role="alert">
+        <%= render_slot(@inner_block) %>
+      </p>
+    </div>
     """
   end
 

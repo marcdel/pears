@@ -36,7 +36,7 @@ defmodule PearsWeb.TeamConfirmationLive do
         {:noreply,
          socket
          |> put_flash(:info, "Team confirmed successfully.")
-         |> redirect(to: ~p"/")}
+         |> redirect(to: ~p"/teams/log_in")}
 
       :error ->
         # If there is a current team and the account was already confirmed,
@@ -45,13 +45,13 @@ defmodule PearsWeb.TeamConfirmationLive do
         # a warning message.
         case socket.assigns do
           %{current_team: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
-            {:noreply, redirect(socket, to: ~p"/")}
+            {:noreply, redirect(socket, to: ~p"/teams/log_in")}
 
           %{} ->
             {:noreply,
              socket
              |> put_flash(:error, "Team confirmation link is invalid or it has expired.")
-             |> redirect(to: ~p"/")}
+             |> redirect(to: ~p"/teams/log_in")}
         end
     end
   end
