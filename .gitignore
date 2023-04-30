@@ -42,3 +42,5 @@ ui_tests/cypress/screenshots
 # intellij stuff
 .idea/
 pears.iml
+
+.env.local
