@@ -99,14 +99,14 @@ defmodule PearsWeb.TeamSessionControllerTest do
   describe "DELETE /teams/log_out" do
     test "logs the team out", %{conn: conn, team: team} do
       conn = conn |> log_in_team(team) |> delete(~p"/teams/log_out")
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/teams/log_in"
       refute get_session(conn, :team_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
 
     test "succeeds even if the team is not logged in", %{conn: conn} do
       conn = delete(conn, ~p"/teams/log_out")
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/teams/log_in"
       refute get_session(conn, :team_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end

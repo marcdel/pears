@@ -60,7 +60,7 @@ defmodule PearsWeb.TeamAuthTest do
       refute get_session(conn, :team_token)
       refute conn.cookies[@remember_me_cookie]
       assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/teams/log_in"
       refute Accounts.get_team_by_session_token(team_token)
     end
 
@@ -79,7 +79,7 @@ defmodule PearsWeb.TeamAuthTest do
       conn = conn |> fetch_cookies() |> TeamAuth.log_out_team()
       refute get_session(conn, :team_token)
       assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/teams/log_in"
     end
   end
 
