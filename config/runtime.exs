@@ -24,6 +24,40 @@ if System.get_env("PHX_SERVER") do
   config :pears, PearsWeb.Endpoint, server: true
 end
 
+case System.fetch_env("OTEL_EXPORTER") do
+  {:ok, "stdout"} ->
+    config :opentelemetry, traces_exporter: {:otel_exporter_stdout, []}
+
+  {:ok, "log"} ->
+    config :opentelemetry, traces_exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}
+
+  {:ok, "honeycomb"} ->
+    # Configure OpenTelemetry Exporter
+    api_key =
+      System.fetch_env!("HONEYCOMB_KEY")
+      |> IO.inspect(label: "HONEYCOMB_KEY")
+
+    dataset =
+      case config_env() do
+        :test -> "pears_test"
+        :dev -> "pears_dev"
+        :prod -> "pears"
+      end
+
+    config :opentelemetry_exporter,
+      otlp_protocol: :grpc,
+      otlp_compression: :gzip,
+      otlp_endpoint: "https://api.honeycomb.io:443",
+      otlp_headers: [
+        {"x-honeycomb-team", api_key},
+        {"x-honeycomb-dataset", dataset}
+      ]
+
+  _ ->
+    # Disabled by default
+    config :opentelemetry, traces_exporter: :none
+end
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
@@ -66,38 +100,6 @@ if config_env() == :prod do
       port: port
     ],
     secret_key_base: secret_key_base
-
-  case System.fetch_env("OTEL_EXPORTER") do
-    {:ok, "stdout"} ->
-      config :opentelemetry, traces_exporter: {:otel_exporter_stdout, []}
-
-    {:ok, "log"} ->
-      config :opentelemetry, traces_exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}
-
-    {:ok, "honeycomb"} ->
-      # Configure OpenTelemetry Exporter
-      api_key = System.fetch_env!("HONEYCOMB_KEY")
-
-      dataset =
-        case config_env() do
-          :test -> "pears_test"
-          :dev -> "pears_dev"
-          :prod -> "pears"
-        end
-
-      config :opentelemetry_exporter,
-        otlp_protocol: :grpc,
-        otlp_compression: :gzip,
-        otlp_endpoint: "https://api.honeycomb.io:443",
-        otlp_headers: [
-          {"x-honeycomb-team", api_key},
-          {"x-honeycomb-dataset", dataset}
-        ]
-
-    _ ->
-      # Disabled by default
-      config :opentelemetry, traces_exporter: :none
-  end
 
   # ## SSL Support
   #

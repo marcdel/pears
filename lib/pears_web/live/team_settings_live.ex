@@ -1,9 +1,14 @@
 defmodule PearsWeb.TeamSettingsLive do
   use PearsWeb, :live_view
+  use OpenTelemetryDecorator
+  require OpenTelemetry.Tracer, as: Tracer
 
   alias Pears.Accounts
 
+  @decorate trace("team_settings_live.render")
   def render(assigns) do
+    Tracer.set_attribute(:team_name, assigns.current_team.name)
+
     ~H"""
     <.header>Change Name</.header>
 
