@@ -42,7 +42,6 @@ defmodule Pears.MixProject do
       {:opentelemetry_api, "~> 1.2"},
       {:opentelemetry_exporter, "~> 1.4"},
       {:opentelemetry_log_exporter, "~> 0.5.0"},
-      # {:opentelemetry_log_exporter, path: "../opentelemetry_log_exporter"},
       {:opentelemetry_ecto, "~> 1.1"},
       {:open_telemetry_decorator, "~> 1.4"},
       {:opentelemetry_phoenix, "~> 1.1"},
