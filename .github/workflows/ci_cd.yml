@@ -28,8 +28,8 @@ jobs:
     name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
     strategy:
       matrix:
-        otp: ["26.0-rc1"]
-        elixir: ["1.14.3"]
+        otp: ["25.3.1"]
+        elixir: ["1.14.4"]
     steps:
       - uses: kvrhdn/gha-buildevents@main
         with:

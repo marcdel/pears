@@ -33,9 +33,7 @@ case System.fetch_env("OTEL_EXPORTER") do
 
   {:ok, "honeycomb"} ->
     # Configure OpenTelemetry Exporter
-    api_key =
-      System.fetch_env!("HONEYCOMB_KEY")
-      |> IO.inspect(label: "HONEYCOMB_KEY")
+    api_key = System.fetch_env!("HONEYCOMB_KEY")
 
     dataset =
       case config_env() do
