@@ -32,10 +32,15 @@ config :swoosh, :api_client, false
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+telemetry_log_level = System.get_env("TELEMETRY_LOG_LEVEL", "info") |> String.to_atom()
+
 config :opentelemetry,
   processors: [
     {:otel_batch_processor,
-     %{scheduled_delay_ms: 1, exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}}}
+     %{
+       scheduled_delay_ms: 1,
+       exporter: {Elixir.OpenTelemetryLogExporter, [level: telemetry_log_level]}
+     }}
   ]
 
 # Initialize plugs at runtime for faster test compilation
