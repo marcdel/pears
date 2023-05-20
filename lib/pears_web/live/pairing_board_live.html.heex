@@ -1,7 +1,11 @@
 <.header><%= @team_name %></.header>
 
 <%= if show_random_facilitator_message(@team) do %>
-  <%= live_component(@socket, PearsWeb.FacilitatorMessage, id: @team.id, team_name: @team.name) %>
+  <.live_component
+    module={PearsWeb.FacilitatorMessage}
+    id="facilitator_message"
+    team_name={@team.name}
+  />
 <% end %>
 <div class="px-4 py-8 sm:px-0">
   <div class="pb-5 mb-10 border-b border-gray-200 space-y-3 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
@@ -9,14 +13,14 @@
       <h1 class="capitalize ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
         <%= assigns[:page_title] %>
       </h1>
-      <%= live_component(@socket, PearsWeb.AddTrackButton, socket: @socket, team: @team) %>
+      <.live_component module={PearsWeb.AddTrackButton} id="add_track_button" />
     </div>
     <div class="flex space-x-3">
       <%= unless hide_reset_button?(@team) do %>
-        <%= live_component(@socket, PearsWeb.ResetButton) %>
+        <.live_component module={PearsWeb.ResetButton} id="reset_button" />
       <% end %>
-      <%= live_component(@socket, PearsWeb.SuggestButton) %>
-      <%= live_component(@socket, PearsWeb.SaveButton) %>
+      <.live_component module={PearsWeb.SuggestButton} id="suggest_button" />
+      <.live_component module={PearsWeb.SaveButton} id="save_button" />
     </div>
   </div>
   <%= if new_drag_n_drop?(@team) do %>
@@ -24,7 +28,7 @@
       <div class="dropzone grid gap-3" id="Unassigned">
         <%= for pear <- list_pears(@team.available_pears) do %>
           <div draggable="true" id={@pear.name} class="draggable p-4 bg-blue-700 text-white">
-            {@pear.name}
+            <%= pear.name %>
           </div>
         <% end %>
       </div>
@@ -47,7 +51,7 @@
     <li class="col-span-1 row-span-2 bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-4 sm:px-6 border-b-2 border-gray-100 flex justify-between">
         <span class="pl-2">Available Pears</span>
-        <%= live_component(@socket, PearsWeb.AddPearButton, socket: @socket, team: @team) %>
+        <.live_component module={PearsWeb.AddPearButton} id="add_pear_button" team={@team} />
       </div>
       <div
         class="bg-gray-100 px-4 py-5 sm:p-6 h-full"
@@ -59,25 +63,32 @@
       >
         <ul class="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-6">
           <%= for pear <- list_pears(@team.available_pears) do %>
-            <%= live_component(@socket, PearsWeb.Pear,
-              id: pear.id,
-              team_name: @team.name,
-              pear: pear,
-              track: nil
-            ) %>
+            <.live_component
+              module={PearsWeb.Pear}
+              id={"#{pear.id} available-pear"}
+              team_name={@team.name}
+              pear={pear}
+              track={nil}
+            />
           <% end %>
-          <%= live_component(@socket, PearsWeb.DropZone, selected_pear: @selected_pear, track: nil) %>
+          <.live_component
+            module={PearsWeb.DropZone}
+            id="available_pears drop_zone"
+            selected_pear={@selected_pear}
+            track={nil}
+          />
         </ul>
       </div>
     </li>
     <%= for track <- list_tracks(@team) do %>
-      <%= live_component(@socket, PearsWeb.Track,
-        id: track.id,
-        team_name: @team.name,
-        track: track,
-        pears: list_pears(track.pears),
-        selected_pear: @selected_pear
-      ) %>
+      <.live_component
+        module={PearsWeb.Track}
+        id={"#{track.id} track"}
+        team_name={@team.name}
+        track={track}
+        pears={list_pears(track.pears)}
+        selected_pear={@selected_pear}
+      />
     <% end %>
   </ul>
   <div class="pt-5 mt-10 space-y-3 flex justify-center align-middle">
