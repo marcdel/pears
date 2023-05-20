@@ -65,7 +65,10 @@ defmodule PearsWeb.Router do
         {PearsWeb.CurrentPath, :get_current_path}
       ],
       layout: {PearsWeb.Layouts, :app} do
-      live "/", PairingBoardLive, :edit
+      live "/", PairingBoardLive, :show
+      live "/teams", PairingBoardLive, :show
+      live "/teams/add_pear", PairingBoardLive, :add_pear
+      live "/teams/add_track", PairingBoardLive, :add_track
       live "/teams/settings", TeamSettingsLive, :edit
       live "/teams/settings/confirm_email/:token", TeamSettingsLive, :confirm_email
     end
