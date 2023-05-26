@@ -7,6 +7,15 @@
     team_name={@team.name}
   />
 <% end %>
+
+<.modal show={@current_path == ~p"/teams/add_track"} id="add_track_modal">
+  <.live_component module={PearsWeb.AddTrackForm} id="add_track_form" team={@team} />
+</.modal>
+
+<.modal show={@current_path == ~p"/teams/add_pear"} id="add_pear_modal">
+  <.live_component module={PearsWeb.AddPearForm} id="add_pear_form" team={@team} />
+</.modal>
+
 <div class="px-4 py-8 sm:px-0">
   <div class="pb-5 mb-10 border-b border-gray-200 space-y-3 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
     <div class="flex space-x-3 align-middle">
