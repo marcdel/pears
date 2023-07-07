@@ -9,6 +9,7 @@ mix compile --warnings-as-errors
 
 mix format
 mix credo --strict
+mix hex.outdated
 
 TELEMETRY_LOG_LEVEL=debug mix test
 #(cd ui_tests && npx cypress run)
