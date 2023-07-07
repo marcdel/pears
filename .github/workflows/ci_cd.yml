@@ -1,233 +1,135 @@
-# Modifying the actions? Don't like pushing to GitHub to find out whether your changes worked?
-# Consider act: https://github.com/nektos/act
-#
-# WARNING: you'll need the 18.2GB GitHub-compatible Docker image:
-#   act -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04
+name: Continuous Integration and Delivery
 
-name: pears_ci
-
+# Define workflow that runs when changes are pushed to the
+# `main` branch or pushed to a PR branch that targets the `main`
+# branch. Change the branch name if your project uses a
+# different name for the main branch like "master" or "production".
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]  # adapt branch for project
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]  # adapt branch for project
 
+# Sets the ENV `MIX_ENV` to `test` for running tests
 env:
-  HONEYCOMB_KEY: ${{ secrets.HONEYCOMB_KEY }}
-  ADMIN_USER: ${{ secrets.ADMIN_USER }}
-  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-  TIMBER_KEY: ${{ secrets.TIMBER_KEY }}
-  TIMBER_SOURCE_ID: ${{ secrets.TIMBER_SOURCE_ID }}
-  SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
-  SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
-  CLOAK_KEY: ${{ secrets.CLOAK_KEY }}
+  MIX_ENV: test
+
+permissions:
+  contents: read
 
 jobs:
-  check:
+  test:
+    # Set up a Postgres DB service. By default, Phoenix applications
+    # use Postgres. This creates a database for running tests.
+    # Additional services can be defined here if required.
+    services:
+      db:
+        image: postgres:12
+        ports: [ '5432:5432' ]
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     runs-on: ubuntu-latest
-    name: Format/Lint (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
+    name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
+      # Specify the OTP and Elixir versions to use when building
+      # and running the workflow steps.
       matrix:
-        otp: ["25.3.1"]
-        elixir: ["1.14.4"]
+        otp: [ '25.3.1' ]       # Define the OTP version [required]
+        elixir: [ '1.14.1' ]    # Define the elixir version [required]
     steps:
-      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.HONEYCOMB_KEY }}
-          dataset: pears_buildevents
-          job-status: ${{ job.status }}
-          matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v3
+      # Step: Setup Elixir + Erlang image as the base.
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: ${{matrix.elixir}}
           otp-version: ${{matrix.otp}}
-      - name: Restore dependencies cache
-        uses: actions/cache@v2
+          elixir-version: ${{matrix.elixir}}
+
+      # Step: Check out the code.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step: Define how to cache deps. Restores existing cache if present.
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v3
         env:
-          cache-name: deps
+          cache-name: cache-elixir-deps
         with:
           path: deps
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-      - name: Restore _build cache
-        uses: actions/cache@v2
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+      # Step: Define how to cache the `_build` directory. After the first run,
+      # this speeds up tests runs a lot. This includes not re-compiling our
+      # project's downloaded deps every run.
+      - name: Cache compiled build
+        id: cache-build
+        uses: actions/cache@v3
         env:
-          cache-name: _build
+          cache-name: cache-compiled-build
         with:
           path: _build
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-      - name: mix deps.get
-        run: |
-          mix deps.get
-          mix deps.unlock --unused
-          mix deps.clean --unused
-          git diff --exit-code mix.lock
-      - name: mix compile
-        run: |
-          mix deps.compile
-          mix compile
-      - name: mix format
-        run: |
-          mix format --check-formatted --dry-run --check-equivalent
-      - name: mix credo
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+            ${{ runner.os }}-mix-
+
+      # Step: Download project dependencies. If unchanged, uses
+      # the cached version.
+      - name: Install dependencies
+        run: mix deps.get
+
+      # Step: Check for unused dependencies.
+      # This step fails if there are unused dependencies in the lock.
+      - name: Check for unused dependencies
+        run: mix deps.unlock --check-unused
+
+      # Step: Compile the project treating any warnings as errors.
+      - name: Compiles without warnings
+        run: mix compile --warnings-as-errors
+
+      # Step: Check that the checked in code has already been formatted.
+      # This step fails if something was found unformatted.
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      # Step: Check that the checked in code has a consistent style.
+      # This step fails if issues are found.
+      - name: Static Analysis
         run: mix credo --strict
 
-  test:
-    runs-on: ubuntu-latest
-    name: Unit Tests (Elixir ${{matrix.elixir}} on OTP ${{matrix.otp}})
-    strategy:
-      matrix:
-        otp: ["26.0-rc1"]
-        elixir: ["1.14.3"]
-    services:
-      test_db:
-        image: postgres:12
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pears_test
-        ports: ['5432:5432']
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    steps:
-      - uses: kvrhdn/gha-buildevents@main
-        with:
-          apikey: ${{ secrets.HONEYCOMB_KEY }}
-          dataset: pears_buildevents
-          job-status: ${{ job.status }}
-          matrix-key: ${{ matrix.value }}
-      - uses: actions/checkout@v2
-      - name: Set up Elixir
-        uses: erlef/setup-beam@v1
-        with:
-          elixir-version: ${{matrix.elixir}}
-          otp-version: ${{matrix.otp}}
-      - name: Restore dependencies cache
-        uses: actions/cache@v2
-        env:
-          cache-name: deps
-        with:
-          path: deps
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-      - name: Restore _build cache
-        uses: actions/cache@v2
-        env:
-          cache-name: _build
-        with:
-          path: _build
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-      - name: mix deps.get
-        run: mix deps.get
-      - name: mix test
+      # Step: Execute the tests.
+      - name: Run tests
         run: mix test --trace
+  deploy:
+    name: Deploy to fly.io
+    runs-on: ubuntu-latest
+    needs: [ test ]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-#  e2e:
-#    runs-on: ubuntu-latest
-#    name: E2E Tests (${{matrix.containers}})
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        otp: ["26.0-rc1"]
-#        elixir: ["1.14.3"]
-#        containers: [1, 2, 3]
-#    services:
-#      ci_db:
-#        image: postgres:12
-#        env:
-#          POSTGRES_USER: postgres
-#          POSTGRES_PASSWORD: postgres
-#          POSTGRES_DB: pears_ci
-#        ports: ['5432:5432']
-#        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-#    steps:
-#      - uses: kvrhdn/gha-buildevents@main
-#        with:
-#          apikey: ${{ secrets.HONEYCOMB_KEY }}
-#          dataset: pears_buildevents
-#          job-status: ${{ job.status }}
-#          matrix-key: ${{ matrix.value }}
-#      - uses: actions/checkout@v3
-#      - name: Set up Elixir
-#        uses: erlef/setup-beam@v1
-#        with:
-#          elixir-version: ${{matrix.elixir}}
-#          otp-version: ${{matrix.otp}}
-#      - name: Restore dependencies cache
-#        uses: actions/cache@v2
-#        env:
-#          cache-name: deps
-#        with:
-#          path: deps
-#          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-#      - name: Restore _build cache
-#        uses: actions/cache@v2
-#        env:
-#          cache-name: _build
-#        with:
-#          path: _build
-#          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-${{ hashFiles('mix.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ env.cache-name }}-
-#      - name: mix deps.get
-#        run: mix deps.get
-#      - name: start e2e server in the background
-#        run: |
-#          mix do ecto.create, ecto.migrate
-#          mix phx.server &
-#        env:
-#          MIX_ENV: ci
-#      - name: cypress test
-#        uses: cypress-io/github-action@v5
-#        with:
-#          wait-on: 'http://localhost:5000'
-#          working-directory: ui_tests
-#          browser: chrome
-#          record: true
-#          parallel: true
-#        env:
-#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      - uses: actions/upload-artifact@v3
-#        if: failure()
-#        with:
-#          name: cypress-videos
-#          path: assets/cypress/videos
-
-#  deploy:
-#    runs-on: ubuntu-latest
-#    name: Deploy to Production
-#    needs: [check, test, e2e]
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-#    steps:
-#      - uses: kvrhdn/gha-buildevents@main
-#        with:
-#          apikey: ${{ secrets.HONEYCOMB_KEY }}
-#          dataset: pears_buildevents
-#          job-status: ${{ job.status }}
-#          matrix-key: ${{ matrix.value }}
-#      - uses: actions/checkout@v3
-#        with:
-#          ref: main # Checkout out main instead of the latest commit
-#          fetch-depth: 0 # Checkout the whole branch
-#      - name: deploy
-#        run: |
-#          sudo pip install gigalixir --ignore-installed six &&
-#          gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}" &&
-#          gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }} &&
-#          git push -f gigalixir HEAD:refs/heads/main
-#      - name: create honeycomb marker
-#        run: |
-#          curl https://api.honeycomb.io/1/markers/pears \
-#            -X POST \
-#            -H "X-Honeycomb-Team: ${{ secrets.HONEYCOMB_KEY }}" \
-#            -d '{"message":"${{ github.sha }}", "url":"https://github.com/marcdel/pears/commit/${{ github.sha }}", "type":"deploy"}'
+  on_failure:
+    needs: [ test, deploy ]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on failure
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: general
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: Pears CI/CD is red!
+          SLACK_MESSAGE: 'The build is red https://github.com/marcdel/pears/actions?query=branch%3Amain'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

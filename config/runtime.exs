@@ -6,57 +6,11 @@ import Config
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
-
-config :pears, slack_client_id: Map.fetch!(System.get_env(), "SLACK_CLIENT_ID")
-config :pears, slack_client_secret: Map.fetch!(System.get_env(), "SLACK_CLIENT_SECRET")
-config :pears, slack_oauth_redirect_uri: Map.get(System.get_env(), "SLACK_OAUTH_URL")
-
-# ## Using releases
-#
-# If you use `mix release`, you need to explicitly enable the server
-# by passing the PHX_SERVER=true when you start it:
-#
-#     PHX_SERVER=true bin/pears start
-#
-# Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
-# script that automatically sets the env var above.
-if System.get_env("PHX_SERVER") do
-  config :pears, PearsWeb.Endpoint, server: true
-end
-
-case System.fetch_env("OTEL_EXPORTER") do
-  {:ok, "stdout"} ->
-    config :opentelemetry, traces_exporter: {:otel_exporter_stdout, []}
-
-  {:ok, "log"} ->
-    config :opentelemetry, traces_exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}
-
-  {:ok, "honeycomb"} ->
-    # Configure OpenTelemetry Exporter
-    api_key = System.fetch_env!("HONEYCOMB_KEY")
-
-    dataset =
-      case config_env() do
-        :test -> "pears_test"
-        :dev -> "pears_dev"
-        :prod -> "pears"
-      end
-
-    config :opentelemetry_exporter,
-      otlp_protocol: :grpc,
-      otlp_compression: :gzip,
-      otlp_endpoint: "https://api.honeycomb.io:443",
-      otlp_headers: [
-        {"x-honeycomb-team", api_key},
-        {"x-honeycomb-dataset", dataset}
-      ]
-
-  _ ->
-    # Disabled by default
-    config :opentelemetry, traces_exporter: :none
-end
-
 if config_env() == :prod do
+  config :pears, slack_client_id: Map.fetch!(System.get_env(), "SLACK_CLIENT_ID")
+  config :pears, slack_client_secret: Map.fetch!(System.get_env(), "SLACK_CLIENT_SECRET")
+  config :pears, slack_oauth_redirect_uri: Map.get(System.get_env(), "SLACK_OAUTH_URL")
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
@@ -152,4 +106,49 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+end
+
+# ## Using releases
+#
+# If you use `mix release`, you need to explicitly enable the server
+# by passing the PHX_SERVER=true when you start it:
+#
+#     PHX_SERVER=true bin/pears start
+#
+# Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
+# script that automatically sets the env var above.
+if System.get_env("PHX_SERVER") do
+  config :pears, PearsWeb.Endpoint, server: true
+end
+
+case System.fetch_env("OTEL_EXPORTER") do
+  {:ok, "stdout"} ->
+    config :opentelemetry, traces_exporter: {:otel_exporter_stdout, []}
+
+  {:ok, "log"} ->
+    config :opentelemetry, traces_exporter: {Elixir.OpenTelemetryLogExporter, [level: :warning]}
+
+  {:ok, "honeycomb"} ->
+    # Configure OpenTelemetry Exporter
+    api_key = System.fetch_env!("HONEYCOMB_KEY")
+
+    dataset =
+      case config_env() do
+        :test -> "pears_test"
+        :dev -> "pears_dev"
+        :prod -> "pears"
+      end
+
+    config :opentelemetry_exporter,
+      otlp_protocol: :grpc,
+      otlp_compression: :gzip,
+      otlp_endpoint: "https://api.honeycomb.io:443",
+      otlp_headers: [
+        {"x-honeycomb-team", api_key},
+        {"x-honeycomb-dataset", dataset}
+      ]
+
+  _ ->
+    # Disabled by default
+    config :opentelemetry, traces_exporter: :none
 end
