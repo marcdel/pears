@@ -10,10 +10,6 @@ runs:
         otp-version: ${{matrix.otp}}
         elixir-version: ${{matrix.elixir}}
 
-    # Step: Check out the code.
-    - name: Checkout code
-      uses: actions/checkout@v3
-
     # Step: Define how to cache deps. Restores existing cache if present.
     - name: Cache deps
       id: cache-deps

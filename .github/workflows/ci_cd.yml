@@ -36,6 +36,10 @@ jobs:
         otp: [ '25.3.1' ]       # Define the OTP version [required]
         elixir: [ '1.14.1' ]    # Define the elixir version [required]
     steps:
+      # Step: Check out the code.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       # Step: Setup Elixir + Erlang and build the application.
       - name: Build the Application
         uses: ./.github/actions/build
@@ -84,6 +88,10 @@ jobs:
         otp: [ '25.3.1' ]       # Define the OTP version [required]
         elixir: [ '1.14.1' ]    # Define the elixir version [required]
     steps:
+      # Step: Check out the code.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       # Step: Setup Elixir + Erlang and build the application.
       - name: Build the Application
         uses: ./.github/actions/build
