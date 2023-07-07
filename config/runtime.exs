@@ -7,10 +7,6 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 if config_env() == :prod do
-  config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
-  config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
-  config :pears, slack_oauth_redirect_uri: System.get_env("SLACK_OAUTH_URL")
-
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
@@ -120,6 +116,10 @@ end
 if System.get_env("PHX_SERVER") do
   config :pears, PearsWeb.Endpoint, server: true
 end
+
+config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
+config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
+config :pears, slack_oauth_redirect_uri: System.get_env("SLACK_OAUTH_URL")
 
 case System.fetch_env("OTEL_EXPORTER") do
   {:ok, "stdout"} ->
