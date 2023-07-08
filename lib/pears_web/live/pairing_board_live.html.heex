@@ -8,11 +8,19 @@
   />
 <% end %>
 
-<.modal show={@current_path == ~p"/teams/add_track"} id="add_track_modal">
+<.modal
+  show={@current_path == ~p"/teams/add_track"}
+  id="add_track_modal"
+  on_cancel={JS.navigate(~p"/")}
+>
   <.live_component module={PearsWeb.AddTrackForm} id="add_track_form" team={@team} />
 </.modal>
 
-<.modal show={@current_path == ~p"/teams/add_pear"} id="add_pear_modal">
+<.modal
+  show={@current_path == ~p"/teams/add_pear"}
+  id="add_pear_modal"
+  on_cancel={JS.navigate(~p"/")}
+>
   <.live_component module={PearsWeb.AddPearForm} id="add_pear_form" team={@team} />
 </.modal>
 
