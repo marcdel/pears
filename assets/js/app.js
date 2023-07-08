@@ -36,7 +36,7 @@ Hooks.FocusInput = {
     this.el.addEventListener("keyup", e => {
       if (e.key == "Escape") {
         e.preventDefault()
-        this.pushEvent("cancel-editing-track")
+        this.pushEventTo(e.target,"cancel-editing-track")
       }
     })
   }
