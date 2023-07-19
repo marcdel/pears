@@ -32,6 +32,13 @@
             >
               Settings
             </a>
+
+            <a
+              href={"mailto:help@pears.dev?subject=Pears Support - Team: #{if @current_team == nil, do: "Anonymous", else: @current_team.name}"}
+              class="border-transparent inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out"
+            >
+              Support
+            </a>
           </div>
         </div>
         <div class="flex">
@@ -81,8 +88,8 @@
                     <svg
                       class="-ml-0.5 mr-1 h-6 w-6"
                       viewBox="0 0 19 24"
-                      stroke="currentColor"
-                      fill="none"
+                      stroke="#FFA500"
+                      fill="#FFA500"
                     >
                       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
                       <line x1="4" y1="22" x2="4" y2="15"></line>
