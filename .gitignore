@@ -39,8 +39,9 @@ npm-debug.log
 ui_tests/cypress/videos
 ui_tests/cypress/screenshots
 
-# intellij stuff
+# Editor stuff
 .idea/
 pears.iml
+.vscode/
 
 .env.local

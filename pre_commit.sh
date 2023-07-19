@@ -3,8 +3,7 @@ set -e
 
 source .env
 
-mix deps.unlock --unused
-mix deps.clean --unused
+mix deps.unlock --check-unused
 mix compile --warnings-as-errors
 
 mix format

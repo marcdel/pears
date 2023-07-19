@@ -71,6 +71,8 @@ defmodule PearsWeb.Router do
       live "/teams/add_track", PairingBoardLive, :add_track
       live "/teams/settings", TeamSettingsLive, :edit
       live "/teams/settings/confirm_email/:token", TeamSettingsLive, :confirm_email
+      live "/teams/slack", TeamSlackLive, :edit
+      live "/teams/account", TeamAccountLive, :edit
     end
   end
 

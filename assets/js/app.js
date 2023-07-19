@@ -42,6 +42,14 @@ Hooks.FocusInput = {
   }
 }
 
+Hooks.FlashMessage = {
+  mounted() {
+    setTimeout(() => {
+      this.el.remove()
+    }, 3000)
+  }
+}
+
 Hooks.Pear = {
   mounted() {
     this.el.addEventListener("dragstart", e => {

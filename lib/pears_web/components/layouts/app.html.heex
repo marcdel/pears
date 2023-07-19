@@ -69,7 +69,7 @@
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
             <a
-              href="mailto:help@pears.dev?subject=Pears Feedback - Team: {@current_team.name}"
+              href={"mailto:help@pears.dev?subject=Pears Feedback - Team: #{if @current_team == nil, do: "Anonymous", else: @current_team.name}"}
               title="Send us feedback or questions!"
             >
               <div

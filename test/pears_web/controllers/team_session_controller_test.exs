@@ -81,7 +81,7 @@ defmodule PearsWeb.TeamSessionControllerTest do
           }
         })
 
-      assert redirected_to(conn) == ~p"/teams/settings"
+      assert redirected_to(conn) == ~p"/teams/account"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Password updated successfully"
     end
 

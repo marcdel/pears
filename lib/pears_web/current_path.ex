@@ -1,14 +1,15 @@
 defmodule PearsWeb.CurrentPath do
-  def on_mount(:get_current_path, _params, _session, socket),
-    do:
-      {:cont,
-       Phoenix.LiveView.attach_hook(
-         socket,
-         :get_current_path,
-         :handle_params,
-         &get_current_path/3
-       )}
+  def on_mount(:get_current_path, _params, _session, socket) do
+    {:cont,
+     Phoenix.LiveView.attach_hook(
+       socket,
+       :get_current_path,
+       :handle_params,
+       &get_current_path/3
+     )}
+  end
 
-  defp get_current_path(_params, url, socket),
-    do: {:cont, Phoenix.Component.assign(socket, :current_path, URI.parse(url) |> Map.get(:path))}
+  defp get_current_path(_params, url, socket) do
+    {:cont, Phoenix.Component.assign(socket, :current_path, URI.parse(url) |> Map.get(:path))}
+  end
 end

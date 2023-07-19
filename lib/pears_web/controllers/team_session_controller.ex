@@ -10,7 +10,7 @@ defmodule PearsWeb.TeamSessionController do
 
   def create(conn, %{"_action" => "password_updated"} = params) do
     conn
-    |> put_session(:team_return_to, ~p"/teams/settings")
+    |> put_session(:team_return_to, ~p"/teams/account")
     |> create(params, "Password updated successfully!")
   end
 

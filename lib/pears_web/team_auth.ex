@@ -28,6 +28,7 @@ defmodule PearsWeb.TeamAuth do
   def log_in_team(conn, team, params \\ %{}) do
     token = Accounts.generate_team_session_token(team)
     team_return_to = get_session(conn, :team_return_to)
+    O11y.set_team(team)
 
     conn
     |> renew_session()
@@ -91,6 +92,8 @@ defmodule PearsWeb.TeamAuth do
   def fetch_current_team(conn, _opts) do
     {team_token, conn} = ensure_team_token(conn)
     team = team_token && Accounts.get_team_by_session_token(team_token)
+    O11y.set_team(team)
+
     assign(conn, :current_team, team)
   end
 
@@ -175,7 +178,9 @@ defmodule PearsWeb.TeamAuth do
   defp mount_current_team(session, socket) do
     Phoenix.Component.assign_new(socket, :current_team, fn ->
       if team_token = session["team_token"] do
-        Accounts.get_team_by_session_token(team_token)
+        team_token
+        |> Accounts.get_team_by_session_token()
+        |> O11y.set_team()
       end
     end)
   end
