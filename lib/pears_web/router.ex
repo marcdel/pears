@@ -17,10 +17,11 @@ defmodule PearsWeb.Router do
     plug :accepts, ["json"]
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", PearsWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", PearsWeb do
+    pipe_through :api
+
+    post "/slack/interactions", SlackInteractionController, :create
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:pears, :dev_routes) do
@@ -80,6 +81,7 @@ defmodule PearsWeb.Router do
     pipe_through [:browser]
 
     delete "/teams/log_out", TeamSessionController, :delete
+    get "/slack/oauth", SlackAuthController, :new
 
     live_session :current_team,
       on_mount: [
