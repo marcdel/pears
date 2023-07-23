@@ -50,7 +50,9 @@ defmodule Pears.Slack do
          {:ok, users} <- load_or_fetch_users(team_name, team.slack_token) do
       {:ok, Details.new(team, channels, users, pears)}
     else
-      _error -> {:error, Details.empty()}
+      error ->
+        O11y.set_error(error)
+        {:error, Details.empty()}
     end
   end
 
