@@ -14,7 +14,16 @@ defmodule PearsWeb.SlackAuthController do
         |> put_flash(:info, "Slack app successfully added!")
         |> redirect(to: ~p"/teams/slack")
 
+      {:error, error} ->
+        O11y.set_error(error)
+
+        conn
+        |> put_flash(:error, "Whoops, something went wrong! Please try again.")
+        |> redirect(to: ~p"/teams/slack")
+
       _ ->
+        O11y.set_error("Whoops, something went wrong! Please try again.")
+
         conn
         |> put_flash(:error, "Whoops, something went wrong! Please try again.")
         |> redirect(to: ~p"/teams/slack")
