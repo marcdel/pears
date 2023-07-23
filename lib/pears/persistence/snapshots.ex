@@ -3,7 +3,6 @@ defmodule Pears.Persistence.Snapshots do
 
   import Ecto.Query, warn: false
 
-  alias Pears.O11y
   alias Pears.Persistence.SnapshotRecord
   alias Pears.Persistence.TeamRecord
   alias Pears.Repo

@@ -1,4 +1,4 @@
-defmodule Pears.O11y.PeriodicMeasurements do
+defmodule O11y.PeriodicMeasurements do
   alias Pears.Persistence.RecordCounts
 
   def record_counts do

@@ -3,7 +3,6 @@ defmodule PearsWeb.PairingBoardLive do
   use OpenTelemetryDecorator
 
   alias Pears.Accounts
-  alias Pears.O11y
   alias Pears.Slack
 
   @decorate trace("team_live.mount", include: [:team_name])

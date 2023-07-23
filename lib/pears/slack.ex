@@ -3,7 +3,6 @@ defmodule Pears.Slack do
 
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Team
-  alias Pears.O11y
   alias Pears.Persistence
   alias Pears.Slack.Channel
   alias Pears.Slack.Details

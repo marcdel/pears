@@ -10,7 +10,6 @@ defmodule Pears do
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Recommendator
   alias Pears.Core.Team
-  alias Pears.O11y
   alias Pears.Persistence
 
   @topic inspect(__MODULE__)

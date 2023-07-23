@@ -4,7 +4,6 @@ defmodule Pears.Boundary.TeamSession do
 
   alias Pears.Boundary.TeamManager
   alias Pears.Core.Team
-  alias Pears.O11y
   alias Pears.Persistence
 
   @timeout :timer.minutes(60)

@@ -1,7 +1,6 @@
 defmodule PearsWeb.SlackInteractionController do
   use OpenTelemetryDecorator
   use PearsWeb, :controller
-  alias Pears.O11y
 
   @decorate trace("slack_interaction.create")
   def create(conn, %{"payload" => payload}) do

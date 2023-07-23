@@ -1,5 +1,4 @@
-# TODO: Find and replace references to this
-defmodule Pears.O11y do
+defmodule O11y do
   alias OpenTelemetryDecorator.Attributes
 
   @spec set_attribute(OpenTelemetry.attribute_key(), OpenTelemetry.attribute_value()) :: boolean()
