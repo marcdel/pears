@@ -30,7 +30,12 @@
           </div>
         </div>
         <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-          <a class="inline-flex justify-center" href={@slack_link_url}>
+          <a
+            class="inline-flex justify-center"
+            href={@slack_link_url}
+            phx-click="slack-link-clicked"
+            phx-value-href={@slack_link_url}
+          >
             <img
               alt="Add to Slack"
               height="40"
@@ -79,7 +84,10 @@
                 <option></option>
                 <%= for channel <- @details.channels do %>
                   <option
-                    selected={channel.id == @details.team_channel.id}
+                    selected={
+                      channel.id ==
+                        @details.team_channel.id
+                    }
                     value={"#{channel.id}"}
                   >
                     <%= channel.name %>
@@ -171,7 +179,8 @@
                                     <option></option>
                                     <%= for user <- @details.users do %>
                                       <option
-                                        {if user.name == pear.slack_name, do: "selected"}
+                                        {if user.name== pear.slack_name, do:
+                              "selected"}
                                         value={user.id}
                                       >
                                         <%= user.name %>

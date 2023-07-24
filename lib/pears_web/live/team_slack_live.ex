@@ -40,6 +40,17 @@ defmodule PearsWeb.TeamSlackLive do
     end
   end
 
+  @doc """
+  The actual redirection happens via the anchor tag in html, this is here to emit a telemetry event.
+  """
+  @decorate trace("slack_live.slack_link_clicked")
+  def handle_event("slack-link-clicked", value, socket) do
+    O11y.set_team(socket)
+    O11y.set_attribute("href", Map.get(value, "href", nil))
+
+    {:noreply, socket}
+  end
+
   @impl true
   @decorate trace("slack_live.save_slack_handles", include: [:team_name, :params])
   def handle_event("save-slack-handles", params, socket) do

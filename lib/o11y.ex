@@ -8,9 +8,14 @@ defmodule O11y do
 
   def set_team(nil), do: nil
 
-  def set_team(team) do
+  def set_team(%Pears.Accounts.Team{} = team) do
     O11y.set_attributes(%{team_id: team.id, team_name: team.name})
     team
+  end
+
+  def set_team(%Phoenix.LiveView.Socket{} = socket) do
+    set_team(socket.assigns.team)
+    socket
   end
 
   def record_exception(exception) do
