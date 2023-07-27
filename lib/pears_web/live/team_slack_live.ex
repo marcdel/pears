@@ -5,7 +5,7 @@ defmodule PearsWeb.TeamSlackLive do
   alias Pears.Accounts
   alias Pears.Slack
 
-  @impl true
+  @impl Phoenix.LiveView
   @decorate trace("slack_live.mount", include: [:team_name, :details])
   def mount(_params, session, socket) do
     socket = assign_team(socket, session)
@@ -17,12 +17,13 @@ defmodule PearsWeb.TeamSlackLive do
         {:ok, assign(socket, details: details)}
 
       {:error, details} ->
+        O11y.set_error("Error getting slack details.")
         {:ok, assign(socket, details: details)}
     end
   end
 
-  @impl true
-  @decorate trace("slack_live.save_team_channel", include: [])
+  @impl Phoenix.LiveView
+  @decorate trace("slack_live.save_team_channel", include: [:team_name, :team_channel_id])
   def handle_event("save-team-channel", %{"team_channel" => team_channel_id}, socket) do
     team_name = team_name(socket)
     team_channel = team_channel(socket, team_channel_id)
@@ -36,6 +37,7 @@ defmodule PearsWeb.TeamSlackLive do
          |> put_flash(:info, "Team channel successfully saved!")}
 
       _ ->
+        O11y.set_error("Error saving slack team channel.")
         {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}
     end
   end
@@ -43,6 +45,7 @@ defmodule PearsWeb.TeamSlackLive do
   @doc """
   The actual redirection happens via the anchor tag in html, this is here to emit a telemetry event.
   """
+  @impl Phoenix.LiveView
   @decorate trace("slack_live.slack_link_clicked")
   def handle_event("slack-link-clicked", value, socket) do
     O11y.set_team(socket)
@@ -51,7 +54,7 @@ defmodule PearsWeb.TeamSlackLive do
     {:noreply, socket}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   @decorate trace("slack_live.save_slack_handles", include: [:team_name, :params])
   def handle_event("save-slack-handles", params, socket) do
     team_name = team_name(socket)
@@ -65,6 +68,7 @@ defmodule PearsWeb.TeamSlackLive do
          |> put_flash(:info, "Slack handles successfully saved!")}
 
       _ ->
+        O11y.set_error("Error saving slack handles.")
         {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}
     end
   end
