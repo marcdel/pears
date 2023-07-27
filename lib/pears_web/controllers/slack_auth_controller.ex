@@ -4,9 +4,10 @@ defmodule PearsWeb.SlackAuthController do
 
   alias Pears.Slack
 
-  @decorate trace("slack_auth.authenticate", include: [:team_name])
+  @decorate trace("slack_auth_controller.authenticate", include: [:team_name])
   def new(conn, %{"state" => "onboard", "code" => code}) do
     team_name = conn.assigns.current_team.name
+    O11y.set_masked_attribute(:code, code)
 
     case Slack.onboard_team(team_name, code) do
       {:ok, _} ->
@@ -32,8 +33,10 @@ defmodule PearsWeb.SlackAuthController do
     send_resp(conn, 200, "")
   end
 
-  @decorate trace("slack_auth.missing_or_invalid_state", include: [:_params])
-  def new(conn, _params) do
+  @decorate trace("slack_auth_controller.authenticate")
+  def new(conn, params) do
+    O11y.set_attribute(:params, params)
+    O11y.set_error("missing or invalid state")
     send_resp(conn, 401, "")
   end
 end

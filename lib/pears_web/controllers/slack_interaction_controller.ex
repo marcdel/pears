@@ -11,7 +11,8 @@ defmodule PearsWeb.SlackInteractionController do
         json(conn, %{})
 
       {:error, error} ->
-        O11y.set_attributes(error: error, payload: payload)
+        O11y.set_error(error)
+        O11y.set_attributes(payload: payload)
 
         conn
         |> put_status(400)

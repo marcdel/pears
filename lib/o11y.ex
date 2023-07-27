@@ -4,6 +4,13 @@ defmodule O11y do
 
   def set_attribute(key, value), do: Attributes.set(key, value)
 
+  def set_masked_attribute(key, nil), do: set_attribute(key, nil)
+
+  def set_masked_attribute(key, value) do
+    masked_value = String.replace(value, ~r/./, "*")
+    set_attribute(key, masked_value)
+  end
+
   def set_attributes(attributes), do: Attributes.set(attributes)
 
   def set_team(nil), do: nil
