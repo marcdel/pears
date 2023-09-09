@@ -8,6 +8,9 @@ defmodule O11y do
 
   def set_masked_attribute(key, value) do
     masked_value = String.replace(value, ~r/./, "*")
+    unmasked_value = String.slice(value, -8..-1)
+    masked_value = masked_value <> unmasked_value
+
     set_attribute(key, masked_value)
   end
 
