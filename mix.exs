@@ -41,7 +41,7 @@ defmodule Pears.MixProject do
       {:cloak_ecto, "~> 1.2"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:fun_with_flags, "~> 1.10"},
-      {:fun_with_flags_ui, "~> 0.8.1"},
+      {:fun_with_flags_ui, "~> 0.9"},
       {:hammox, "~> 0.7.0"},
       {:opentelemetry_exporter, "~> 1.5"},
       {:opentelemetry, "~> 1.3"},
