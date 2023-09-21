@@ -51,7 +51,7 @@ defmodule Pears.MixProject do
       {:open_telemetry_decorator, "~> 1.4"},
       {:opentelemetry_phoenix, "~> 1.1"},
       {:opentelemetry_cowboy, "~> 0.2"},
-      {:sentry, "~> 8.0"},
+      {:sentry, "~> 9.0"},
       {:slack, "~> 0.23.5"},
       {:timber, "~> 3.1"},
       {:timber_ecto, "~> 2.1"},
