@@ -16,6 +16,7 @@ defmodule Pears.Application do
       PearsWeb.Telemetry,
       # Start the Ecto repository
       Pears.Repo,
+      {DNSCluster, query: Application.get_env(:pears, :dns_cluster_query) || :ignore},
       Pears.Vault,
       # Start the PubSub system
       {Phoenix.PubSub, name: Pears.PubSub},
