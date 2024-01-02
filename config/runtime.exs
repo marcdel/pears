@@ -50,7 +50,7 @@ if config_env() == :prod do
       port: port
     ],
     check_origin: [
-      "https://beta.pears.dev",
+      "https://app.pears.dev",
       "https://pears-app.fly.dev"
     ],
     secret_key_base: secret_key_base
