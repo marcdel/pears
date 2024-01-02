@@ -1,2 +1,2 @@
 check:
-	./pre_commit.sh
+	./bin/pre_commit.sh
