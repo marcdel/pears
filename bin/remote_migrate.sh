@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+fly ssh console -C "bin/migrate"
