@@ -1,18 +1,12 @@
 # Pears
 
-To start your Phoenix server:
+## Update JS/CSS dependencies
+- Grab the new version of [SortableJS](https://github.com/SortableJS/Sortable/releases) and [topbar](https://www.npmjs.com/package/topbar?activeTab=code) and copy them into `assets/vendor`.
+- Update the version numbers of esbuild and tailwind in `config/config.exs` and run `mix esbuild.install` and `mix tailwind.install`
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Update Hex dependencies
+- `mix hex.outdated`
+- `mix deps.update <dep>` or `mix deps.update --all`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+## Pre-commit script
+- `make check` or `./bin/pre_commit.sh`
