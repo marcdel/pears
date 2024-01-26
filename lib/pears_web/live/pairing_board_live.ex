@@ -99,7 +99,9 @@ defmodule PearsWeb.PairingBoardLive do
   end
 
   @impl true
-  @decorate trace("team_live.pear_selected", include: [:_team_name, :pear_name, :current_location])
+  @decorate trace("team_live.pear_selected",
+              include: [:_team_name, :pear_name, :current_location]
+            )
   def handle_event("pear-selected", params, socket) do
     _team_name = team_name(socket)
     pear_name = Map.get(params, "pear-name")
@@ -209,7 +211,9 @@ defmodule PearsWeb.PairingBoardLive do
     {:noreply, unselect_pear(socket)}
   end
 
-  @decorate trace("team_live.move_pear", include: [:team_name, :pear_name, :from_track, :to_track])
+  @decorate trace("team_live.move_pear",
+              include: [:team_name, :pear_name, :from_track, :to_track]
+            )
   def handle_event("move-pear", params, socket) do
     team_name = team_name(socket)
     pear_name = Map.get(params, "pear")

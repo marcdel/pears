@@ -266,7 +266,9 @@ defmodule Pears.Persistence do
     |> Repo.update()
   end
 
-  @decorate trace("persistence.remove_track_from_team", include: [:team_name, :track_name, :error])
+  @decorate trace("persistence.remove_track_from_team",
+              include: [:team_name, :track_name, :error]
+            )
   def remove_track_from_team(team_name, track_name) do
     case get_team_by_name(team_name) do
       {:ok, team} ->
