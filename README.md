@@ -10,3 +10,7 @@
 
 ## Pre-commit script
 - `make check` or `./bin/pre_commit.sh`
+
+## Slack app info
+Public link: https://solid-af.slack.com/apps/A01F4QV5LEQ-pears
+Configuration link: https://api.slack.com/apps/A01F4QV5LEQ

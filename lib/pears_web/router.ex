@@ -13,6 +13,18 @@ defmodule PearsWeb.Router do
     plug :fetch_current_team
   end
 
+  import Plug.BasicAuth
+
+  pipeline :admins_only do
+    if Mix.env() == :test do
+      plug :basic_auth, username: "admin", password: "admin"
+    else
+      plug :basic_auth,
+           username: Map.fetch!(System.get_env(), "ADMIN_USER"),
+           password: Map.fetch!(System.get_env(), "ADMIN_PASSWORD")
+    end
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -60,6 +72,8 @@ defmodule PearsWeb.Router do
   scope "/", PearsWeb do
     pipe_through [:browser, :require_authenticated_team]
 
+    get "/slack/oauth", SlackAuthController, :new
+
     live_session :require_authenticated_team,
       on_mount: [
         {PearsWeb.TeamAuth, :ensure_authenticated},
@@ -75,6 +89,12 @@ defmodule PearsWeb.Router do
       live "/teams/slack", TeamSlackLive, :edit
       live "/teams/account", TeamAccountLive, :edit
     end
+  end
+
+  scope "/" do
+    pipe_through [:browser, :require_authenticated_team, :admins_only]
+
+    forward "/features", FunWithFlags.UI.Router, namespace: "features"
   end
 
   scope "/", PearsWeb do

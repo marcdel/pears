@@ -178,13 +178,7 @@
                                   >
                                     <option></option>
                                     <%= for user <- @details.users do %>
-                                      <option
-                                        {if user.name== pear.slack_name, do:
-                              "selected"}
-                                        value={user.id}
-                                      >
-                                        <%= user.name %>
-                                      </option>
+                                      <option value={user.id}><%= user.name %></option>
                                     <% end %>
                                   </select>
                                 <% end %>
