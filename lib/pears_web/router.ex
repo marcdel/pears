@@ -20,8 +20,8 @@ defmodule PearsWeb.Router do
       plug :basic_auth, username: "admin", password: "admin"
     else
       plug :basic_auth,
-        username: Map.fetch!(System.get_env(), "ADMIN_USER"),
-        password: Map.fetch!(System.get_env(), "ADMIN_PASSWORD")
+        username: System.fetch_env!("ADMIN_USER"),
+        password: System.fetch_env!("ADMIN_PASSWORD")
     end
   end
 

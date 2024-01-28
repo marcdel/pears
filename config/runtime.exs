@@ -120,6 +120,9 @@ if System.get_env("PHX_SERVER") do
   config :pears, PearsWeb.Endpoint, server: true
 end
 
+config :pears, admin_user: System.fetch_env!("ADMIN_USER")
+config :pears, admin_password: System.fetch_env!("ADMIN_PASSWORD")
+
 config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
 config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
 config :pears, slack_oauth_redirect_uri: System.get_env("SLACK_OAUTH_URL")
