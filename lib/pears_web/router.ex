@@ -13,15 +13,17 @@ defmodule PearsWeb.Router do
     plug :fetch_current_team
   end
 
-  import Plug.BasicAuth
-
   pipeline :admins_only do
+    plug :auth
+  end
+
+  defp auth(conn, _opts) do
     if Mix.env() == :test do
-      plug :basic_auth, username: "admin", password: "admin"
+      Plug.BasicAuth.basic_auth(conn, username: "admin", password: "admin")
     else
-      plug :basic_auth,
-        username: System.fetch_env!("ADMIN_USER"),
-        password: System.fetch_env!("ADMIN_PASSWORD")
+      username = Application.get_env(:pears, :admin_user)
+      password = Application.get_env(:pears, :admin_password)
+      Plug.BasicAuth.basic_auth(conn, username: username, password: password)
     end
   end
 
