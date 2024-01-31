@@ -48,13 +48,14 @@ defmodule Pears.SlackFixtures do
 
   def users_response(users \\ [], next_cursor \\ "") when is_list(users) do
     %{
-      "members" => Enum.map(users, &user(Map.get(&1, :id), Map.get(&1, :name))),
+      "members" =>
+        Enum.map(users, &user(Map.get(&1, :id), Map.get(&1, :name), Map.get(&1, :tz_offset))),
       "response_metadata" => %{"next_cursor" => next_cursor},
       "ok" => true
     }
   end
 
-  def user(id, name) do
+  def user(id, name, tz_offset) do
     %{
       "color" => "9f69e7",
       "deleted" => false,
@@ -102,7 +103,7 @@ defmodule Pears.SlackFixtures do
       "team_id" => "UTTTTTTTTTTL",
       "tz" => "America/Los_Angeles",
       "tz_label" => "Pacific Standard Time",
-      "tz_offset" => -28_800,
+      "tz_offset" => tz_offset,
       "updated" => 1_603_908_738
     }
   end

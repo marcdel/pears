@@ -68,16 +68,16 @@ defmodule Pears.SlackTest do
       MockSlackClient
       |> expect(:users, fn _, "" ->
         SlackFixtures.users_response([
-          %{id: "XXXXXXXXXX", name: "marc"},
-          %{id: "YYYYYYYYYY", name: "milo"}
+          %{id: "XXXXXXXXXX", name: "marc", tz_offset: "-28800"},
+          %{id: "YYYYYYYYYY", name: "milo", tz_offset: "-18000"}
         ])
       end)
 
       {:ok, details} = Slack.get_details(team.name)
 
       assert [
-               %User{id: "XXXXXXXXXX", name: "marc"},
-               %User{id: "YYYYYYYYYY", name: "milo"}
+               %User{id: "XXXXXXXXXX", name: "marc", tz_offset: "-28800"},
+               %User{id: "YYYYYYYYYY", name: "milo", tz_offset: "-18000"}
              ] = details.users
     end
 
@@ -87,14 +87,20 @@ defmodule Pears.SlackTest do
 
       Persistence.add_pear_slack_details(team.name, "milo", %{
         slack_id: "XXXXXXXXXX",
-        slack_name: "miloooooo"
+        slack_name: "miloooooo",
+        timezone_offset: -28800
       })
 
       {:ok, details} = Slack.get_details(team.name)
 
       assert [
                %{slack_id: nil, slack_name: nil, name: "marc"},
-               %{slack_id: "XXXXXXXXXX", slack_name: "miloooooo", name: "milo"}
+               %{
+                 slack_id: "XXXXXXXXXX",
+                 slack_name: "miloooooo",
+                 name: "milo",
+                 timezone_offset: -28800
+               }
              ] = details.pears
     end
 
@@ -151,8 +157,8 @@ defmodule Pears.SlackTest do
       MockSlackClient
       |> expect(:users, fn _, "" ->
         SlackFixtures.users_response([
-          %{id: "XXXXXXXXXX", name: "marc"},
-          %{id: "YYYYYYYYYY", name: "milo"}
+          %{id: "XXXXXXXXXX", name: "marc", tz_offset: "-28800"},
+          %{id: "YYYYYYYYYY", name: "milo", tz_offset: "-18000"}
         ])
       end)
 
@@ -283,8 +289,8 @@ defmodule Pears.SlackTest do
       MockSlackClient
       |> expect(:users, fn _, "" ->
         SlackFixtures.users_response([
-          %{id: "XXXXXXXXXX", name: "marc"},
-          %{id: "YYYYYYYYYY", name: "milo"}
+          %{id: "XXXXXXXXXX", name: "marc", tz_offset: "-28800"},
+          %{id: "YYYYYYYYYY", name: "milo", tz_offset: "-18000"}
         ])
       end)
 

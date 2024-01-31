@@ -24,7 +24,8 @@ defmodule Pears.Boundary.TeamSessionTest do
       {:ok, _} =
         Persistence.add_pear_slack_details(name, "pear1", %{
           slack_id: "UYYYYYYY",
-          slack_name: "Pear 1"
+          slack_name: "Pear 1",
+          timezone_offset: -28800
         })
 
       {:ok, _} = Persistence.add_pear_to_team(name, "pear2")

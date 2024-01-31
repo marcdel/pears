@@ -81,7 +81,7 @@ defmodule Pears.PersistenceTest do
     test "add_pear_slack_details/3" do
       create_team("New Team")
       {:ok, _} = Persistence.add_pear_to_team("New Team", "Pear One")
-      params = %{slack_id: "UTTTTTTTTTTL", slack_name: "onesie"}
+      params = %{slack_id: "UTTTTTTTTTTL", slack_name: "onesie", timezone_offset: -18000}
 
       {:ok, _} = Persistence.add_pear_slack_details("New Team", "Pear One", params)
 

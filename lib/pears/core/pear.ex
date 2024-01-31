@@ -1,5 +1,11 @@
 defmodule Pears.Core.Pear do
-  defstruct id: nil, name: nil, track: nil, order: nil, slack_id: nil, slack_name: nil
+  defstruct id: nil,
+            name: nil,
+            track: nil,
+            order: nil,
+            slack_id: nil,
+            slack_name: nil,
+            timezone_offset: nil
 
   def new(fields) do
     struct!(__MODULE__, fields)
