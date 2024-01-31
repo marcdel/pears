@@ -118,12 +118,14 @@ defmodule Pears.Slack do
              {:ok, pear_record} <-
                Persistence.add_pear_slack_details(team.name, pear_name, %{
                  slack_id: user.id,
-                 slack_name: user.name
+                 slack_name: user.name,
+                 timezone_offset: user.tz_offset
                }),
              updated_team <-
                Team.update_pear(team, pear_name,
                  slack_name: user.name,
-                 slack_id: user.id
+                 slack_id: user.id,
+                 timezone_offset: user.tz_offset
                ),
              {:ok, _updated_team} <- TeamSession.update_team(team.name, updated_team) do
           {:ok, pear_record}

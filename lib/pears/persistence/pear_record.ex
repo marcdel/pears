@@ -9,6 +9,7 @@ defmodule Pears.Persistence.PearRecord do
     field :name, :string
     field :slack_id, :string
     field :slack_name, :string
+    field :timezone_offset, :integer
     belongs_to :team, TeamRecord, foreign_key: :team_id
     belongs_to :track, TrackRecord, foreign_key: :track_id
     belongs_to :anchoring, TrackRecord, foreign_key: :anchoring_id
@@ -32,7 +33,7 @@ defmodule Pears.Persistence.PearRecord do
   @doc false
   def slack_details_changeset(pear_record, attrs) do
     pear_record
-    |> cast(attrs, [:slack_name, :slack_id])
-    |> validate_required([:slack_name, :slack_id])
+    |> cast(attrs, [:slack_name, :slack_id, :timezone_offset])
+    |> validate_required([:slack_name, :slack_id, :timezone_offset])
   end
 end
