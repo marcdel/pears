@@ -27,8 +27,8 @@ config :pears, PearsWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "cBUInAjvvt2Bkobe5So4dXvuw0U4n3/uoBSWdIz2PLbYaub6tA8kqiALN3iZxuUc",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:sample_app, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:sample_app, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -58,7 +58,7 @@ config :pears, PearsWeb.Endpoint,
 config :pears, PearsWeb.Endpoint,
   live_reload: [
     patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/pears_web/(controllers|live|components)/.*(ex|heex)$"
     ]
