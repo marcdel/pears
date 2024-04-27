@@ -61,7 +61,7 @@
               value={@current_password}
               required
             />
-            <.input field={@password_form[:name]} type="hidden" value={@current_name} />
+            <input type="hidden" name={@password_form[:name].name} value={@current_name} />
             <.input
               field={@password_form[:password]}
               type="password"
