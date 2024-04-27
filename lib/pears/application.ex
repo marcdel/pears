@@ -7,8 +7,7 @@ defmodule Pears.Application do
 
   @impl true
   def start(_type, _args) do
-    :opentelemetry_cowboy.setup()
-    OpentelemetryPhoenix.setup(adapter: :cowboy2)
+    OpentelemetryPhoenix.setup()
     OpentelemetryEcto.setup([:pears, :repo])
 
     children = [
