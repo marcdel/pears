@@ -13,7 +13,7 @@ defmodule PearsWeb.TeamSettingsLive do
           put_flash(socket, :info, "Email changed successfully.")
 
         :error ->
-          O11y.set_attribute(:error, "Email change link is invalid or it has expired.")
+          O11y.set_error("Email change link is invalid or it has expired.")
           put_flash(socket, :error, "Email change link is invalid or it has expired.")
       end
 
@@ -59,7 +59,7 @@ defmodule PearsWeb.TeamSettingsLive do
         {:noreply, socket |> put_flash(:info, info) |> assign(email_form_current_password: nil)}
 
       {:error, changeset} ->
-        O11y.set_changeset_errors(changeset)
+        Pears.O11y.set_changeset_errors(changeset)
         {:noreply, assign(socket, name_form: to_form(changeset))}
     end
   end

@@ -1,20 +1,13 @@
-defmodule O11y do
-  require OpenTelemetry.Tracer, as: Tracer
-  alias OpenTelemetryDecorator.Attributes
-
-  def set_attribute(key, value), do: Attributes.set(key, value)
-
-  def set_masked_attribute(key, nil), do: set_attribute(key, nil)
+defmodule Pears.O11y do
+  def set_masked_attribute(key, nil), do: O11y.set_attribute(key, nil)
 
   def set_masked_attribute(key, value) do
     masked_value = String.replace(value, ~r/./, "*")
     unmasked_value = String.slice(value, -8..-1)
     masked_value = masked_value <> unmasked_value
 
-    set_attribute(key, masked_value)
+    O11y.set_attribute(key, masked_value)
   end
-
-  def set_attributes(attributes), do: Attributes.set(attributes)
 
   def set_team(nil), do: nil
 
@@ -28,20 +21,6 @@ defmodule O11y do
     socket
   end
 
-  def record_exception(exception) do
-    Tracer.record_exception(exception)
-    Tracer.set_status(OpenTelemetry.status(:error))
-  end
-
-  def set_error do
-    Tracer.set_status(OpenTelemetry.status(:error))
-  end
-
-  def set_error(error) do
-    set_attribute("error", error)
-    Tracer.set_status(OpenTelemetry.status(:error))
-  end
-
   def set_changeset_errors(%Ecto.Changeset{} = changeset) do
     error_string =
       changeset
@@ -49,6 +28,6 @@ defmodule O11y do
       |> Enum.map(fn {field, errors} -> "#{field}: #{Enum.join(errors, ", ")}" end)
       |> Enum.join(", ")
 
-    set_error(error_string)
+    O11y.set_error(error_string)
   end
 end

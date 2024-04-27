@@ -22,7 +22,7 @@ defmodule PearsWeb.SlackInteractionController do
 
   @decorate trace("slack_interaction_controller.create")
   def create(conn, params) do
-    O11y.set_attribute(:error, "no payload in params")
+    O11y.set_error("no payload in params")
     O11y.set_attribute(:params, params)
 
     conn

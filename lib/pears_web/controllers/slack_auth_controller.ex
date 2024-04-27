@@ -7,7 +7,7 @@ defmodule PearsWeb.SlackAuthController do
   @decorate trace("slack_auth_controller.authenticate", include: [:team_name])
   def new(conn, %{"state" => "onboard", "code" => code}) do
     team_name = conn.assigns.current_team.name
-    O11y.set_masked_attribute(:code, code)
+    Pears.O11y.set_masked_attribute(:code, code)
 
     case Slack.onboard_team(team_name, code) do
       {:ok, _} ->

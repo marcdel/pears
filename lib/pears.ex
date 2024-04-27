@@ -31,7 +31,7 @@ defmodule Pears do
         {:error, validation_error}
 
       {:ok, _team_record} ->
-        O11y.set_attribute(:error, "name_taken")
+        O11y.set_error("name_taken")
         {:error, :name_taken}
     end
   end
@@ -46,11 +46,11 @@ defmodule Pears do
       {:ok, team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -62,11 +62,11 @@ defmodule Pears do
       {:ok, team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -93,11 +93,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -113,11 +113,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -132,11 +132,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -152,11 +152,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -167,9 +167,7 @@ defmodule Pears do
   @decorate trace("pears.unlock_track", include: [:team_name, :track_name])
   def unlock_track(team_name, track_name), do: toggle_track_locked(team_name, track_name, false)
 
-  @decorate trace("pears.rename_track",
-              include: [:team_name, :track_name, :new_track_name, :error]
-            )
+  @decorate trace("pears.rename_track", include: [:team_name, :track_name, :new_track_name])
   def rename_track(team_name, track_name, new_track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _track} <- validate_track_exists(team, track_name),
@@ -180,11 +178,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -201,11 +199,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -222,11 +220,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -240,11 +238,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -258,18 +256,16 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
 
-  @decorate trace("pears.add_pear_to_track",
-              include: [:team_name, :pear_name, :track_name, :error]
-            )
+  @decorate trace("pears.add_pear_to_track", include: [:team_name, :pear_name, :track_name])
   def add_pear_to_track(team_name, pear_name, track_name) do
     with {:ok, team} <- TeamSession.get_team(team_name),
          {:ok, _pear} <- validate_pear_available(team, pear_name),
@@ -280,11 +276,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -309,11 +305,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -331,11 +327,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -350,11 +346,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -376,11 +372,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -395,11 +391,11 @@ defmodule Pears do
       {:ok, updated_team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -419,15 +415,15 @@ defmodule Pears do
       TeamSession.facilitator(team_name)
     else
       false ->
-        O11y.set_attribute(:error, "no_pears")
+        O11y.set_error("no_pears")
         {:error, :no_pears}
 
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -439,15 +435,15 @@ defmodule Pears do
       TeamSession.new_facilitator(team_name)
     else
       false ->
-        O11y.set_attribute(:error, "no_pears")
+        O11y.set_error("no_pears")
         {:error, :no_pears}
 
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -459,11 +455,11 @@ defmodule Pears do
       has_active_pears
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         false
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         false
     end
   end
@@ -542,11 +538,11 @@ defmodule Pears do
       {:ok, team}
     else
       {:error, error} ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end

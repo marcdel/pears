@@ -181,7 +181,7 @@ defmodule Pears.Slack do
         {:ok, get_in(response, ["channel", "id"])}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -201,7 +201,7 @@ defmodule Pears.Slack do
         {:ok, message}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, error}
     end
   end
@@ -212,7 +212,7 @@ defmodule Pears.Slack do
         {:ok, Map.get(response, "access_token")}
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, :invalid_code}
     end
   end
@@ -260,7 +260,7 @@ defmodule Pears.Slack do
         end
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, :invalid_token}
     end
   end
@@ -301,7 +301,7 @@ defmodule Pears.Slack do
         end
 
       error ->
-        O11y.set_attribute(:error, error)
+        O11y.set_error(error)
         {:error, :invalid_token}
     end
   end

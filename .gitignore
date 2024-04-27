@@ -43,5 +43,6 @@ ui_tests/cypress/screenshots
 .idea/
 pears.iml
 .vscode/
+.zed/
 
 .env.local
