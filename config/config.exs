@@ -64,7 +64,7 @@ config :phoenix, :json_library, Jason
 config :fun_with_flags, :cache_bust_notifications, enabled: false
 
 # Prefix manually added span attributes with "app."
-config :open_telemetry_decorator, attr_prefix: "app."
+config :o11y, :attribute_namespace, "app"
 
 config :fun_with_flags, :persistence,
   adapter: FunWithFlags.Store.Persistent.Ecto,

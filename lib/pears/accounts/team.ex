@@ -3,6 +3,7 @@ defmodule Pears.Accounts.Team do
   use OpenTelemetryDecorator
   import Ecto.Changeset
 
+  @derive {O11y.SpanAttributes, only: [:id, :name, :enabled]}
   schema "teams" do
     field :name, :string
     field :email, :string

@@ -48,7 +48,7 @@ defmodule PearsWeb.TeamSlackLive do
   @impl Phoenix.LiveView
   @decorate trace("slack_live.slack_link_clicked")
   def handle_event("slack-link-clicked", value, socket) do
-    Pears.O11y.set_team(socket)
+    O11y.set_attributes(socket.assigns.team, prefix: :team)
     O11y.set_attribute("href", Map.get(value, "href", nil))
 
     {:noreply, socket}

@@ -28,7 +28,7 @@ defmodule PearsWeb.TeamAuth do
   def log_in_team(conn, team, params \\ %{}) do
     token = Accounts.generate_team_session_token(team)
     team_return_to = get_session(conn, :team_return_to)
-    Pears.O11y.set_team(team)
+    O11y.set_attributes(team, prefix: :team)
 
     conn
     |> renew_session()
@@ -92,7 +92,7 @@ defmodule PearsWeb.TeamAuth do
   def fetch_current_team(conn, _opts) do
     {team_token, conn} = ensure_team_token(conn)
     team = team_token && Accounts.get_team_by_session_token(team_token)
-    Pears.O11y.set_team(team)
+    O11y.set_attributes(team, prefix: :team)
 
     assign(conn, :current_team, team)
   end
@@ -180,7 +180,7 @@ defmodule PearsWeb.TeamAuth do
       if team_token = session["team_token"] do
         team_token
         |> Accounts.get_team_by_session_token()
-        |> Pears.O11y.set_team()
+        |> O11y.set_attributes(prefix: :team)
       end
     end)
   end
