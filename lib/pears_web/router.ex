@@ -18,13 +18,9 @@ defmodule PearsWeb.Router do
   end
 
   defp auth(conn, _opts) do
-    if Mix.env() == :test do
-      Plug.BasicAuth.basic_auth(conn, username: "admin", password: "admin")
-    else
-      username = Application.get_env(:pears, :admin_user)
-      password = Application.get_env(:pears, :admin_password)
-      Plug.BasicAuth.basic_auth(conn, username: username, password: password)
-    end
+    username = Application.get_env(:pears, :admin_user)
+    password = Application.get_env(:pears, :admin_password)
+    Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 
   pipeline :api do

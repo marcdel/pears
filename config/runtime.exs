@@ -56,6 +56,9 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :pears, admin_user: System.fetch_env!("ADMIN_USER")
+  config :pears, admin_password: System.fetch_env!("ADMIN_PASSWORD")
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key
@@ -105,6 +108,8 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+else
+  config :pears, admin_user: "admin", admin_password: "admin"
 end
 
 # ## Using releases
@@ -119,9 +124,6 @@ end
 if System.get_env("PHX_SERVER") do
   config :pears, PearsWeb.Endpoint, server: true
 end
-
-config :pears, admin_user: System.fetch_env!("ADMIN_USER")
-config :pears, admin_password: System.fetch_env!("ADMIN_PASSWORD")
 
 config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
 config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
