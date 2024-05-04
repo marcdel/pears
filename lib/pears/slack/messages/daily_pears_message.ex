@@ -7,6 +7,7 @@ defmodule Pears.Slack.Messages.DailyPairsMessage do
     summary_lines =
       team.tracks
       |> Map.values()
+      |> Enum.filter(fn track -> map_size(track.pears) > 0 end)
       |> Enum.map(&build_daily_pears_summary_line/1)
       |> Enum.join("\n")
       |> String.trim_trailing()
