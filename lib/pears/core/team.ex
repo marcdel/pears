@@ -420,13 +420,22 @@ defmodule Pears.Core.Team do
     |> Enum.any?()
   end
 
-  defp random_or_nil([]), do: nil
-  defp random_or_nil(list), do: Enum.random(list)
+  @decorate with_span("team.timezone_difference")
+  def timezone_difference(%{timezone_offset: nil}, _), do: 0
+  def timezone_difference(_, %{timezone_offset: nil}), do: 0
 
-  defp active_pears(team) do
-    team.available_pears
-    |> Map.merge(team.assigned_pears)
-    |> Map.values()
+  def timezone_difference(pear1, pear2) do
+    difference_seconds = abs(pear1.timezone_offset - pear2.timezone_offset)
+    difference_hours = div(difference_seconds, 3600)
+
+    O11y.set_attributes(
+      left: pear1.timezone_offset,
+      right: pear2.timezone_offset,
+      difference_hours: difference_hours,
+      difference_seconds: difference_seconds
+    )
+
+    difference_hours
   end
 
   def metadata(team) do
@@ -448,6 +457,15 @@ defmodule Pears.Core.Team do
       current_matches: current_matches,
       recent_history: recent_history
     }
+  end
+
+  defp random_or_nil([]), do: nil
+  defp random_or_nil(list), do: Enum.random(list)
+
+  defp active_pears(team) do
+    team.available_pears
+    |> Map.merge(team.assigned_pears)
+    |> Map.values()
   end
 
   @decorate trace("team.next_track_id", include: [[:team, :name]])

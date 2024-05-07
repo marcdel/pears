@@ -442,6 +442,20 @@ defmodule Pears.Core.TeamTest do
     assert team.slack_token == "asdasd123123"
   end
 
+  test "can calculate the timezone difference between two pears" do
+    pear1 = Pears.Core.Pear.new(timezone_offset: -28800)
+    pear2 = Pears.Core.Pear.new(timezone_offset: -25200)
+    pear3 = Pears.Core.Pear.new(timezone_offset: -18000)
+
+    assert Team.timezone_difference(pear1, pear2) == 1
+    assert Team.timezone_difference(pear2, pear3) == 2
+    assert Team.timezone_difference(pear1, pear3) == 3
+
+    pear4 = Pears.Core.Pear.new(timezone_offset: nil)
+    # If either pear has a nil timezone offset, assume same timezone
+    assert Team.timezone_difference(pear1, pear4) == 0
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end
