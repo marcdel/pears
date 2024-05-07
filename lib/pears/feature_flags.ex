@@ -42,13 +42,15 @@ defmodule FeatureFlags do
 
   def enabled?(flag_name, options \\ [])
 
-  @decorate trace("flags.enabled?", include: [:flag_name, [:team, :name], :result])
+  @decorate trace("flags.enabled?", include: [:flag_name, :team, :enabled])
   def enabled?(flag_name, for: team) do
-    FunWithFlags.enabled?(flag_name, for: team)
+    enabled = FunWithFlags.enabled?(flag_name, for: team)
+    enabled
   end
 
-  @decorate trace("flags.enabled?", include: [:flag_name, :options, :result])
+  @decorate trace("flags.enabled?", include: [:flag_name, :options, :enabled])
   def enabled?(flag_name, options) do
-    FunWithFlags.enabled?(flag_name, options)
+    enabled = FunWithFlags.enabled?(flag_name, options)
+    enabled
   end
 end

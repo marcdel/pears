@@ -1,6 +1,7 @@
 defmodule Pears.Core.Team do
   use OpenTelemetryDecorator
 
+  @derive {O11y.SpanAttributes, only: [:id, :name]}
   defstruct name: nil,
             id: nil,
             slack_channel: nil,
