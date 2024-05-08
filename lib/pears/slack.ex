@@ -189,10 +189,12 @@ defmodule Pears.Slack do
   end
 
   defp do_send_message(%{slack_token: nil}, _channel, _message) do
+    O11y.set_error(:slack_token_not_set)
     {:error, :slack_token_not_set}
   end
 
   defp do_send_message(_team, nil, _message) do
+    O11y.set_error(:slack_channel_not_set)
     {:error, :slack_channel_not_set}
   end
 
