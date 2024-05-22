@@ -63,4 +63,17 @@ defmodule PearsWeb.TeamSettingsLive do
         {:noreply, assign(socket, name_form: to_form(changeset))}
     end
   end
+
+  @decorate trace("team_settings_live.remove_team")
+  def handle_event("remove_team", _params, socket) do
+    team = socket.assigns.current_team
+    O11y.set_attributes(:team, team)
+
+    Pears.remove_team(team.name)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "Team removed 😞✌️")
+     |> redirect(to: ~p"/teams/register")}
+  end
 end

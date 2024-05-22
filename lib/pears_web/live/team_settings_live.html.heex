@@ -35,5 +35,29 @@
         </div>
       </div>
     </.form>
+
+    <div class="shadow sm:overflow-hidden sm:rounded-md">
+      <div class="space-y-6 bg-white px-4 py-6 sm:p-6">
+        <div>
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Remove team</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            🚨 No validation here yet, click at your own risk 🚨
+          </p>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+        <button
+          phx-disable-with="Removing..."
+          phx-click="remove_team"
+          class={[
+            "inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md",
+            "text-white bg-red-600 hover:bg-red-500 focus:outline-none focus:border-red-700",
+            "focus:shadow-outline-red active:bg-red-700 transition duration-150 ease-in-out"
+          ]}
+        >
+          ⚠️ Delete Forever ⚠️
+        </button>
+      </div>
+    </div>
   </div>
 </div>
