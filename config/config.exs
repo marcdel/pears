@@ -71,6 +71,12 @@ config :fun_with_flags, :persistence,
   repo: Pears.Repo,
   ecto_table_name: "feature_flags"
 
+config :pears, Pears.Scheduler,
+  jobs: [
+    # At 5:00 PM Pacific on every day-of-week from Monday through Friday.
+    {"0 12 * * 1-5", {Pears.Slack, :send_stand_down_reminders, []}}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

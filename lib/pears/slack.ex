@@ -78,6 +78,11 @@ defmodule Pears.Slack do
     end
   end
 
+  @decorate trace("slack.send_stand_down_reminders")
+  def send_stand_down_reminders() do
+    O11y.set_attributes(cron: "0 12 * * 1-5")
+  end
+
   @decorate trace("slack.send_message_to_team", include: [:team_name, :message])
   def send_message_to_team(team_name, message) do
     case TeamSession.find_or_start_session(team_name) do

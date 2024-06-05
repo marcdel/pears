@@ -23,6 +23,7 @@ defmodule Pears.Application do
       {Finch, name: Pears.Finch},
       # Start the Endpoint (http/https)
       PearsWeb.Endpoint,
+      Pears.Scheduler,
       # Start a worker by calling: Pears.Worker.start_link(arg)
       # {Pears.Worker, arg}
       {Pears.Boundary.TeamManager, [name: Pears.Boundary.TeamManager]},
