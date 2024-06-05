@@ -214,10 +214,10 @@ defmodule Pears.Core.Team do
     }
   end
 
-  @decorate trace("team.choose_anchors",
-              include: [:team, [:team, :tracks], :updated_tracks]
-            )
+  @decorate trace("team.choose_anchors", include: [:team, :updated_tracks])
   def choose_anchors(team) do
+    O11y.set_attributes(tracks: team.tracks)
+
     updated_tracks =
       team.tracks
       |> Enum.map(fn {name, track} -> {name, Track.choose_anchor(track)} end)
