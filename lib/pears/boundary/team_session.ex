@@ -51,7 +51,7 @@ defmodule Pears.Boundary.TeamSession do
     }
   end
 
-  @decorate trace("team_session.init", include: [[:team, :name]])
+  @decorate trace("team_session.init", include: [:team])
   def init(team) do
     {:ok, State.new(team), @timeout}
   end
@@ -64,7 +64,7 @@ defmodule Pears.Boundary.TeamSession do
     end
   end
 
-  @decorate trace("team_session.start_session", include: [[:team, :name]])
+  @decorate trace("team_session.start_session", include: [:team])
   def start_session(team) do
     GenServer.whereis(via(team.name)) ||
       DynamicSupervisor.start_child(
@@ -163,7 +163,7 @@ defmodule Pears.Boundary.TeamSession do
     |> add_history(team_record)
   end
 
-  @decorate trace("team_session.load_history", include: [[:team, :name]])
+  @decorate trace("team_session.load_history", include: [:team])
   defp load_history(team) do
     with {:ok, team_record} <- Persistence.get_team_by_name(team.name),
          updated_team <- add_history(team, team_record) do
@@ -171,7 +171,7 @@ defmodule Pears.Boundary.TeamSession do
     end
   end
 
-  @decorate trace("team_session.add_pears", include: [[:team, :name]])
+  @decorate trace("team_session.add_pears", include: [:team])
   defp add_pears(team, team_record) do
     Enum.reduce(team_record.pears, team, fn pear_record, team ->
       Team.add_pear(team, pear_record.name,
@@ -182,7 +182,7 @@ defmodule Pears.Boundary.TeamSession do
     end)
   end
 
-  @decorate trace("team_session.add_tracks", include: [[:team, :name]])
+  @decorate trace("team_session.add_tracks", include: [:team])
   defp add_tracks(team, team_record) do
     Enum.reduce(team_record.tracks, team, fn track_record, team ->
       team
@@ -192,7 +192,7 @@ defmodule Pears.Boundary.TeamSession do
     end)
   end
 
-  @decorate trace("team_session.assign_pears", include: [[:team, :name]])
+  @decorate trace("team_session.assign_pears", include: [:team])
   defp assign_pears(team, team_record) do
     Enum.reduce(team_record.pears, team, fn pear_record, team ->
       case pear_record.track do
@@ -214,7 +214,7 @@ defmodule Pears.Boundary.TeamSession do
     Team.toggle_anchor(team, pear_name, track_name)
   end
 
-  @decorate trace("team_session.add_history", include: [[:team, :name]])
+  @decorate trace("team_session.add_history", include: [:team])
   defp add_history(team, team_record) do
     history =
       Enum.map(team_record.snapshots, fn snapshot ->

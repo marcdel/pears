@@ -84,7 +84,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace("persistence.find_track_by_name", include: [[:team, :name], :track_name])
+  @decorate trace("persistence.find_track_by_name", include: [:team, :track_name])
   def find_track_by_name(team, track_name) do
     case Enum.find(team.tracks, fn track -> track.name == track_name end) do
       nil -> {:error, :track_not_found}
@@ -92,7 +92,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace("persistence.find_pear_by_name", include: [[:team, :name], :pear_name, :pear])
+  @decorate trace("persistence.find_pear_by_name", include: [:team, :pear_name, :pear])
   def find_pear_by_name(team, pear_name) do
     case Enum.find(team.pears, fn pear -> pear.name == pear_name end) do
       nil -> {:error, :pear_not_found}
@@ -110,7 +110,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace("persistence.add_pear", include: [[:team, :name], :pear_name, :error])
+  @decorate trace("persistence.add_pear", include: [:team, :pear_name, :error])
   defp add_pear(team, pear_name) do
     case %PearRecord{}
          |> PearRecord.changeset(%{team_id: team.id, name: pear_name})
@@ -173,7 +173,7 @@ defmodule Pears.Persistence do
     end
   end
 
-  @decorate trace("persistence.add_track", include: [[:team, :name], :track_name, :error])
+  @decorate trace("persistence.add_track", include: [:team, :track_name, :error])
   defp add_track(team, track_name) do
     case %TrackRecord{}
          |> TrackRecord.changeset(%{team_id: team.id, name: track_name, locked: false})

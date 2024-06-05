@@ -464,7 +464,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace("pears.validate_pear_available", include: [[:team, :name], :pear_name])
+  @decorate trace("pears.validate_pear_available", include: [:team, :pear_name])
   defp validate_pear_available(team, pear_name) do
     case Team.find_available_pear(team, pear_name) do
       %{name: ^pear_name} = pear -> {:ok, pear}
@@ -472,7 +472,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace("pears.validate_pear_assigned", include: [[:team, :name], :pear_name])
+  @decorate trace("pears.validate_pear_assigned", include: [:team, :pear_name])
   defp validate_pear_assigned(team, pear_name) do
     case Team.find_assigned_pear(team, pear_name) do
       %{name: ^pear_name} = pear -> {:ok, pear}
@@ -480,7 +480,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace("pears.validate_pear_on_team", include: [[:team, :name], :pear_name])
+  @decorate trace("pears.validate_pear_on_team", include: [:team, :pear_name])
   defp validate_pear_on_team(team, pear_name) do
     case Team.find_pear(team, pear_name) do
       %{name: ^pear_name} = pear -> {:ok, pear}
@@ -488,7 +488,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace("pears.validate_track_exists", include: [[:team, :name], :track_name])
+  @decorate trace("pears.validate_track_exists", include: [:team, :track_name])
   defp validate_track_exists(team, track_name) do
     case Team.find_track(team, track_name) do
       %{name: ^track_name} = track -> {:ok, track}
@@ -515,7 +515,7 @@ defmodule Pears do
     add_empty_tracks(team, number_to_add)
   end
 
-  @decorate trace("pears.add_empty_tracks", include: [[:team, :name], :count])
+  @decorate trace("pears.add_empty_tracks", include: [:team, :count])
   defp add_empty_tracks(team, count)
 
   defp add_empty_tracks(team, count) when count <= 0, do: team
@@ -529,7 +529,7 @@ defmodule Pears do
     end)
   end
 
-  @decorate trace("pears.persist_changes", include: [[:team, :name], :snapshot, :error])
+  @decorate trace("pears.persist_changes", include: [:team, :snapshot, :error])
   defp persist_changes(team) do
     snapshot = Team.current_matches(team)
 
@@ -547,7 +547,7 @@ defmodule Pears do
     end
   end
 
-  @decorate trace("pears.update_subscribers", include: [[:team, :name]])
+  @decorate trace("pears.update_subscribers", include: [:team])
   defp update_subscribers(team) do
     topic = @topic <> "#{team.name}"
     Phoenix.PubSub.broadcast(Pears.PubSub, topic, {__MODULE__, [:team, :updated], team})

@@ -18,7 +18,7 @@ defmodule Pears.Persistence.Snapshots do
     |> Enum.flat_map(fn team_record -> prune(team_record, opts) end)
   end
 
-  @decorate trace("snapshots.prune", include: [[:team, :name], :number_to_keep])
+  @decorate trace("snapshots.prune", include: [:team, :number_to_keep])
   def prune(team, opts \\ []) do
     number_to_keep = Keyword.get(opts, :number_to_keep, @number_to_keep)
 
