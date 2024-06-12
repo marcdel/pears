@@ -143,7 +143,7 @@ defmodule PearsWeb.PairingBoardLive do
       {"Unassigned", "Unassigned"} ->
         nil
 
-      {_, "Trash"} ->
+      {_, "Removed"} ->
         Pears.remove_pear(team_name, pear_name)
 
       {"Unassigned", destination} ->
@@ -183,7 +183,7 @@ defmodule PearsWeb.PairingBoardLive do
   end
 
   @decorate trace("team_live.move_pear", include: [:team_name, :pear_name])
-  def handle_event("move-pear", %{"to" => "Trash"} = params, socket) do
+  def handle_event("move-pear", %{"to" => "Removed"} = params, socket) do
     team_name = team_name(socket)
     pear_name = Map.get(params, "pear")
 

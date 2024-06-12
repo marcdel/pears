@@ -100,23 +100,36 @@
   </ul>
   <div class="pt-5 mt-10 space-y-3 flex justify-center align-middle">
     <div
-      id="trash-container"
+      id="remove-container"
       class={"#{if @selected_pear != nil, do: "text-white bg-red-400 hover:bg-red-600 shadow", else: "border-transparent"} flex text-sm border-2 p-1 border-transparent rounded-full text-white background-white transition duration-200 ease-in-out"}
     >
       <svg
         class="-ml-0.5 mr-1 h-10 w-10"
-        viewBox="0 0 21 24"
+        viewBox="-2 -1 24 24"
         stroke="currentColor"
         fill="none"
-        id="trash"
+        id="removed"
         phx-hook="Destination"
         phx-click="destination-selected"
-        phx-value-destination="Trash"
-        data-cy="trash"
+        phx-value-destination="Removed"
+        data-cy="removed"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-        </path>
+        <g
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="0.67"
+        >
+          <path d="m6.2098 6.4068c-.3196-.5584-1.0314-.7495-1.5898-.4299s-.7495 1.0314-.4299 1.5898c.0511.0894.1141.1717.1868.2444l3.8054 4.9799 0.8866 1.1167-2.6041-3.4125c-.3196-.5584-1.0314-.7495-1.5898-.4299s-.7495 1.0314-.4299 1.5898c.0511.0894.1141.1717.1868.2444l2.6041 3.4123 2.0702 2.6086c1.8045 2.0639 4.7922 1.9521 6.837 0.1526 1.1861-1.0429 1.9518-2.482 2.1466-4.0455.1271-1.3914.2662-5.0193.2662-5.0193-.0602-.8518-0.9895-1.4777-1.1089-1.0385l-1.5421 3.0725-1.059-1.3285 1.059 1.3285-1.059-1.3285-4.2374-5.4186c-.3196-.5584-1.0314-.7495-1.5898-.4299s-.7495 1.0314-.4299 1.5898c.0511.0894.1141.1717.1868.2444l1.3997 1.8329 2.1165 2.792-4.4232-5.8319c-.3196-.5584-1.0314-.7495-1.5898-.4299s-.7495 1.0314-.4299 1.5898c.0511.0894.1141.1717.1868.2444l4.8394 6.2762" />
+          <g stroke-miterlimit="10">
+            <path d="m3.8698 15.1596c0 .9137.6211 1.6525 1.3871 1.6525" />
+            <path d="m2.3376 15c0 1.9906 1.355 3.5995 3.0323 3.5995" />
+            <path d="m15.7287 7.5008c0-.9137-.6211-1.6525-1.3871-1.6525" />
+            <path d="m17.2609 7.6595c0-1.9906-1.355-3.5995-3.0323-3.5995" />
+          </g>
+        </g>
       </svg>
     </div>
   </div>
