@@ -29,12 +29,14 @@ defmodule PearsWeb.Notification do
             <div class="p-4">
               <div class="flex items-start">
                 <div class="flex-shrink-0">
-                  🐞
+                  🎉
                 </div>
                 <div class="ml-3 w-0 flex-1 pt-0.5">
-                  <p class="text-sm font-medium text-gray-900">Bug Alert</p>
+                  <p class="text-sm font-medium text-gray-900">Smash that Suggest button</p>
                   <p class="mt-1 text-sm text-gray-500">
-                    Hitting enter in the Add Pear and Add Track modals is broken. For now you'll have to click the button like an animal.
+                    That thing is actually useful now! It's been broken for a minute but is working again. Click
+                    <a class="text-blue-500" href="https://streamable.com/ia9bat">here</a>
+                    to see it in action.
                   </p>
                 </div>
                 <div class="ml-4 flex flex-shrink-0">

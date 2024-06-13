@@ -132,5 +132,10 @@
         </g>
       </svg>
     </div>
+    <.live_component
+      :if={FeatureFlags.enabled?(:show_notification)}
+      id="notification"
+      module={PearsWeb.Notification}
+    />
   </div>
 </div>
