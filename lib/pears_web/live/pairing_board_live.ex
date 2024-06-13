@@ -87,11 +87,19 @@ defmodule PearsWeb.PairingBoardLive do
     case Pears.record_pears(team_name) do
       {:ok, _updated_team} ->
         Slack.send_daily_pears_summary(team_name)
-        {:noreply, put_flash(socket, :info, "Today's assigned pears have been recorded!")}
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Today's assigned pears have been recorded!")
+         |> push_navigate(to: "/")}
 
       {:error, changeset} ->
         Pears.O11y.set_changeset_errors(changeset)
-        {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}
+
+        {:noreply,
+         socket
+         |> put_flash(:error, "Sorry! Something went wrong, please try again.")
+         |> push_navigate(to: "/")}
 
       error ->
         O11y.set_error(error)
