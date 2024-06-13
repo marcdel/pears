@@ -340,7 +340,7 @@ defmodule Pears do
   def recommend_pears(team_name) do
     with {:ok, team_with_history} <- TeamSession.find_or_start_session(team_name),
          team_with_empty_tracks <- maybe_add_empty_tracks(team_with_history),
-         updated_team <- assign_pears(team_with_empty_tracks),
+         updated_team <- Recommendator.choose_anchors_and_suggest(team_with_empty_tracks),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
@@ -352,14 +352,6 @@ defmodule Pears do
       error ->
         O11y.set_error(error)
         {:error, error}
-    end
-  end
-
-  defp assign_pears(team) do
-    if FeatureFlags.enabled?(:new_suggest_function, for: team) do
-      Recommendator.choose_anchors_and_suggest(team)
-    else
-      Recommendator.assign_pears(team)
     end
   end
 
