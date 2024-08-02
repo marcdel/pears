@@ -1,7 +1,7 @@
 defmodule Pears.Core.Team do
   use OpenTelemetryDecorator
 
-  @derive {O11y.SpanAttributes, only: [:id, :name]}
+  @derive {O11y.SpanAttributes, only: [:id, :name, :slack_channel]}
   defstruct name: nil,
             id: nil,
             slack_channel: nil,
@@ -421,6 +421,10 @@ defmodule Pears.Core.Team do
     |> Enum.any?()
   end
 
+  @doc """
+  Returns the difference in hours between two pears' timezone offsets.
+  """
+  @spec timezone_difference(Pear.t(), Pear.t()) :: integer
   @decorate with_span("team.timezone_difference")
   def timezone_difference(%{timezone_offset: nil}, _), do: 0
   def timezone_difference(_, %{timezone_offset: nil}), do: 0
@@ -437,6 +441,22 @@ defmodule Pears.Core.Team do
     )
 
     difference_hours
+  end
+
+  @spec misaligned_tz_matches(Team.t()) :: [Pear.t()]
+  @decorate with_span("team.misaligned_tz_matches")
+  def misaligned_tz_matches(team) do
+    team.tracks
+    |> Enum.map(fn {_track_name, track} ->
+      pears = Map.values(track.pears)
+      if significant_tz_differences?(pears), do: pears, else: []
+    end)
+    |> Enum.reject(&Enum.empty?/1)
+    |> tap(fn matches ->
+      Enum.map(matches, fn match ->
+        O11y.add_event("misaligned_tz_match", %{match: match})
+      end)
+    end)
   end
 
   def metadata(team) do
@@ -458,6 +478,18 @@ defmodule Pears.Core.Team do
       current_matches: current_matches,
       recent_history: recent_history
     }
+  end
+
+  defp timezone_differences(pears) do
+    for pear1 <- pears, pear2 <- pears do
+      timezone_difference(pear1, pear2)
+    end
+  end
+
+  defp significant_tz_differences?(pears) do
+    pears
+    |> timezone_differences()
+    |> Enum.any?(&(&1 > 1))
   end
 
   defp random_or_nil([]), do: nil

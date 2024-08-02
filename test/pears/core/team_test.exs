@@ -456,6 +456,38 @@ defmodule Pears.Core.TeamTest do
     assert Team.timezone_difference(pear1, pear4) == 0
   end
 
+  test "list assigned pears with different timezones" do
+    team =
+      TeamBuilders.team()
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear("pear3")
+      |> Team.add_pear("pear4")
+      |> Team.add_pear("pear5")
+      |> Team.add_pear("pear6")
+      # 2 EST, 1 PST
+      |> Team.update_pear("pear1", timezone_offset: -18000)
+      |> Team.update_pear("pear2", timezone_offset: -18000)
+      |> Team.update_pear("pear3", timezone_offset: -25200)
+      # Solo EST
+      |> Team.update_pear("pear4", timezone_offset: -18000)
+      # 2 PST
+      |> Team.update_pear("pear5", timezone_offset: -25200)
+      |> Team.update_pear("pear6", timezone_offset: -25200)
+      |> Team.add_track("track1")
+      |> Team.add_track("track2")
+      |> Team.add_track("track3")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.add_pear_to_track("pear2", "track1")
+      |> Team.add_pear_to_track("pear3", "track1")
+      |> Team.add_pear_to_track("pear4", "track2")
+      |> Team.add_pear_to_track("pear5", "track3")
+      |> Team.add_pear_to_track("pear6", "track3")
+
+    assert [track1_pears] = Team.misaligned_tz_matches(team)
+    assert Enum.map(track1_pears, &Map.get(&1, :name)) == ["pear1", "pear2", "pear3"]
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end
