@@ -232,9 +232,8 @@ defmodule Pears.Accounts do
 
   ## Examples
 
-      iex> deliver_team_update_email_instructions(team, current_email, &url(~p"/teams/settings/confirm_email/#{&1})")
+      iex> deliver_team_update_email_instructions(team, current_email, &url(~p"/teams/settings/confirm_email/#{&1}"))
       {:ok, %{to: ..., body: ...}}
-
   """
   def deliver_team_update_email_instructions(%Team{} = team, current_email, update_email_url_fun)
       when is_function(update_email_url_fun, 1) do

@@ -41,6 +41,15 @@ defmodule Pears.PersistenceTest do
       {:ok, _} = Persistence.delete_team("New Team")
       {:error, :not_found} = Persistence.get_team_by_name("New Team")
     end
+
+    test "find_teams_with_slack_tokens" do
+      create_team("Team 1")
+      team_with_token = create_team("Team 2")
+
+      Persistence.set_slack_token(team_with_token.name, "a-totally-valid-token")
+
+      assert [%{name: "Team 2"}] = Persistence.find_teams_with_slack_tokens()
+    end
   end
 
   def create_team(name) do

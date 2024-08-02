@@ -43,6 +43,11 @@ defmodule Pears.Persistence do
     end
   end
 
+  @decorate trace("persistence.find_teams_with_slack_tokens")
+  def find_teams_with_slack_tokens do
+    Repo.all(from t in TeamRecord, where: not is_nil(t.slack_token))
+  end
+
   @decorate trace("persistence.set_slack_channel", include: [:team_name, :slack_channel])
   def set_slack_channel(team_name, slack_channel) do
     with {:ok, team_record} <- get_team_by_name(team_name),
