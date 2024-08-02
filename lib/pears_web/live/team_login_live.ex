@@ -63,7 +63,7 @@ defmodule PearsWeb.TeamLoginLive do
 
   @decorate trace("PearsWeb.TeamLoginLive.mount", include: [:name, :socket])
   def mount(_params, _session, socket) do
-    name = live_flash(socket.assigns.flash, :name)
+    name = Phoenix.Flash.get(socket.assigns.flash, :name)
     form = to_form(%{"name" => name}, as: "team")
     {:ok, assign(socket, form: form), temporary_assigns: [form: form]}
   end

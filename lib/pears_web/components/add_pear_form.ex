@@ -15,13 +15,13 @@ defmodule PearsWeb.AddPearForm do
   def handle_event("add_pear", %{"pear-name" => pear_name}, socket) do
     case Pears.add_pear(socket.assigns.team.name, pear_name) do
       {:ok, _} ->
-        {:noreply, push_redirect(socket, to: ~p"/")}
+        {:noreply, push_navigate(socket, to: ~p"/")}
 
       {:error, _} ->
         {:noreply,
          socket
          |> put_flash(:error, "Sorry, a Pear with the name '#{pear_name}' already exists")
-         |> push_redirect(to: ~p"/")}
+         |> push_navigate(to: ~p"/")}
     end
   end
 end

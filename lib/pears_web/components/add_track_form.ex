@@ -15,13 +15,13 @@ defmodule PearsWeb.AddTrackForm do
   def handle_event("add_track", %{"track-name" => track_name}, socket) do
     case Pears.add_track(socket.assigns.team.name, track_name) do
       {:ok, _} ->
-        {:noreply, push_redirect(socket, to: ~p"/")}
+        {:noreply, push_navigate(socket, to: ~p"/")}
 
       {:error, _} ->
         {:noreply,
          socket
          |> put_flash(:error, "Sorry, a track with the name '#{track_name}' already exists")
-         |> push_redirect(to: ~p"/")}
+         |> push_navigate(to: ~p"/")}
     end
   end
 end
