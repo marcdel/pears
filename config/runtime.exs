@@ -59,6 +59,12 @@ if config_env() == :prod do
   config :pears, admin_user: System.fetch_env!("ADMIN_USER")
   config :pears, admin_password: System.fetch_env!("ADMIN_PASSWORD")
 
+  config :sentry,
+    dsn: System.fetch_env!("SENTRY_DSN_URL"),
+    environment_name: config_env(),
+    enable_source_code_context: true,
+    root_source_code_paths: [File.cwd!()]
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

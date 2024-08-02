@@ -9,6 +9,7 @@ defmodule Pears.Application do
   def start(_type, _args) do
     OpentelemetryPhoenix.setup()
     OpentelemetryEcto.setup([:pears, :repo])
+    :logger.add_handler(:sentry_handler, Sentry.LoggerHandler, %{})
 
     children = [
       # Start the Telemetry supervisor

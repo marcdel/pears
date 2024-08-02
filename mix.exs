@@ -76,7 +76,8 @@ defmodule Pears.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
-      {:bandit, "~> 1.2"}
+      {:bandit, "~> 1.2"},
+      {:sentry, "~> 10.0"}
     ]
   end
 
