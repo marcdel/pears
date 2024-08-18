@@ -11,6 +11,7 @@ defmodule Pears do
   alias Pears.Core.Recommendator
   alias Pears.Core.Team
   alias Pears.Persistence
+  alias Pears.Slack
 
   @topic inspect(__MODULE__)
 
@@ -454,6 +455,31 @@ defmodule Pears do
         O11y.set_error(error)
         false
     end
+  end
+
+  @decorate trace("pears.send_hand_off_reminders")
+  def send_hand_off_reminders do
+    teams = Persistence.find_teams_with_slack_tokens()
+
+    Enum.each(teams, &send_hand_off_reminder/1)
+
+    {:ok, nil}
+  end
+
+  @decorate trace("pears.send_hand_off_reminder", include: [:team])
+  defp send_hand_off_reminder(team_record) do
+    with {:ok, team} <- TeamSession.find_or_start_session(team_record.name),
+         {:ok, snapshot} <- Persistence.get_latest_snapshot(team.name),
+         true <- is_snapshot_from_today(snapshot),
+         matches <- Team.misaligned_tz_matches(team) do
+      Enum.each(matches, fn pears ->
+        Slack.send_hand_off_reminder(team, pears)
+      end)
+    end
+  end
+
+  defp is_snapshot_from_today(snapshot) do
+    snapshot.inserted_at >= Date.utc_today()
   end
 
   @decorate trace("pears.validate_pear_available", include: [:team, :pear_name])

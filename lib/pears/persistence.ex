@@ -44,6 +44,7 @@ defmodule Pears.Persistence do
   end
 
   @decorate trace("persistence.find_teams_with_slack_tokens")
+  @spec find_teams_with_slack_tokens() :: [TeamRecord.t()]
   def find_teams_with_slack_tokens do
     Repo.all(from t in TeamRecord, where: not is_nil(t.slack_token))
   end
@@ -80,7 +81,7 @@ defmodule Pears.Persistence do
         {:tracks, :pears},
         {:tracks, :anchor},
         {:snapshots, :matches},
-        snapshots: from(s in SnapshotRecord, order_by: [desc: s.inserted_at])
+        snapshots: from(s in SnapshotRecord, order_by: [desc: s.id])
       ])
 
     case result do
@@ -307,6 +308,15 @@ defmodule Pears.Persistence do
     end
   end
 
+  def get_latest_snapshot(team_name) do
+    with {:ok, team} <- get_team_by_name(team_name),
+         {:ok, snapshot} <- find_latest_snapshot(team) do
+      {:ok, snapshot}
+    else
+      error -> error
+    end
+  end
+
   defp save_snapshot(team, snapshot) do
     %SnapshotRecord{}
     |> SnapshotRecord.changeset(%{
@@ -314,6 +324,13 @@ defmodule Pears.Persistence do
       matches: build_matches(snapshot)
     })
     |> Repo.insert()
+  end
+
+  defp find_latest_snapshot(team) do
+    case Enum.at(team.snapshots, 0) do
+      nil -> {:error, :no_snapshots}
+      snapshot -> {:ok, snapshot}
+    end
   end
 
   defp build_matches(snapshot) do

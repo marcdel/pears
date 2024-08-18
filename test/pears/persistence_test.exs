@@ -195,5 +195,27 @@ defmodule Pears.PersistenceTest do
       assert Enum.member?(matches, %{track_name: "track one", pear_names: ["pear1", "pear2"]})
       assert Enum.member?(matches, %{track_name: "track two", pear_names: ["pear3"]})
     end
+
+    test "can get the most recent snapshot" do
+      team = create_team("New Team")
+
+      {:error, _} = Persistence.get_latest_snapshot(team.name)
+
+      {:ok, _} =
+        Persistence.add_snapshot_to_team(team.name, [
+          {"track one", ["pear1", "pear2"]},
+          {"track two", ["pear3"]}
+        ])
+
+      {:ok, second_snapshot} =
+        Persistence.add_snapshot_to_team(team.name, [
+          {"track one", ["pear1", "pear2"]},
+          {"track two", ["pear3"]}
+        ])
+
+      {:ok, retrieved_snapshot} = Persistence.get_latest_snapshot(team.name)
+
+      assert retrieved_snapshot.id == second_snapshot.id
+    end
   end
 end

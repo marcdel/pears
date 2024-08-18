@@ -143,6 +143,13 @@ defmodule Pears.SlackFixtures do
     }
   end
 
+  def channel_response(id, name) do
+    %{
+      "channel" => channel(id, name),
+      "ok" => true
+    }
+  end
+
   defp channel(id, name) do
     %{
       "created" => 123_456_789,

@@ -8,6 +8,7 @@ defmodule Pears.Slack do
   alias Pears.Slack.Details
   alias Pears.Slack.Messages.DailyPairsMessage
   alias Pears.Slack.Messages.EndOfSessionQuestion
+  alias Pears.Slack.Messages
   alias Pears.Slack.User
 
   def slack_client do
@@ -78,11 +79,6 @@ defmodule Pears.Slack do
     end
   end
 
-  @decorate trace("slack.send_stand_down_reminders")
-  def send_stand_down_reminders() do
-    O11y.set_attributes(cron: "0 12 * * 1-5")
-  end
-
   @decorate trace("slack.send_message_to_team", include: [:team_name, :message])
   def send_message_to_team(team_name, message) do
     case TeamSession.find_or_start_session(team_name) do
@@ -112,6 +108,12 @@ defmodule Pears.Slack do
     end
   end
 
+  @decorate trace("slack.send_hand_off_reminder")
+  def send_hand_off_reminder(team, pears) do
+    message = Messages.HandOffReminder.new()
+    send_message_to_pears(team, pears, message)
+  end
+
   defp do_save_slack_names(team_name, users, pears, params) do
     Enum.map(params, fn
       {pear_name, ""} ->
@@ -119,7 +121,7 @@ defmodule Pears.Slack do
 
       {pear_name, slack_id} ->
         with {:ok, team} <- TeamSession.find_or_start_session(team_name),
-             user <- Enum.find(users, fn user -> user.id == slack_id end),
+             %User{} = user <- Enum.find(users, fn user -> user.id == slack_id end),
              {:ok, pear_record} <-
                Persistence.add_pear_slack_details(team.name, pear_name, %{
                  slack_id: user.id,
@@ -136,6 +138,7 @@ defmodule Pears.Slack do
           {:ok, pear_record}
         end
     end)
+    |> Enum.reject(&(&1 == nil))
     |> Enum.group_by(fn {success, _} -> success end, fn {_, result} -> result end)
     |> Map.get(:ok, [])
   end
@@ -168,19 +171,19 @@ defmodule Pears.Slack do
 
   defp do_send_end_of_session_question(team, track) do
     message = EndOfSessionQuestion.new(track)
+    send_message_to_pears(team, Map.values(track.pears), message)
+  end
 
-    case find_or_create_group_chat(team, track) do
+  defp send_message_to_pears(team, pears, message) do
+    case find_or_create_group_chat(team, pears) do
       {:ok, channel_id} -> do_send_message(team, channel_id, message)
       _ -> {:error, :error_creating_group_chat}
     end
   end
 
-  @decorate trace("slack.find_or_create_group_chat", include: [[:track, :pears], :user_ids])
-  defp find_or_create_group_chat(%{slack_token: token}, track) do
-    user_ids =
-      track.pears
-      |> Map.values()
-      |> Enum.map(&Map.get(&1, :slack_id))
+  @decorate trace("slack.find_or_create_group_chat", include: [:pears, :user_ids])
+  defp find_or_create_group_chat(%{slack_token: token}, pears) do
+    user_ids = Enum.map(pears, &Map.get(&1, :slack_id))
 
     case slack_client().find_or_create_group_chat(user_ids, token) do
       %{"ok" => true} = response ->

@@ -425,17 +425,30 @@ defmodule Pears.Core.Team do
   Returns the difference in hours between two pears' timezone offsets.
   """
   @spec timezone_difference(Pear.t(), Pear.t()) :: integer
-  @decorate with_span("team.timezone_difference")
   def timezone_difference(%{timezone_offset: nil}, _), do: 0
   def timezone_difference(_, %{timezone_offset: nil}), do: 0
 
-  def timezone_difference(pear1, pear2) do
-    difference_seconds = abs(pear1.timezone_offset - pear2.timezone_offset)
+  def timezone_difference(%{timezone_offset: left}, %{timezone_offset: right}) do
+    offset_difference_in_hours(parse_int(left), parse_int(right))
+  end
+
+  defp parse_int(maybe_a_string) when is_binary(maybe_a_string) do
+    {number, _remainder} = Integer.parse(maybe_a_string)
+    number
+  end
+
+  defp parse_int(maybe_a_string) when is_integer(maybe_a_string) do
+    maybe_a_string
+  end
+
+  @decorate with_span("team.offset_difference_in_hours")
+  defp offset_difference_in_hours(left, right) do
+    difference_seconds = abs(left - right)
     difference_hours = div(difference_seconds, 3600)
 
     O11y.set_attributes(
-      left: pear1.timezone_offset,
-      right: pear2.timezone_offset,
+      left: left,
+      right: right,
       difference_hours: difference_hours,
       difference_seconds: difference_seconds
     )
@@ -443,20 +456,25 @@ defmodule Pears.Core.Team do
     difference_hours
   end
 
-  @spec misaligned_tz_matches(Team.t()) :: [Pear.t()]
+  @spec misaligned_tz_matches(Team.t()) :: list(list(Pear.t()))
   @decorate with_span("team.misaligned_tz_matches")
   def misaligned_tz_matches(team) do
     team.tracks
-    |> Enum.map(fn {_track_name, track} ->
+    |> Enum.map(fn {track_name, track} ->
       pears = Map.values(track.pears)
-      if significant_tz_differences?(pears), do: pears, else: []
+
+      if significant_tz_differences?(pears) do
+        O11y.add_event("misaligned_tz_match", %{
+          track: track_name,
+          pears: Enum.map(pears, & &1.name)
+        })
+
+        pears
+      else
+        []
+      end
     end)
     |> Enum.reject(&Enum.empty?/1)
-    |> tap(fn matches ->
-      Enum.map(matches, fn match ->
-        O11y.add_event("misaligned_tz_match", %{match: match})
-      end)
-    end)
   end
 
   def metadata(team) do

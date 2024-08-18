@@ -23,7 +23,7 @@ defmodule Pears.SlackTest do
     test "exchanges a code for an access token and saves it", %{team: team} do
       valid_token = "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"
 
-      expect(MockSlackClient, :retrieve_access_tokens, fn _code, _url ->
+      expect(MockSlackClient, :retrieve_access_tokens, fn "valid_code", _url ->
         SlackFixtures.valid_token_response(%{access_token: valid_token})
       end)
 

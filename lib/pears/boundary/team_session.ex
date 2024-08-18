@@ -177,7 +177,8 @@ defmodule Pears.Boundary.TeamSession do
       Team.add_pear(team, pear_record.name,
         id: pear_record.id,
         slack_name: pear_record.slack_name,
-        slack_id: pear_record.slack_id
+        slack_id: pear_record.slack_id,
+        timezone_offset: pear_record.timezone_offset
       )
     end)
   end

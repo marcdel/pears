@@ -2,9 +2,17 @@ defmodule PearsTest do
   use Pears.DataCase, async: true
 
   import TeamAssertions
+  import Mox
+
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
+  alias Pears.MockSlackClient
   alias Pears.Persistence
+  alias Pears.Slack
+  alias Pears.SlackFixtures
+
+  # Make sure mocks are verified when the test exits
+  setup :verify_on_exit!
 
   setup [:name]
 
@@ -415,6 +423,100 @@ defmodule PearsTest do
 
     assert Enum.member?(["Pear One", "Pear Two"], facilitator.name)
     assert Enum.member?(["Pear One", "Pear Two"], new_facilitator.name)
+  end
+
+  describe "hand off reminders" do
+    setup do
+      MockSlackClient
+      |> stub(:retrieve_access_tokens, fn _code, _url -> SlackFixtures.valid_token_response() end)
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+      |> stub(:users, fn _, _ -> SlackFixtures.users_response() end)
+      |> stub(:find_or_create_group_chat, fn _, _ -> %{} end)
+
+      :ok
+    end
+
+    test "sends reminders to teams with a slack token and snapshot from today", %{name: name} do
+      MockSlackClient
+      |> stub(:retrieve_access_tokens, fn _code, _url ->
+        SlackFixtures.valid_token_response(%{"access_token" => "valid_token"})
+      end)
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+      |> stub(:users, fn _, "" ->
+        SlackFixtures.users_response([
+          %{id: "XXXXXXXXXX", name: "marc", tz_offset: "-28800"},
+          %{id: "YYYYYYYYYY", name: "milo", tz_offset: "-18000"}
+        ])
+      end)
+      |> stub(:find_or_create_group_chat, fn ["XXXXXXXXXX", "YYYYYYYYYY"], "valid_token" ->
+        SlackFixtures.channel_response("ZZZZZZZZZZ", "idk what a dm channel name is")
+      end)
+
+      {:ok, _} = Pears.add_team(name)
+      {:ok, _} = Pears.add_pear(name, "Marc")
+      {:ok, _} = Pears.add_pear(name, "Milo")
+      {:ok, _} = Pears.add_track(name, "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Marc", "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Milo", "Track One")
+      {:ok, _} = Pears.record_pears(name)
+
+      {:ok, _} = Slack.onboard_team(name, "valid_code")
+      {:ok, details} = Slack.get_details(name)
+
+      params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY"}
+      {:ok, _} = Slack.save_slack_names(details, name, params)
+
+      MockSlackClient
+      |> expect(:send_message, fn "ZZZZZZZZZZ", _blocks, "valid_token" -> %{"ok" => true} end)
+
+      assert {:ok, _} = Pears.send_hand_off_reminders()
+    end
+
+    test "does not send reminders to teams with no slack token", %{name: name} do
+      {:ok, _} = Pears.add_team(name)
+
+      MockSlackClient
+      |> expect(:send_message, 0, fn _channel, _blocks, _token -> %{"ok" => true} end)
+
+      assert {:ok, _} = Pears.send_hand_off_reminders()
+    end
+
+    test "does not send reminders if users don't have slack names saved", %{name: name} do
+      {:ok, _} = Pears.add_team(name)
+      {:ok, _} = Pears.add_pear(name, "Marc")
+      {:ok, _} = Pears.add_pear(name, "Milo")
+      {:ok, _} = Pears.add_track(name, "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Marc", "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Milo", "Track One")
+      {:ok, _} = Pears.record_pears(name)
+
+      MockSlackClient
+      |> expect(:send_message, 0, fn _channel, _blocks, _token -> %{"ok" => true} end)
+
+      assert {:ok, _} = Pears.send_hand_off_reminders()
+    end
+
+    test "does not send reminders to teams that are not pairing today", %{name: name} do
+      {:ok, _} = Pears.add_team(name)
+      {:ok, _} = Pears.add_pear(name, "Marc")
+      {:ok, _} = Pears.add_pear(name, "Milo")
+      {:ok, _} = Pears.add_track(name, "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Marc", "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Milo", "Track One")
+
+      {:ok, _} = Slack.onboard_team(name, "valid_code")
+      {:ok, details} = Slack.get_details(name)
+
+      params = %{"Marc" => "XXXXXXXXXX", "Milo" => "YYYYYYYYYY"}
+      {:ok, _} = Slack.save_slack_names(details, name, params)
+
+      # Note that we DON'T record pears here, so there is no snapshot for today
+
+      MockSlackClient
+      |> expect(:send_message, 0, fn _channel, _blocks, _token -> %{"ok" => true} end)
+
+      assert {:ok, _} = Pears.send_hand_off_reminders()
+    end
   end
 
   def name(_) do
