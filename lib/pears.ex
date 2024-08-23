@@ -469,12 +469,11 @@ defmodule Pears do
   @decorate trace("pears.send_hand_off_reminder", include: [:team])
   defp send_hand_off_reminder(team_record) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_record.name),
+         true <- FeatureFlags.enabled?(:hand_off_reminders, for: team),
          {:ok, snapshot} <- Persistence.get_latest_snapshot(team.name),
          true <- is_snapshot_from_today(snapshot),
          matches <- Team.misaligned_tz_matches(team) do
-      Enum.each(matches, fn pears ->
-        Slack.send_hand_off_reminder(team, pears)
-      end)
+      Enum.each(matches, fn pears -> Slack.send_hand_off_reminder(team, pears) end)
     end
   end
 

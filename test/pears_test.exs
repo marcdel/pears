@@ -427,6 +427,8 @@ defmodule PearsTest do
 
   describe "hand off reminders" do
     setup do
+      FeatureFlags.enable(:hand_off_reminders)
+
       MockSlackClient
       |> stub(:retrieve_access_tokens, fn _code, _url -> SlackFixtures.valid_token_response() end)
       |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
