@@ -45,7 +45,6 @@ defmodule Pears.MixProject do
       {:fun_with_flags_ui, "~> 1.0"},
       {:hammox, "~> 0.7.0"},
       {:opentelemetry_exporter, "~> 1.7"},
-      {:opentelemetry_api, "~> 1.3"},
       {:opentelemetry, "~> 1.4"},
       {:opentelemetry_ecto, "~> 1.1"},
       {:open_telemetry_decorator, "~> 1.5"},

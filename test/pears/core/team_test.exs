@@ -456,7 +456,7 @@ defmodule Pears.Core.TeamTest do
     assert Team.timezone_difference(pear1, pear4) == 0
   end
 
-  test "list assigned pears with different timezones" do
+  test "can list assigned pears with different timezones" do
     team =
       TeamBuilders.team()
       |> Team.add_pear("pear1")
@@ -486,6 +486,16 @@ defmodule Pears.Core.TeamTest do
 
     assert [track1_pears] = Team.misaligned_tz_matches(team)
     assert Enum.map(track1_pears, &Map.get(&1, :name)) == ["pear1", "pear2", "pear3"]
+  end
+
+  test "can return the earliest pear by timezone" do
+    pears = [
+      Pears.Core.Pear.new(timezone_offset: -18000),
+      Pears.Core.Pear.new(timezone_offset: -25200),
+      Pears.Core.Pear.new(timezone_offset: -28800)
+    ]
+
+    assert Team.earliest_pear_in_match(pears).timezone_offset == -28800
   end
 
   defp team(_) do

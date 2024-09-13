@@ -47,6 +47,9 @@ defmodule Pears.Persistence do
   @spec find_teams_with_slack_tokens() :: [TeamRecord.t()]
   def find_teams_with_slack_tokens do
     Repo.all(from t in TeamRecord, where: not is_nil(t.slack_token))
+    |> tap(fn team_records ->
+      O11y.set_attributes(count: length(team_records), teams: Enum.map(team_records, & &1.name))
+    end)
   end
 
   @decorate trace("persistence.set_slack_channel", include: [:team_name, :slack_channel])

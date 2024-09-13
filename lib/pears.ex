@@ -9,6 +9,7 @@ defmodule Pears do
   alias Pears.Boundary.TeamManager
   alias Pears.Boundary.TeamSession
   alias Pears.Core.Recommendator
+  alias Pears.Core.Pear
   alias Pears.Core.Team
   alias Pears.Persistence
   alias Pears.Slack
@@ -458,23 +459,33 @@ defmodule Pears do
   end
 
   @decorate trace("pears.send_hand_off_reminders")
-  def send_hand_off_reminders do
+  def send_hand_off_reminders(utc_now \\ DateTime.utc_now()) do
     teams = Persistence.find_teams_with_slack_tokens()
 
-    Enum.each(teams, &send_hand_off_reminder/1)
+    Enum.each(teams, &send_hand_off_reminder(&1, utc_now))
 
     {:ok, nil}
   end
 
-  @decorate trace("pears.send_hand_off_reminder", include: [:team])
-  defp send_hand_off_reminder(team_record) do
+  @decorate trace("pears.send_hand_off_reminder", include: [:team_record])
+  defp send_hand_off_reminder(team_record, utc_now) do
     with {:ok, team} <- TeamSession.find_or_start_session(team_record.name),
          true <- FeatureFlags.enabled?(:hand_off_reminders, for: team),
          {:ok, snapshot} <- Persistence.get_latest_snapshot(team.name),
          true <- is_snapshot_from_today(snapshot),
          matches <- Team.misaligned_tz_matches(team) do
-      Enum.each(matches, fn pears -> Slack.send_hand_off_reminder(team, pears) end)
+      Enum.each(matches, fn pears ->
+        if quittin_time_for_earliest_pair?(pears, utc_now) do
+          Slack.send_hand_off_reminder(team, pears)
+        end
+      end)
     end
+  end
+
+  defp quittin_time_for_earliest_pair?(pears, utc_now) do
+    pears
+    |> Team.earliest_pear_in_match()
+    |> Pear.quittin_time?(utc_now)
   end
 
   defp is_snapshot_from_today(snapshot) do

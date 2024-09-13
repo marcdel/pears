@@ -457,7 +457,7 @@ defmodule Pears.Core.Team do
   end
 
   @spec misaligned_tz_matches(Team.t()) :: list(list(Pear.t()))
-  @decorate with_span("team.misaligned_tz_matches")
+  @decorate with_span("team.misaligned_tz_matches", include: [:team])
   def misaligned_tz_matches(team) do
     team.tracks
     |> Enum.map(fn {track_name, track} ->
@@ -465,6 +465,7 @@ defmodule Pears.Core.Team do
 
       if significant_tz_differences?(pears) do
         O11y.add_event("misaligned_tz_match", %{
+          team_name: team.name,
           track: track_name,
           pears: Enum.map(pears, & &1.name)
         })
@@ -475,6 +476,10 @@ defmodule Pears.Core.Team do
       end
     end)
     |> Enum.reject(&Enum.empty?/1)
+  end
+
+  def earliest_pear_in_match(pears) do
+    Enum.min_by(pears, & &1.timezone_offset)
   end
 
   def metadata(team) do

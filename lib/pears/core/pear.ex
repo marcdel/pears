@@ -1,4 +1,6 @@
 defmodule Pears.Core.Pear do
+  alias Pears.TzHelpers
+
   defstruct id: nil,
             name: nil,
             track: nil,
@@ -25,5 +27,15 @@ defmodule Pears.Core.Pear do
 
   def remove_track(pear) do
     Map.put(pear, :track, nil)
+  end
+
+  def quittin_time?(pear, utc_now \\ DateTime.utc_now()) do
+    minutes_from_5 =
+      pear.timezone_offset
+      |> TzHelpers.five_pm_in_local_time()
+      |> TzHelpers.local_time_to_utc()
+      |> DateTime.diff(utc_now, :minute)
+
+    abs(minutes_from_5) < 30
   end
 end

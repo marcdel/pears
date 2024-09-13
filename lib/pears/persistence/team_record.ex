@@ -7,6 +7,7 @@ defmodule Pears.Persistence.TeamRecord do
   alias Pears.Persistence.SnapshotRecord
   alias Pears.Persistence.TrackRecord
 
+  @derive {O11y.SpanAttributes, only: [:id, :name, :slack_channel_id, :slack_channel_name]}
   schema "teams" do
     field :name, :string
     field :slack_channel_id, :string

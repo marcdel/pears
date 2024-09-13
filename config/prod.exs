@@ -22,8 +22,8 @@ config :logger, level: :info
 
 config :pears, Pears.Scheduler,
   jobs: [
-    # At 5:00 PM Pacific on every day-of-week from Monday through Friday.
-    {"0 12 * * 1-5", {Pears, :send_hand_off_reminders, []}}
+    # Every hour on the hour from Monday through Friday.
+    {"0 * * * 1-5", {Pears, :send_hand_off_reminders, []}}
   ]
 
 # Runtime production configuration, including reading
