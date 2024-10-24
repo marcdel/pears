@@ -43,7 +43,7 @@ defmodule PearsWeb do
         layouts: [html: PearsWeb.Layouts]
 
       import Plug.Conn
-      import PearsWeb.Gettext
+      use Gettext, backend: PearsWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -87,7 +87,7 @@ defmodule PearsWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import PearsWeb.CoreComponents
-      import PearsWeb.Gettext
+      use Gettext, backend: PearsWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

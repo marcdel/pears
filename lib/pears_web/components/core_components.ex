@@ -17,7 +17,7 @@ defmodule PearsWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import PearsWeb.Gettext
+  use Gettext, backend: PearsWeb.Gettext
 
   @doc """
   Renders a modal.
