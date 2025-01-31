@@ -18,7 +18,7 @@
   <div class="pb-5 mb-10 border-b border-gray-200 space-y-3 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
     <div class="flex space-x-3 align-middle">
       <h1 class="capitalize ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
-        <%= assigns[:page_title] %>
+        {assigns[:page_title]}
       </h1>
       <.live_component module={PearsWeb.AddTrackButton} id="add_track_button" />
     </div>
@@ -35,7 +35,7 @@
       <div class="dropzone grid gap-3" id="Unassigned">
         <%= for pear <- list_pears(@team.available_pears) do %>
           <div draggable="true" id={@pear.name} class="draggable p-4 bg-blue-700 text-white">
-            <%= pear.name %>
+            {pear.name}
           </div>
         <% end %>
       </div>
@@ -44,10 +44,10 @@
           class="dropzone grid gap-3 p-6 border-solid border-2 border-orange-300 rounded-md my-6"
           id={track.name}
         >
-          <%= track.name %>
+          {track.name}
           <%= for pear <- list_pears(track.pears) do %>
             <div draggable="true" id={pear.name} class="draggable p-4 bg-orange-700 text-white">
-              <%= pear.name %>
+              {pear.name}
             </div>
           <% end %>
         </div>

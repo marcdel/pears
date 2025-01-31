@@ -42,8 +42,9 @@ defmodule PearsWeb do
         formats: [:html, :json],
         layouts: [html: PearsWeb.Layouts]
 
-      import Plug.Conn
       use Gettext, backend: PearsWeb.Gettext
+
+      import Plug.Conn
 
       unquote(verified_routes())
     end
@@ -83,11 +84,14 @@ defmodule PearsWeb do
 
   defp html_helpers do
     quote do
+      # Translation
+      use Gettext, backend: PearsWeb.Gettext
+
       # HTML escaping functionality
       import Phoenix.HTML
-      # Core UI components and translation
+
+      # Core UI components
       import PearsWeb.CoreComponents
-      use Gettext, backend: PearsWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

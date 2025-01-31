@@ -8,8 +8,8 @@
       name="Description"
       content="Track your team's pair programming history and get recommendations for the day's pairing session."
     />
-    <.live_title suffix="">
-      <%= assigns[:page_title] || "Pears" %>
+    <.live_title default="Pears" suffix="">
+      {assigns[:page_title]}
     </.live_title>
     <link
       rel="icon"
@@ -20,6 +20,6 @@
     </script>
   </head>
   <body>
-    <%= @inner_content %>
+    {@inner_content}
   </body>
 </html>

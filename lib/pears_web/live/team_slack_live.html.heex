@@ -90,7 +90,7 @@
                     }
                     value={"#{channel.id}"}
                   >
-                    <%= channel.name %>
+                    {channel.name}
                   </option>
                 <% end %>
               </select>
@@ -162,13 +162,13 @@
                             <tr>
                               <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                  <%= pear.name %>
+                                  {pear.name}
                                 </div>
                               </td>
                               <td class="px-6 py-4 whitespace-nowrap">
                                 <%= if pear.slack_name do %>
                                   <div class="text-sm text-gray-900">
-                                    <%= pear.slack_name %>
+                                    {pear.slack_name}
                                   </div>
                                 <% else %>
                                   <select
@@ -178,7 +178,7 @@
                                   >
                                     <option></option>
                                     <%= for user <- @details.users do %>
-                                      <option value={user.id}><%= user.name %></option>
+                                      <option value={user.id}>{user.name}</option>
                                     <% end %>
                                   </select>
                                 <% end %>
