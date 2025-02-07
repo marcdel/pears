@@ -46,6 +46,7 @@ defmodule Pears.MixProject do
       {:hammox, "~> 0.7.0"},
       {:opentelemetry_exporter, "~> 1.8"},
       {:opentelemetry, "~> 1.5"},
+      {:opentelemetry_bandit, "~> 0.2"},
       {:opentelemetry_ecto, "~> 1.1"},
       {:open_telemetry_decorator, "~> 1.5"},
       {:opentelemetry_phoenix, "~> 2.0"},

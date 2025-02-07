@@ -7,6 +7,7 @@ defmodule Pears.Application do
 
   @impl true
   def start(_type, _args) do
+    OpentelemetryBandit.setup()
     OpentelemetryPhoenix.setup(adapter: :bandit)
     OpentelemetryEcto.setup([:pears, :repo])
     :logger.add_handler(:sentry_handler, Sentry.LoggerHandler, %{})
