@@ -49,6 +49,7 @@ defmodule Pears.MixProject do
       {:opentelemetry_bandit, "~> 0.2"},
       {:opentelemetry_ecto, "~> 1.1"},
       {:open_telemetry_decorator, "~> 1.5"},
+      {:o11y, "~> 0.2.11", override: true},
       {:opentelemetry_phoenix, "~> 2.0"},
       {:slack, "~> 0.23.5"},
       {:phoenix, "~> 1.7.18"},

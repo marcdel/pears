@@ -153,6 +153,13 @@ case System.fetch_env("OTEL_EXPORTER") do
         :prod -> "pears"
       end
 
+    config(:opentelemetry, :processors, [
+      {O11y.BaggageProcessor, %{}},
+      otel_batch_processor: %{
+        exporter: {:opentelemetry_exporter, %{}}
+      }
+    ])
+
     config :opentelemetry_exporter,
       otlp_protocol: :grpc,
       otlp_compression: :gzip,

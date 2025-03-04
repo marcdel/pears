@@ -5,15 +5,17 @@ defmodule PearsWeb.PairingBoardLive do
   alias Pears.Accounts
   alias Pears.Slack
 
-  @decorate trace("team_live.mount", include: [:team_name])
+  @decorate trace("team_live.mount")
   def mount(_params, session, socket) do
-    %{name: team_name} = socket.assigns.current_team
+    team = socket.assigns.current_team
+    O11y.set_attributes(team: team)
+    O11y.set_global_attributes(team: team)
 
     {:ok,
      socket
-     |> assign(:team_name, team_name)
+     |> assign(team_name: team.name)
      |> assign_new(:logged_in_team, fn -> find_logged_in_team(session) end)
-     |> assign_team_or_redirect(team_name)
+     |> assign_team_or_redirect(team.name)
      |> assign(selected_pear: nil, selected_pear_current_location: nil, editing_track: nil)
      |> apply_action(socket.assigns.live_action)}
   end

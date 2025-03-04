@@ -92,7 +92,8 @@ defmodule PearsWeb.TeamAuth do
   def fetch_current_team(conn, _opts) do
     {team_token, conn} = ensure_team_token(conn)
     team = team_token && Accounts.get_team_by_session_token(team_token)
-    O11y.set_attributes(team, prefix: :team)
+
+    O11y.set_global_attributes(team: team)
 
     assign(conn, :current_team, team)
   end
