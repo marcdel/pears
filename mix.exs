@@ -40,7 +40,7 @@ defmodule Pears.MixProject do
       {:bcrypt_elixir, "~> 3.0"},
       {:cloak_ecto, "~> 1.2"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:dns_cluster, "~> 0.1.1"},
+      {:dns_cluster, "~> 0.2"},
       {:fun_with_flags, "~> 1.10"},
       {:fun_with_flags_ui, "~> 1.0"},
       {:hammox, "~> 0.7.0"},
