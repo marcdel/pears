@@ -13,7 +13,7 @@ defmodule PearsWeb.PairingBoardLive do
 
     {:ok,
      socket
-     |> assign(team_name: team.name)
+     |> assign(team_name: team.name, whimsy_mode: whimsy_mode?(team))
      |> assign_new(:logged_in_team, fn -> find_logged_in_team(session) end)
      |> assign_team_or_redirect(team.name)
      |> assign(selected_pear: nil, selected_pear_current_location: nil, editing_track: nil)
@@ -26,6 +26,10 @@ defmodule PearsWeb.PairingBoardLive do
     team_name = team_name(socket)
     if connected?(socket), do: Pears.subscribe(team_name)
     {:noreply, apply_action(socket, socket.assigns.live_action)}
+  end
+
+  defp whimsy_mode?(team) do
+    FeatureFlags.enabled?(:whimsy_mode, for: team)
   end
 
   defp hide_reset_button?(team) do
@@ -51,6 +55,22 @@ defmodule PearsWeb.PairingBoardLive do
   defp show_random_facilitator_message(team) do
     FeatureFlags.enabled?(:random_facilitator, for: team) &&
       Pears.has_active_pears?(team.name)
+  end
+
+  @impl true
+  @decorate trace("team_live.toggle_whimsy_mode", include: [:team])
+  def handle_event("toggle-whimsy-mode", _params, socket) do
+    team = team(socket)
+
+    if whimsy_mode?(team) do
+      FeatureFlags.disable(:whimsy_mode, for_actor: team)
+      socket = clear_flash(socket)
+      {:noreply, assign(socket, whimsy_mode: false)}
+    else
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+      socket = put_flash(socket, :info, "Whimsy mode enabled! Hot doooooooggggg!!!")
+      {:noreply, assign(socket, whimsy_mode: true)}
+    end
   end
 
   @impl true

@@ -23,6 +23,33 @@
       <.live_component module={PearsWeb.AddTrackButton} id="add_track_button" />
     </div>
     <div class="flex space-x-3">
+      <div class="flex items-center">
+        <span class="mr-3 text-sm" id="whimsy-mode-label">
+          <span class="font-medium text-gray-900">Whimsy Mode</span>
+        </span>
+        <button
+          type="button"
+          class={[
+            if(@whimsy_mode, do: "bg-green-600", else: "bg-gray-200"),
+            "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+          ]}
+          role="switch"
+          aria-checked="false"
+          aria-labelledby="whimsy-mode-label"
+          phx-click="toggle-whimsy-mode"
+        >
+          <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
+          <span
+            aria-hidden="true"
+            class={[
+              if(@whimsy_mode, do: "translate-x-5", else: "translate-x-0"),
+              "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            ]}
+          >
+          </span>
+        </button>
+      </div>
+
       <%= unless hide_reset_button?(@team) do %>
         <.live_component module={PearsWeb.ResetButton} id="reset_button" />
       <% end %>
