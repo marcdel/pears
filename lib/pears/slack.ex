@@ -258,17 +258,16 @@ defmodule Pears.Slack do
       %{"ok" => true} = response ->
         channels =
           response
-          |> Map.get("channels")
+          |> Map.get("channels", [])
           |> Enum.map(&Channel.from_json/1)
 
         O11y.set_attribute(:channel_count, Enum.count(channels))
 
-        case response do
-          %{"response_metadata" => %{"next_cursor" => ""}} ->
-            channels
+        next_cursor = get_in(response, ["response_metadata", "next_cursor"]) || ""
 
-          %{"response_metadata" => %{"next_cursor" => next_cursor}} ->
-            channels ++ do_fetch_channels(token, next_cursor)
+        case next_cursor do
+          "" -> channels
+          cursor -> channels ++ do_fetch_channels(token, cursor)
         end
 
       error ->
@@ -299,17 +298,16 @@ defmodule Pears.Slack do
       %{"ok" => true} = response ->
         users =
           response
-          |> Map.get("members")
+          |> Map.get("members", [])
           |> Enum.map(&User.from_json/1)
 
         O11y.set_attribute(:user_count, Enum.count(users))
 
-        case response do
-          %{"response_metadata" => %{"next_cursor" => ""}} ->
-            users
+        next_cursor = get_in(response, ["response_metadata", "next_cursor"]) || ""
 
-          %{"response_metadata" => %{"next_cursor" => next_cursor}} ->
-            users ++ do_fetch_users(token, next_cursor)
+        case next_cursor do
+          "" -> users
+          cursor -> users ++ do_fetch_users(token, cursor)
         end
 
       error ->
