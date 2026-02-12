@@ -133,6 +133,7 @@ end
 
 config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
 config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
+config :pears, slack_signing_secret: System.fetch_env!("SLACK_SIGNING_SECRET")
 config :pears, slack_oauth_redirect_uri: System.get_env("SLACK_OAUTH_URL")
 
 case System.fetch_env("OTEL_EXPORTER") do

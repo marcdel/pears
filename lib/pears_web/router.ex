@@ -27,8 +27,13 @@ defmodule PearsWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :slack_api do
+    plug :accepts, ["json"]
+    plug PearsWeb.Plugs.VerifySlackSignature
+  end
+
   scope "/api", PearsWeb do
-    pipe_through :api
+    pipe_through :slack_api
 
     post "/slack/interactions", SlackInteractionController, :create
   end
