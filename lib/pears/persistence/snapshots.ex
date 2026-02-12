@@ -8,7 +8,6 @@ defmodule Pears.Persistence.Snapshots do
   alias Pears.Repo
 
   @number_to_keep 30
-  @thirty_days_ago DateTime.utc_now() |> DateTime.add(-(30 * 24 * 3600), :second)
 
   @decorate trace("snapshots.prune_all", include: [:number_to_keep])
   def prune_all(opts \\ []) do
@@ -31,7 +30,7 @@ defmodule Pears.Persistence.Snapshots do
       team.snapshots
       |> Enum.sort_by(& &1.inserted_at, :desc)
       |> Enum.split_with(fn %{inserted_at: inserted_at} ->
-        NaiveDateTime.compare(inserted_at, @thirty_days_ago) == :gt
+        NaiveDateTime.compare(inserted_at, thirty_days_ago()) == :gt
       end)
 
     results =
@@ -52,5 +51,9 @@ defmodule Pears.Persistence.Snapshots do
     )
 
     results
+  end
+
+  defp thirty_days_ago do
+    DateTime.utc_now() |> DateTime.add(-(30 * 24 * 3600), :second)
   end
 end
