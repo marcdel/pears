@@ -234,6 +234,18 @@ defmodule Pears.Core.TeamTest do
     |> refute_anchoring_track("pear1", "track1")
   end
 
+  test "anchor is untoggled when moving a pear out of the anchored track", %{team: team} do
+    team
+    |> Team.add_track("track1")
+    |> Team.add_track("track2")
+    |> Team.add_pear("pear1")
+    |> Team.add_pear_to_track("pear1", "track1")
+    |> Team.toggle_anchor("pear1", "track1")
+    |> assert_anchoring_track("pear1", "track1")
+    |> Team.move_pear_to_track("pear1", "track1", "track2")
+    |> refute_anchoring_track("pear1", "track1")
+  end
+
   test "can automatically choose anchors for tracks", %{team: team} do
     team =
       team
