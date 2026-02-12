@@ -61,7 +61,7 @@ defmodule PearsWeb.TeamLoginLiveTest do
 
       {:ok, _login_live, login_html} =
         lv
-        |> element(~s|main a:fl-contains("create your team")|)
+        |> element("main a", "create your team")
         |> render_click()
         |> follow_redirect(conn, ~p"/teams/register")
 
@@ -76,7 +76,7 @@ defmodule PearsWeb.TeamLoginLiveTest do
 
       {:ok, conn} =
         lv
-        |> element(~s|main a:fl-contains("Forgot your password?")|)
+        |> element("main a", "Forgot your password?")
         |> render_click()
         |> follow_redirect(conn, ~p"/teams/reset_password")
 
