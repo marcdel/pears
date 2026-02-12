@@ -52,6 +52,9 @@ defmodule Pears.Core.Team do
         available_pears = Map.put(team.available_pears, pear_name, updated_pear)
         updated_team = Map.put(team, :available_pears, available_pears)
         updated_team
+
+      true ->
+        team
     end
   end
 
