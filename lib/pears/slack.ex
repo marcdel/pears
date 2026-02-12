@@ -18,7 +18,7 @@ defmodule Pears.Slack do
   @decorate trace("slack.link_url")
   def link_url do
     state = "onboard"
-    client_id = "169408119024.1514845190500"
+    client_id = Application.get_env(:pears, :slack_client_id)
 
     scope =
       Enum.join(
