@@ -11,7 +11,8 @@ mix credo --strict
 TELEMETRY_LOG_LEVEL=debug mix test
 
 mix hex.outdated
-#(cd ui_tests && npx cypress run)
+# Uncomment to run e2e tests as part of pre-commit:
+#./bin/run_e2e.sh
 
 cat <<EOF
  ___ _   _  ___ ___ ___  ___ ___

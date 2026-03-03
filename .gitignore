@@ -35,9 +35,11 @@ pears-*.tar
 npm-debug.log
 /assets/node_modules/
 
-# cypress failures
-ui_tests/cypress/videos
-ui_tests/cypress/screenshots
+# e2e (Playwright)
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/external-specs/
 
 # Editor stuff
 .idea/
