@@ -80,12 +80,6 @@ defmodule PearsWeb.TeamRegistrationLive do
   def handle_event("save", %{"team" => team_params}, socket) do
     case Accounts.register_team(team_params) do
       {:ok, team} ->
-        {:ok, _} =
-          Accounts.deliver_team_confirmation_instructions(
-            team,
-            &url(~p"/teams/confirm/#{&1}")
-          )
-
         changeset = Accounts.change_team_registration(team)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 

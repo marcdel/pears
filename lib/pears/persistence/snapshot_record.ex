@@ -11,6 +11,10 @@ defmodule Pears.Persistence.SnapshotRecord do
     timestamps()
   end
 
+  def from_today?(snapshot, today \\ Date.utc_today()) do
+    Date.compare(NaiveDateTime.to_date(snapshot.inserted_at), today) == :eq
+  end
+
   @doc false
   def changeset(snapshot, attrs) do
     snapshot

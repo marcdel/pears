@@ -415,14 +415,22 @@ defmodule PearsTest do
 
   test "can pick a new random facilitator", %{name: name} do
     Pears.add_team(name)
-    Pears.add_pear(name, "Pear One")
-    Pears.add_pear(name, "Pear Two")
+    Enum.each(1..10, fn n -> Pears.add_pear(name, "Pear #{n}") end)
 
-    {:ok, facilitator} = Pears.facilitator(name)
-    {:ok, new_facilitator} = Pears.new_facilitator(name)
+    {:ok, original_facilitator} = Pears.facilitator(name)
 
-    assert Enum.member?(["Pear One", "Pear Two"], facilitator.name)
-    assert Enum.member?(["Pear One", "Pear Two"], new_facilitator.name)
+    # Shuffle until the random pick differs from the original so we can tell
+    # whether the session actually kept the new facilitator
+    new_facilitator =
+      Enum.find_value(1..100, fn _ ->
+        {:ok, candidate} = Pears.new_facilitator(name)
+        if candidate.name != original_facilitator.name, do: candidate
+      end)
+
+    assert new_facilitator
+
+    {:ok, current_facilitator} = Pears.facilitator(name)
+    assert current_facilitator.name == new_facilitator.name
   end
 
   describe "hand off reminders" do
@@ -569,6 +577,74 @@ defmodule PearsTest do
 
       assert {:ok, _} = Pears.send_hand_off_reminders()
     end
+
+    test "does not send reminders when the latest snapshot is from a previous day", %{name: name} do
+      test_pid = self()
+
+      MockSlackClient
+      |> stub(:retrieve_access_tokens, fn _code, _url ->
+        SlackFixtures.valid_token_response(%{"access_token" => "valid_token"})
+      end)
+      |> stub(:channels, fn _, _ -> SlackFixtures.channels_response() end)
+      |> stub(:users, fn _, "" ->
+        SlackFixtures.users_response([
+          %{id: "XXXXXXXXXX", name: "pearone", tz_offset: -28800},
+          %{id: "YYYYYYYYYY", name: "peartwo", tz_offset: -18000}
+        ])
+      end)
+      |> stub(:find_or_create_group_chat, fn ["XXXXXXXXXX", "YYYYYYYYYY"], "valid_token" ->
+        SlackFixtures.channel_response("ZZZZZZZZZZ", "idk what a dm channel name is")
+      end)
+
+      {:ok, _} = Pears.add_team(name)
+      {:ok, _} = Pears.add_pear(name, "Pear One")
+      {:ok, _} = Pears.add_pear(name, "Pear Two")
+      {:ok, _} = Pears.add_track(name, "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Pear One", "Track One")
+      {:ok, _} = Pears.add_pear_to_track(name, "Pear Two", "Track One")
+      {:ok, _} = Pears.record_pears(name)
+
+      {:ok, _} = Slack.onboard_team(name, "valid_code")
+      {:ok, details} = Slack.get_details(name)
+
+      params = %{"Pear One" => "XXXXXXXXXX", "Pear Two" => "YYYYYYYYYY"}
+      {:ok, _} = Slack.save_slack_names(details, name, params)
+
+      backdate_snapshots(name)
+
+      # The Slack module rescues exceptions raised while sending messages, so a
+      # zero-count Mox expectation can't catch an unwanted send. Record the call
+      # by messaging the test process instead.
+      MockSlackClient
+      |> stub(:send_message, fn _channel, _blocks, _token ->
+        send(test_pid, :hand_off_reminder_sent)
+        %{"ok" => true}
+      end)
+
+      {:ok, _} =
+        -28800
+        |> Pears.TzHelpers.five_pm_in_local_time()
+        |> Pears.TzHelpers.local_time_to_utc()
+        |> Pears.send_hand_off_reminders()
+
+      refute_received :hand_off_reminder_sent
+    end
+  end
+
+  defp backdate_snapshots(name) do
+    yesterday =
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.add(-1, :day)
+      |> NaiveDateTime.truncate(:second)
+
+    {:ok, %{snapshots: snapshots}} = Persistence.get_team_by_name(name)
+
+    Enum.each(snapshots, fn snapshot ->
+      {:ok, _} =
+        snapshot
+        |> Ecto.Changeset.change(inserted_at: yesterday)
+        |> Repo.update()
+    end)
   end
 
   def name(_) do

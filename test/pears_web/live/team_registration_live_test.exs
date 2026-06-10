@@ -3,6 +3,9 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
 
   import Phoenix.LiveViewTest
   import Pears.AccountsFixtures
+  import Swoosh.TestAssertions
+
+  alias Pears.Accounts
 
   describe "Registration page" do
     test "renders registration page", %{conn: conn} do
@@ -55,6 +58,18 @@ defmodule PearsWeb.TeamRegistrationLiveTest do
       # assert response =~ name
       assert response =~ "Settings"
       assert response =~ "Log out"
+    end
+
+    test "auto-confirms the team and does not send a confirmation email", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/teams/register")
+
+      name = unique_team_name()
+      attrs = valid_team_attributes(name: name) |> Map.delete(:email)
+      form = form(lv, "#registration_form", team: attrs)
+      render_submit(form)
+
+      assert Accounts.get_team_by_name(name).confirmed_at
+      assert_no_email_sent()
     end
 
     test "renders errors for duplicated name", %{conn: conn} do
