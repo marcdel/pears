@@ -1,5 +1,7 @@
 defmodule Pears.SlackTest do
-  use Pears.DataCase, async: true
+  # async: false — mutates the :send_daily_pears_summary flag; see
+  # PearsWeb.TeamLiveTest for why concurrent flag writes race.
+  use Pears.DataCase, async: false
 
   import Mox
 
