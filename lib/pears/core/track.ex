@@ -1,6 +1,9 @@
 defmodule Pears.Core.Track do
   alias Pears.Core.Pear
 
+  # The pears map is keyed by pear name; spreading it onto spans creates an
+  # unbounded attribute key space (app.<pear name>.*) in Honeycomb.
+  @derive {O11y.SpanAttributes, only: [:id, :name, :locked, :anchor]}
   defstruct id: nil, name: nil, locked: false, pears: %{}, anchor: nil
 
   def new(fields) do

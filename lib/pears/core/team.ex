@@ -111,14 +111,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.rename_track",
-              include: [
-                :team,
-                :track_name,
-                :new_track_name,
-                :track,
-                :updated_assigned_pears,
-                :updated_tracks
-              ]
+              include: [:team, :track_name, :new_track_name, :track]
             )
   def rename_track(team, track_name, new_track_name) do
     track = find_track(team, track_name)
@@ -146,16 +139,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.add_pear_to_track",
-              include: [
-                :team,
-                :pear_name,
-                :track_name,
-                :pear,
-                :track,
-                :updated_tracks,
-                :updated_available_pears,
-                :updated_assigned_pears
-              ]
+              include: [:team, :pear_name, :track_name, :pear, :track]
             )
   def add_pear_to_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
@@ -186,16 +170,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.remove_pear_from_track",
-              include: [
-                :team,
-                :pear_name,
-                :track_name,
-                :track,
-                :pears,
-                :updated_tracks,
-                :updated_available_pears,
-                :updated_assigned_pears
-              ]
+              include: [:team, :pear_name, :track_name, :track]
             )
   def remove_pear_from_track(team, pear_name, track_name) do
     track = find_track(team, track_name)
@@ -217,10 +192,8 @@ defmodule Pears.Core.Team do
     }
   end
 
-  @decorate trace("team.choose_anchors", include: [:team, :updated_tracks])
+  @decorate trace("team.choose_anchors", include: [:team])
   def choose_anchors(team) do
-    O11y.set_attributes(tracks: team.tracks)
-
     updated_tracks =
       team.tracks
       |> Enum.map(fn {name, track} -> {name, Track.choose_anchor(track)} end)
@@ -231,7 +204,7 @@ defmodule Pears.Core.Team do
 
   @decorate trace(
               "team.toggle_anchor",
-              include: [:team, :pear_name, :track_name, :track, :updated_tracks]
+              include: [:team, :pear_name, :track_name, :track]
             )
   def toggle_anchor(team, pear_name, track_name) do
     track = find_track(team, track_name)

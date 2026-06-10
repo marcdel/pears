@@ -13,7 +13,7 @@ defmodule Pears.Core.AvailablePears do
     end)
   end
 
-  @decorate trace("available_pears.add_pear", include: [:available_pears, :pear, :order])
+  @decorate trace("available_pears.add_pear", include: [:pear, :order])
   def add_pear(available_pears, pear) do
     order = next_pear_order(available_pears)
     pear = Pear.set_order(pear, order)
