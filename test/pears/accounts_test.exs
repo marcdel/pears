@@ -142,9 +142,13 @@ defmodule Pears.AccountsTest do
       {:ok, team} = Accounts.register_team(valid_team_attributes(name: name, email: email))
       assert team.email == email
       assert is_binary(team.hashed_password)
-      assert is_nil(team.confirmed_at)
       assert is_nil(team.password)
       refute team.enabled
+    end
+
+    test "auto-confirms the team since confirmation emails are disabled" do
+      {:ok, team} = Accounts.register_team(valid_team_attributes())
+      assert team.confirmed_at
     end
   end
 
@@ -314,7 +318,7 @@ defmodule Pears.AccountsTest do
 
   describe "update_team_email/2" do
     setup do
-      team = team_fixture()
+      team = unconfirmed_team_fixture()
       email = unique_team_email()
 
       token =
@@ -483,7 +487,7 @@ defmodule Pears.AccountsTest do
 
   describe "deliver_team_confirmation_instructions/2" do
     setup do
-      %{team: team_fixture()}
+      %{team: unconfirmed_team_fixture()}
     end
 
     test "sends token through notification", %{team: team} do
@@ -502,7 +506,7 @@ defmodule Pears.AccountsTest do
 
   describe "confirm_team/1" do
     setup do
-      team = team_fixture()
+      team = unconfirmed_team_fixture()
 
       token =
         extract_team_token(fn url ->
