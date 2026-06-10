@@ -135,7 +135,7 @@ When disabled, the app behaves <strong>byte-for-byte identically</strong> to tod
 
 <h2>Shared Infrastructure</h2>
 <ul>
-  <li><strong>New dependency:</strong> <code>canvas-confetti</code> (~10&nbsp;kb, zero transitive deps) added to <code>assets/package.json</code>. Handles confetti bursts and star/sparkle particle shapes.</li>
+  <li><strong>New dependency:</strong> <code>canvas-confetti</code> (~10&nbsp;kb, zero transitive deps), vendored as <code>assets/vendor/canvas-confetti.js</code> (pinned ESM build) — this repo has no npm toolchain; JS deps live in <code>assets/vendor/</code> alongside topbar and Sortable. Handles confetti bursts and star/sparkle particle shapes.</li>
   <li><strong>New module:</strong> <code>assets/js/whimsy.js</code> exporting three functions — <code>confettiBurst()</code>, <code>sparklePoof(x, y)</code>, and <code>drumroll(pearIds)</code>. All celebration code lives here, isolated from board logic.</li>
   <li><strong>Server → client signaling:</strong> LiveView <code>push_event/3</code> with <code>window.addEventListener("phx:whimsy:...")</code> listeners registered in <code>app.js</code>. The server only pushes when whimsy is on, so server-triggered effects need no client-side flag check.</li>
   <li><strong>Client-side gate:</strong> the board root element renders <code>data-whimsy={@whimsy_mode}</code> from the existing assign, for the one effect (drop sparkles) that is client-initiated.</li>
@@ -216,7 +216,7 @@ When disabled, the app behaves <strong>byte-for-byte identically</strong> to tod
 
 <h2>Files Touched</h2>
 <ul class="files">
-  <li><code>assets/package.json</code> — add <code>canvas-confetti</code></li>
+  <li><code>assets/vendor/canvas-confetti.js</code> — vendored canvas-confetti (pinned ESM build)</li>
   <li><code>assets/js/whimsy.js</code> — new module (burst, poof, drumroll)</li>
   <li><code>assets/js/app.js</code> — register <code>phx:whimsy:*</code> listeners; call <code>sparklePoof</code> from both drop paths</li>
   <li><code>assets/css/app.css</code> — <code>whimsy-pop</code> keyframe animation</li>
