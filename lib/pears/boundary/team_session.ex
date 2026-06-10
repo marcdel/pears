@@ -255,12 +255,9 @@ defmodule Pears.Boundary.TeamSession do
   end
 
   def handle_call(:get_new_facilitator, _from, state) do
-    facilitator =
-      state
-      |> State.new_session_facilitator()
-      |> State.session_facilitator()
+    new_state = State.new_session_facilitator(state)
 
-    {:reply, {:ok, facilitator}, state, @timeout}
+    {:reply, {:ok, State.session_facilitator(new_state)}, new_state, @timeout}
   end
 
   @decorate trace("team_session.timeout")

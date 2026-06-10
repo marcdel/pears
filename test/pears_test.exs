@@ -415,14 +415,22 @@ defmodule PearsTest do
 
   test "can pick a new random facilitator", %{name: name} do
     Pears.add_team(name)
-    Pears.add_pear(name, "Pear One")
-    Pears.add_pear(name, "Pear Two")
+    Enum.each(1..10, fn n -> Pears.add_pear(name, "Pear #{n}") end)
 
-    {:ok, facilitator} = Pears.facilitator(name)
-    {:ok, new_facilitator} = Pears.new_facilitator(name)
+    {:ok, original_facilitator} = Pears.facilitator(name)
 
-    assert Enum.member?(["Pear One", "Pear Two"], facilitator.name)
-    assert Enum.member?(["Pear One", "Pear Two"], new_facilitator.name)
+    # Shuffle until the random pick differs from the original so we can tell
+    # whether the session actually kept the new facilitator
+    new_facilitator =
+      Enum.find_value(1..100, fn _ ->
+        {:ok, candidate} = Pears.new_facilitator(name)
+        if candidate.name != original_facilitator.name, do: candidate
+      end)
+
+    assert new_facilitator
+
+    {:ok, current_facilitator} = Pears.facilitator(name)
+    assert current_facilitator.name == new_facilitator.name
   end
 
   describe "hand off reminders" do
