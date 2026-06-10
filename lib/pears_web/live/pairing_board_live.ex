@@ -32,6 +32,14 @@ defmodule PearsWeb.PairingBoardLive do
     FeatureFlags.enabled?(:whimsy_mode, for: team)
   end
 
+  defp maybe_push_confetti(socket) do
+    if whimsy_mode?(team(socket)) do
+      push_event(socket, "whimsy:confetti", %{})
+    else
+      socket
+    end
+  end
+
   defp hide_reset_button?(team) do
     FeatureFlags.enabled?(:hide_reset_button, for: team)
   end
@@ -113,7 +121,10 @@ defmodule PearsWeb.PairingBoardLive do
         # refreshes via the PubSub team-updated broadcast that record_pears fires.
         send(self(), {:post_daily_pears_summary, team_name})
 
-        {:noreply, put_flash(socket, :info, "Today's assigned pears have been recorded!")}
+        {:noreply,
+         socket
+         |> put_flash(:info, "Today's assigned pears have been recorded!")
+         |> maybe_push_confetti()}
 
       {:error, changeset} ->
         Pears.O11y.set_changeset_errors(changeset)

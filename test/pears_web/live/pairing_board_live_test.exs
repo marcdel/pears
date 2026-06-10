@@ -100,5 +100,24 @@ defmodule PearsWeb.TeamLiveTest do
 
       assert html =~ ~s(data-whimsy="false")
     end
+
+    test "Save pushes a confetti event when whimsy mode is on",
+         %{conn: conn, team: team} do
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+
+      {:ok, view, _html} = live(conn, ~p"/teams")
+
+      view |> element("button", "Save") |> render_click()
+
+      assert_push_event(view, "whimsy:confetti", %{})
+    end
+
+    test "Save pushes no confetti event when whimsy mode is off", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/teams")
+
+      view |> element("button", "Save") |> render_click()
+
+      refute_push_event(view, "whimsy:confetti", %{})
+    end
   end
 end
