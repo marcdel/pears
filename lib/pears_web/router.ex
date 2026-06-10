@@ -3,6 +3,8 @@ defmodule PearsWeb.Router do
 
   import PearsWeb.TeamAuth
 
+  alias Pears.Slack.OAuthState
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -11,6 +13,17 @@ defmodule PearsWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_team
+    plug :put_slack_oauth_state
+  end
+
+  # The "Add to Slack" link embeds this token as the OAuth `state` param so the
+  # callback can verify the request originated from this session.
+  defp put_slack_oauth_state(conn, _opts) do
+    if get_session(conn, :slack_oauth_state) do
+      conn
+    else
+      put_session(conn, :slack_oauth_state, OAuthState.generate())
+    end
   end
 
   pipeline :admins_only do

@@ -21,6 +21,12 @@ defmodule Pears.SlackTest do
   @valid_code SlackFixtures.valid_code()
   @valid_token SlackFixtures.valid_token()
 
+  describe "link_url" do
+    test "includes the given oauth state token" do
+      assert Slack.link_url("random-state-token") =~ "state=random-state-token"
+    end
+  end
+
   describe "onboard_team" do
     test "exchanges a code for an access token and saves it", %{team: team} do
       valid_token = "xoxb-XXXXXXXX-XXXXXXXX-XXXXX"

@@ -16,8 +16,7 @@ defmodule Pears.Slack do
   end
 
   @decorate trace("slack.link_url")
-  def link_url do
-    state = "onboard"
+  def link_url(state) do
     client_id = Application.get_env(:pears, :slack_client_id)
 
     scope =
