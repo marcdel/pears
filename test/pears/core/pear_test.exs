@@ -27,37 +27,34 @@ defmodule Pears.Core.PearTest do
   end
 
   describe "quittin_time?" do
-    test "returns true if the current UTC time is near 5pm in Greece" do
-      do_test_timezone(2)
-    end
+    @offsets [
+      {"UTC", 0},
+      {"UTC+2", 2},
+      {"UTC-5 (EST)", -5},
+      {"UTC-8 (PST, 5pm local is past midnight UTC)", -8},
+      {"UTC+11 (5pm local is on the previous UTC day)", 11}
+    ]
 
-    test "returns true if the current UTC time is near 5pm Eastern" do
-      do_test_timezone(-5)
-    end
+    for {label, offset_hours} <- @offsets do
+      test "returns true within 30 minutes of 5pm local time (#{label})" do
+        offset_seconds = unquote(offset_hours) * 60 * 60
+        pear = Pear.new(%{timezone_offset: offset_seconds})
 
-    test "returns true if the current UTC time is near 5pm Pacific" do
-      do_test_timezone(-8)
-    end
+        # A fixed date (not Date.utc_today/0) so implementations anchored to
+        # "today" in UTC fail when 5pm local falls on a different UTC day.
+        utc_at_local_5pm =
+          ~D[2026-01-15]
+          |> DateTime.new!(~T[17:00:00], "Etc/UTC")
+          |> DateTime.add(-offset_seconds, :second)
 
-    def do_test_timezone(timezone_offset_hours) do
-      offset_seconds = Pears.TzHelpers.hours_to_seconds(timezone_offset_hours)
-      pear = Pear.new(%{timezone_offset: offset_seconds})
+        assert Pear.quittin_time?(pear, DateTime.add(utc_at_local_5pm, -1, :hour)) == false
 
-      local_5pm = Pears.TzHelpers.five_pm_in_local_time(offset_seconds)
-      local_4pm = DateTime.add(local_5pm, -1, :hour)
-      local_6pm = DateTime.add(local_5pm, 1, :hour)
+        assert Pear.quittin_time?(pear, DateTime.add(utc_at_local_5pm, -29, :minute)) == true
+        assert Pear.quittin_time?(pear, utc_at_local_5pm) == true
+        assert Pear.quittin_time?(pear, DateTime.add(utc_at_local_5pm, 29, :minute)) == true
 
-      local_4pm_in_utc = Pears.TzHelpers.local_time_to_utc(local_4pm)
-      local_5pm_in_utc = Pears.TzHelpers.local_time_to_utc(local_5pm)
-      local_6pm_in_utc = Pears.TzHelpers.local_time_to_utc(local_6pm)
-
-      assert Pear.quittin_time?(pear, local_4pm_in_utc) == false
-
-      assert Pear.quittin_time?(pear, DateTime.add(local_5pm_in_utc, -29, :minute)) == true
-      assert Pear.quittin_time?(pear, local_5pm_in_utc) == true
-      assert Pear.quittin_time?(pear, DateTime.add(local_5pm_in_utc, 29, :minute)) == true
-
-      assert Pear.quittin_time?(pear, local_6pm_in_utc) == false
+        assert Pear.quittin_time?(pear, DateTime.add(utc_at_local_5pm, 1, :hour)) == false
+      end
     end
   end
 end

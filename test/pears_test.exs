@@ -473,8 +473,7 @@ defmodule PearsTest do
 
       {:ok, _} =
         -28800
-        |> Pears.TzHelpers.five_pm_in_local_time()
-        |> Pears.TzHelpers.local_time_to_utc()
+        |> utc_at_local_5pm()
         |> Pears.send_hand_off_reminders()
     end
 
@@ -512,8 +511,7 @@ defmodule PearsTest do
 
       {:ok, _} =
         -18000
-        |> Pears.TzHelpers.five_pm_in_local_time()
-        |> Pears.TzHelpers.local_time_to_utc()
+        |> utc_at_local_5pm()
         |> Pears.send_hand_off_reminders()
 
       expect(MockSlackClient, :send_message, 1, fn _channel, _blocks, _token ->
@@ -522,8 +520,7 @@ defmodule PearsTest do
 
       {:ok, _} =
         -28800
-        |> Pears.TzHelpers.five_pm_in_local_time()
-        |> Pears.TzHelpers.local_time_to_utc()
+        |> utc_at_local_5pm()
         |> Pears.send_hand_off_reminders()
     end
 
@@ -576,5 +573,13 @@ defmodule PearsTest do
 
   def name(_) do
     {:ok, name: Ecto.UUID.generate()}
+  end
+
+  # The UTC instant at which it is 5pm today for the given UTC offset. May
+  # fall on a different UTC day (e.g. 5pm at UTC-8 is 1am UTC the next day).
+  defp utc_at_local_5pm(offset_seconds) do
+    Date.utc_today()
+    |> DateTime.new!(~T[17:00:00], "Etc/UTC")
+    |> DateTime.add(-offset_seconds, :second)
   end
 end
