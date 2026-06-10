@@ -8,7 +8,7 @@ defmodule PearsWeb.TeamConfirmationInstructionsLiveTest do
   alias Pears.Repo
 
   setup do
-    %{team: team_fixture()}
+    %{team: unconfirmed_team_fixture()}
   end
 
   describe "Resend confirmation" do
