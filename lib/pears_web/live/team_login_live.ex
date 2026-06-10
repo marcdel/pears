@@ -40,9 +40,6 @@ defmodule PearsWeb.TeamLoginLive do
 
                 <:actions>
                   <.input field={@form[:remember_me]} type="checkbox" label="Remember me" />
-                  <%!-- <.link href={~p"/teams/reset_password"} class="text-sm font-semibold">
-                  Forgot your password?
-                </.link> --%>
                 </:actions>
                 <:actions>
                   <.button phx-disable-with="Logging in...">

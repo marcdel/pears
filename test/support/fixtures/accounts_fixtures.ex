@@ -25,6 +25,15 @@ defmodule Pears.AccountsFixtures do
     team
   end
 
+  # Registration auto-confirms teams; the email confirmation flows still
+  # need a team without a confirmed_at to exercise their edge cases.
+  def unconfirmed_team_fixture(attrs \\ %{}) do
+    attrs
+    |> team_fixture()
+    |> Ecto.Changeset.change(confirmed_at: nil)
+    |> Pears.Repo.update!()
+  end
+
   def extract_team_token(fun) do
     {:ok, captured_email} = fun.(&"[TOKEN]#{&1}[TOKEN]")
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")

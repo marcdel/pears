@@ -99,6 +99,9 @@ defmodule Pears.Accounts do
   @doc """
   Registers a team.
 
+  Teams are auto-confirmed because confirmation emails are disabled
+  until a real email provider is wired up.
+
   ## Examples
 
       iex> register_team(%{field: value})
@@ -111,6 +114,7 @@ defmodule Pears.Accounts do
   def register_team(attrs) do
     %Team{}
     |> Team.registration_changeset(attrs)
+    |> Team.confirm_changeset()
     |> Repo.insert()
   end
 
