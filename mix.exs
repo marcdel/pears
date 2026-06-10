@@ -68,7 +68,7 @@ defmodule Pears.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:heroicons,
        github: "tailwindlabs/heroicons",
-       tag: "v2.1.1",
+       tag: "v2.2.0",
        sparse: "optimized",
        app: false,
        compile: false,
