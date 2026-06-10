@@ -29,8 +29,6 @@ defmodule PearsWeb.SlackAuthController do
         |> put_flash(:error, "Whoops, something went wrong! Please try again.")
         |> redirect(to: ~p"/teams/slack")
     end
-
-    send_resp(conn, 200, "")
   end
 
   @decorate trace("slack_auth_controller.authenticate")
