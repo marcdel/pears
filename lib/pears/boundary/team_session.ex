@@ -2,7 +2,6 @@ defmodule Pears.Boundary.TeamSession do
   use GenServer
   use OpenTelemetryDecorator
 
-  alias Pears.Boundary.TeamManager
   alias Pears.Core.Team
   alias Pears.Persistence
 
@@ -58,7 +57,7 @@ defmodule Pears.Boundary.TeamSession do
 
   @decorate trace("team_session.find_or_start_session", include: [:team_name])
   def find_or_start_session(team_name) do
-    with {:ok, team} <- maybe_fetch_team_from_db(team_name),
+    with {:ok, team} <- fetch_team_from_db(team_name),
          {:ok, team} <- get_or_start_session(team) do
       {:ok, team}
     end
@@ -125,14 +124,10 @@ defmodule Pears.Boundary.TeamSession do
     GenServer.call(via(team_name), :get_new_facilitator)
   end
 
-  @decorate trace("team_session.maybe_fetch_team_from_db", include: [:team_name, :error])
-  defp maybe_fetch_team_from_db(team_name) do
-    with {:error, :not_found} <- TeamManager.lookup_team_by_name(team_name),
-         {:ok, team_record} <- Persistence.get_team_by_name(team_name),
-         team <- map_to_team(team_record) do
-      {:ok, team}
-    else
-      {:ok, team} -> {:ok, team}
+  @decorate trace("team_session.fetch_team_from_db", include: [:team_name, :error])
+  defp fetch_team_from_db(team_name) do
+    case Persistence.get_team_by_name(team_name) do
+      {:ok, team_record} -> {:ok, map_to_team(team_record)}
       error -> error
     end
   end
