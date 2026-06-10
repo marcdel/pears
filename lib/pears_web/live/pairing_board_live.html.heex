@@ -60,7 +60,7 @@
     <div phx-hook="Drag" id="drag">
       <div class="dropzone grid gap-3" id="Unassigned">
         <%= for pear <- list_pears(@team.available_pears) do %>
-          <div draggable="true" id={@pear.name} class="draggable p-4 bg-blue-700 text-white">
+          <div draggable="true" id={pear.name} class="draggable p-4 bg-blue-700 text-white">
             {pear.name}
           </div>
         <% end %>
