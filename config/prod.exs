@@ -11,6 +11,12 @@ import Config
 # before starting your production server.
 config :pears, PearsWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
 
+# Email delivery is intentionally disabled in production until a real
+# provider is wired up: the mailer still uses Swoosh.Adapters.Local, and
+# with local storage disabled below, any Mailer.deliver call exits.
+# Registration auto-confirms teams and password reset is unavailable, so
+# nothing should attempt to send email.
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Pears.Finch
 
