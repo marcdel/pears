@@ -9,7 +9,7 @@ defmodule PearsWeb.TeamSlackLive do
   @decorate trace("slack_live.mount", include: [:team_name, :details])
   def mount(_params, session, socket) do
     socket = assign_team(socket, session)
-    socket = assign(socket, slack_link_url: Slack.link_url())
+    socket = assign(socket, slack_link_url: Slack.link_url(session["slack_oauth_state"]))
     team_name = team_name(socket)
 
     case Slack.get_details(team_name) do
