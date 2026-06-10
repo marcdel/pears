@@ -623,8 +623,7 @@ defmodule PearsTest do
 
       {:ok, _} =
         -28800
-        |> Pears.TzHelpers.five_pm_in_local_time()
-        |> Pears.TzHelpers.local_time_to_utc()
+        |> utc_at_local_5pm()
         |> Pears.send_hand_off_reminders()
 
       refute_received :hand_off_reminder_sent
