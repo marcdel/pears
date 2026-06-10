@@ -216,6 +216,13 @@ defmodule Pears.Slack do
         O11y.set_error(error)
         {:error, error}
     end
+  rescue
+    # The Slack HTTP client raises on transport-level failures (e.g. a TLS
+    # handshake alert). Capture it as an error rather than letting it crash the
+    # caller (which previously took down the record-pears LiveView handler).
+    exception ->
+      O11y.set_error(exception)
+      {:error, exception}
   end
 
   defp fetch_tokens(slack_code) do
