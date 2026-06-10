@@ -22,6 +22,7 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Drag from './dragHook'
+import {confettiBurst, sparklePoof, drumroll, whimsyEnabled} from './whimsy'
 
 let Hooks = {}
 Hooks.Drag = Drag
@@ -106,6 +107,8 @@ let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, longPollFallback
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
+window.addEventListener("phx:whimsy:confetti", _e => confettiBurst())
+window.addEventListener("phx:whimsy:drumroll", e => drumroll(e.detail.pears))
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
