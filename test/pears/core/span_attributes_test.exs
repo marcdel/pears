@@ -52,8 +52,7 @@ defmodule Pears.Core.SpanAttributesTest do
 
       AvailablePears.add_pear(available_pears, Pear.new(name: "Pear Two"))
 
-      span = assert_span("available_pears.add_pear")
-      refute_attribute_keys_contain(span, ["Pear One", "Pear Two"])
+      refute_span_attribute_keys_contain("available_pears.add_pear", ["Pear One", "Pear Two"])
     end
 
     test "assigning a pear does not emit attributes keyed by pear or track names" do
@@ -64,8 +63,7 @@ defmodule Pears.Core.SpanAttributesTest do
 
       Team.add_pear_to_track(team, "Pear One", "Track One")
 
-      span = assert_span("team.add_pear_to_track")
-      refute_attribute_keys_contain(span, ["Pear One", "Track One"])
+      refute_span_attribute_keys_contain("team.add_pear_to_track", ["Pear One", "Track One"])
     end
 
     test "choosing anchors does not emit attributes keyed by track names" do
@@ -77,13 +75,22 @@ defmodule Pears.Core.SpanAttributesTest do
 
       Team.choose_anchors(team)
 
-      span = assert_span("team.choose_anchors")
-      refute_attribute_keys_contain(span, ["Pear One", "Track One"])
+      refute_span_attribute_keys_contain("team.choose_anchors", ["Pear One", "Track One"])
     end
   end
 
-  defp refute_attribute_keys_contain(span, names) do
-    keys = span.attributes |> Map.keys() |> Enum.map(&to_string/1)
+  # Matches the raw span record via O11y.RecordDefinitions, which compiles
+  # against the installed otel headers — unlike O11y.Span.from_record/1, which
+  # hard-codes a record arity and breaks across opentelemetry versions.
+  defp refute_span_attribute_keys_contain(span_name, names) do
+    assert_receive {:span, span(name: ^span_name, attributes: attributes)}
+
+    keys =
+      attributes
+      |> Tuple.to_list()
+      |> List.last()
+      |> Map.keys()
+      |> Enum.map(&to_string/1)
 
     for key <- keys, name <- names do
       refute String.contains?(key, name),
