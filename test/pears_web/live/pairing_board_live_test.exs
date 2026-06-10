@@ -82,4 +82,23 @@ defmodule PearsWeb.TeamLiveTest do
       assert redirected_to == ~p"/teams/log_in"
     end
   end
+
+  describe "whimsy mode celebrations" do
+    setup :register_and_log_in_team
+
+    test "board root advertises whimsy mode to the client when enabled",
+         %{conn: conn, team: team} do
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+
+      {:ok, _view, html} = live(conn, ~p"/teams")
+
+      assert html =~ ~s(data-whimsy="true")
+    end
+
+    test "board root advertises whimsy mode off by default", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/teams")
+
+      assert html =~ ~s(data-whimsy="false")
+    end
+  end
 end
