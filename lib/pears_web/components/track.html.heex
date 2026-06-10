@@ -49,6 +49,7 @@
     <% end %>
     <%= if @editing_track == @track.name do %>
       <form
+        id={"edit-track-name-form-#{@track.id}"}
         phx-submit="save-track-name"
         phx-target={@myself}
         class="w-full"
