@@ -80,7 +80,7 @@ defmodule Pears.MixProject do
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.4"},
       {:bandit, "~> 1.12"},
-      {:sentry, "~> 11.0"}
+      {:sentry, "~> 13.1"}
     ]
   end
 
