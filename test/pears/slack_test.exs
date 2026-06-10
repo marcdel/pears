@@ -219,6 +219,19 @@ defmodule Pears.SlackTest do
       {:error, _} = Slack.send_message_to_team(name, "Hey, friends!")
       refute_receive {:send_message, _, _, _}
     end
+
+    test "returns an error instead of raising when the slack client blows up", %{name: name} do
+      channel = %{id: "UXXXXXXX", name: "random"}
+      {:ok, _} = Slack.save_team_channel(Details.empty(), name, channel)
+
+      # Simulates a transport-level failure such as the TLS handshake alert that
+      # crashed record-pears: the underlying client raises rather than returning.
+      expect(MockSlackClient, :send_message, fn _channel, _message, _token ->
+        raise "TLS client: ... Unsupported Certificate (key_usage_mismatch)"
+      end)
+
+      assert {:error, _} = Slack.send_message_to_team(name, "Hey, friends!")
+    end
   end
 
   describe "send_daily_pears_summary" do

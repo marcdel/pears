@@ -108,12 +108,12 @@ defmodule PearsWeb.PairingBoardLive do
 
     case Pears.record_pears(team_name) do
       {:ok, _updated_team} ->
-        Slack.send_daily_pears_summary(team_name)
+        # Post the Slack summary off the reply path so a slow or failing Slack
+        # call can't block the response or crash this handler. The board itself
+        # refreshes via the PubSub team-updated broadcast that record_pears fires.
+        send(self(), {:post_daily_pears_summary, team_name})
 
-        {:noreply,
-         socket
-         |> put_flash(:info, "Today's assigned pears have been recorded!")
-         |> push_navigate(to: "/")}
+        {:noreply, put_flash(socket, :info, "Today's assigned pears have been recorded!")}
 
       {:error, changeset} ->
         Pears.O11y.set_changeset_errors(changeset)
@@ -125,6 +125,7 @@ defmodule PearsWeb.PairingBoardLive do
 
       error ->
         O11y.set_error(error)
+        {:noreply, put_flash(socket, :error, "Sorry! Something went wrong, please try again.")}
     end
   end
 
@@ -275,6 +276,22 @@ defmodule PearsWeb.PairingBoardLive do
   @impl true
   def handle_info({Pears, :put_flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
+  end
+
+  @impl true
+  def handle_info({:post_daily_pears_summary, team_name}, socket) do
+    case Slack.send_daily_pears_summary(team_name) do
+      {:error, _reason} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Today's pears were recorded, but the Slack summary could not be posted."
+         )}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   defp team(socket), do: socket.assigns.team
