@@ -131,9 +131,24 @@ if System.get_env("PHX_SERVER") do
   config :pears, PearsWeb.Endpoint, server: true
 end
 
-config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
-config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
-config :pears, slack_signing_secret: System.fetch_env!("SLACK_SIGNING_SECRET")
+# Slack credentials are required in production (fail fast if missing), but in
+# dev/test we fall back to placeholders so the app can boot without the secrets
+# being present (e.g. in CI). Tests sign requests with whatever is configured
+# here, so a fixed placeholder is sufficient.
+if config_env() == :prod do
+  config :pears, slack_client_id: System.fetch_env!("SLACK_CLIENT_ID")
+  config :pears, slack_client_secret: System.fetch_env!("SLACK_CLIENT_SECRET")
+  config :pears, slack_signing_secret: System.fetch_env!("SLACK_SIGNING_SECRET")
+else
+  config :pears, slack_client_id: System.get_env("SLACK_CLIENT_ID", "test-slack-client-id")
+
+  config :pears,
+    slack_client_secret: System.get_env("SLACK_CLIENT_SECRET", "test-slack-client-secret")
+
+  config :pears,
+    slack_signing_secret: System.get_env("SLACK_SIGNING_SECRET", "test-slack-signing-secret")
+end
+
 config :pears, slack_oauth_redirect_uri: System.get_env("SLACK_OAUTH_URL")
 
 case System.fetch_env("OTEL_EXPORTER") do
