@@ -51,8 +51,7 @@ if config_env() == :prod do
     ],
     check_origin: [
       "https://app.pears.dev",
-      "https://pears-app.fly.dev",
-      "https://welcome-duck-remarkably.ngrok-free.app"
+      "https://pears-app.fly.dev"
     ],
     secret_key_base: secret_key_base
 
