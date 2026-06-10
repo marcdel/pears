@@ -1,5 +1,8 @@
 defmodule PearsWeb.TeamLiveTest do
-  use PearsWeb.ConnCase, async: true
+  # async: false — mutates the :send_daily_pears_summary flag, whose global
+  # fun_with_flags cache entry gets rebuilt from other tests' sandboxed DB
+  # connections, wiping this test's actor gate mid-run.
+  use PearsWeb.ConnCase, async: false
   import Phoenix.LiveViewTest
   import Mox
 
