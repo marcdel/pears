@@ -1,6 +1,8 @@
 defmodule Pears.Core.Pear do
   alias Pears.TzHelpers
 
+  # Keep slack_id/slack_name/timezone_offset off of span attributes
+  @derive {O11y.SpanAttributes, only: [:id, :name, :order, :track]}
   defstruct id: nil,
             name: nil,
             track: nil,
