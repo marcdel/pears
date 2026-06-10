@@ -12,6 +12,7 @@ defmodule Pears do
   alias Pears.Core.Pear
   alias Pears.Core.Team
   alias Pears.Persistence
+  alias Pears.Persistence.SnapshotRecord
   alias Pears.Slack
 
   @topic inspect(__MODULE__)
@@ -472,7 +473,7 @@ defmodule Pears do
     with {:ok, team} <- TeamSession.find_or_start_session(team_record.name),
          true <- FeatureFlags.enabled?(:hand_off_reminders, for: team),
          {:ok, snapshot} <- Persistence.get_latest_snapshot(team.name),
-         true <- is_snapshot_from_today(snapshot),
+         true <- SnapshotRecord.from_today?(snapshot),
          matches <- Team.misaligned_tz_matches(team) do
       Enum.each(matches, fn pears ->
         if quittin_time_for_earliest_pair?(pears, utc_now) do
@@ -486,10 +487,6 @@ defmodule Pears do
     pears
     |> Team.earliest_pear_in_match()
     |> Pear.quittin_time?(utc_now)
-  end
-
-  defp is_snapshot_from_today(snapshot) do
-    snapshot.inserted_at >= Date.utc_today()
   end
 
   @decorate trace("pears.validate_pear_available", include: [:team, :pear_name])

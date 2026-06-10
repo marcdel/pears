@@ -59,6 +59,23 @@ defmodule PearsWeb.TeamLiveTest do
     end
   end
 
+  describe "with the new drag and drop flag enabled" do
+    setup :register_and_log_in_team
+
+    setup %{team: team} do
+      FeatureFlags.enable(:new_drag_n_drop, for_actor: team)
+      :ok
+    end
+
+    test "renders the board when the team has available pears", %{conn: conn, team: team} do
+      {:ok, _} = Pears.Persistence.add_pear_to_team(team.name, "Pear One")
+
+      {:ok, page_live, disconnected_html} = live(conn, ~p"/teams")
+      assert disconnected_html =~ "Pear One"
+      assert render(page_live) =~ "Pear One"
+    end
+  end
+
   describe "when logged out" do
     test "when not logged in, redirects to login", %{conn: conn} do
       {:error, {:redirect, %{to: redirected_to}}} = live(conn, "/teams")

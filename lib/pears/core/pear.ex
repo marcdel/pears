@@ -1,6 +1,4 @@
 defmodule Pears.Core.Pear do
-  alias Pears.TzHelpers
-
   # Keep slack_id/slack_name/timezone_offset off of span attributes
   @derive {O11y.SpanAttributes, only: [:id, :name, :order, :track]}
   defstruct id: nil,
@@ -31,13 +29,18 @@ defmodule Pears.Core.Pear do
     Map.put(pear, :track, nil)
   end
 
-  def quittin_time?(pear, utc_now \\ DateTime.utc_now()) do
-    minutes_from_5 =
-      pear.timezone_offset
-      |> TzHelpers.five_pm_in_local_time()
-      |> TzHelpers.local_time_to_utc()
-      |> DateTime.diff(utc_now, :minute)
+  @quittin_time ~T[17:00:00]
 
-    abs(minutes_from_5) < 30
+  def quittin_time?(pear, utc_now \\ DateTime.utc_now()) do
+    # Shift utc_now by the pear's offset to get their local wall-clock time.
+    # Anchoring 5pm local to Date.utc_today/0 instead would break for offsets
+    # where 5pm local falls on a different UTC day (e.g. 5pm PST = 1am UTC).
+    minutes_from_quittin =
+      utc_now
+      |> DateTime.add(pear.timezone_offset, :second)
+      |> DateTime.to_time()
+      |> Time.diff(@quittin_time, :minute)
+
+    abs(minutes_from_quittin) < 30
   end
 end

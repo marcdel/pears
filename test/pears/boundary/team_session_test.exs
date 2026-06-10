@@ -62,6 +62,19 @@ defmodule Pears.Boundary.TeamSessionTest do
       |> assert_pear_in_track("pear3", "track two")
       |> assert_track_locked("track two")
     end
+
+    test "rehydrates the latest team from the database after the session ends", %{name: name} do
+      {:ok, _} = Pears.add_team(name)
+      {:ok, _} = Pears.add_pear(name, "Pear One")
+      {:ok, _} = Pears.add_track(name, "Track One")
+      {:ok, _} = Persistence.add_pear_to_track(name, "Pear One", "Track One")
+
+      TeamSession.end_session(name)
+
+      {:ok, team} = TeamSession.find_or_start_session(name)
+
+      assert_pear_in_track(team, "Pear One", "Track One")
+    end
   end
 
   def name(_) do
