@@ -96,6 +96,10 @@ Hooks.Destination = {
       console.debug({from, to, pear})
 
       this.pushEvent("move-pear", {from, to, pear})
+
+      if (whimsyEnabled() && to !== "Removed") {
+        sparklePoof(e.clientX, e.clientY)
+      }
     })
   }
 }
