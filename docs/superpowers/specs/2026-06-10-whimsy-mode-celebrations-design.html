@@ -173,10 +173,11 @@ When disabled, the app behaves <strong>byte-for-byte identically</strong> to tod
 <div class="feature-card">
   <h3>3. Suggest Drumroll — Staggered Fly-In <span class="badge both">server-triggered, CSS-animated</span></h3>
   <p>
-    In the <code>recommend-pears</code> handler, when whimsy is enabled, collect the names of
-    pears that were newly assigned and push them in order:
+    In the <code>recommend-pears</code> handler, when whimsy is enabled, collect the ids of
+    pears that were newly assigned (ids, not names — pear card DOM ids are built from
+    <code>pear.id</code>) and push them in board order:
   </p>
-  <pre><code>socket = push_event(socket, "whimsy:drumroll", %{pears: assigned_pear_names})</code></pre>
+  <pre><code>socket = push_event(socket, "whimsy:drumroll", %{pears: assigned_pear_ids})</code></pre>
   <p>
     The client listener finds each pear card by DOM id and applies a <code>whimsy-pop</code>
     class with <code>animation-delay: index × 150ms</code>. One scale-bounce keyframe animation
