@@ -5,22 +5,16 @@ defmodule Pears.Core.Recommendator do
 
   @decorate trace("recommendator.choose_anchors_and_suggest", include: [:team])
   def choose_anchors_and_suggest(team) do
+    # Tracks without a user-set anchor get a temporary one so somebody stays
+    # behind during the reset; those temporary anchors are cleared again at
+    # the end so only user-set anchors survive a suggestion.
+    auto_anchored_tracks = Team.unanchored_track_names(team)
+
     team
     |> Team.choose_anchors()
     |> Team.reset_matches()
     |> assign_pears()
-    |> remove_added_anchors(team)
-  end
-
-  defp remove_added_anchors(updated_team, team) do
-    anchors_before = Team.anchors(team)
-    anchors_after = Team.anchors(updated_team)
-
-    anchors_to_remove = anchors_before -- anchors_after
-
-    Enum.reduce(anchors_to_remove, updated_team, fn {pear, track}, updated_team ->
-      Team.toggle_anchor(updated_team, pear, track)
-    end)
+    |> Team.clear_anchors(auto_anchored_tracks)
   end
 
   @decorate trace("recommendator.assign_pears", include: [:team])

@@ -68,7 +68,7 @@ defmodule Pears.Core.RecommendatorTest do
     end
 
     test "leaves only the user set anchors" do
-      anchors =
+      team =
         TeamBuilders.team()
         |> Team.add_track("track1")
         |> Team.add_track("track2")
@@ -84,9 +84,8 @@ defmodule Pears.Core.RecommendatorTest do
         |> Team.toggle_anchor("pear3", "track2")
         |> Recommendator.choose_anchors_and_suggest()
         |> assert_anchoring_track("pear3", "track2")
-        |> Team.anchors()
 
-      assert Enum.count(anchors) == 1
+      assert team.tracks["track1"].anchor == nil
     end
   end
 

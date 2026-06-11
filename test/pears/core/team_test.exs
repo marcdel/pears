@@ -272,6 +272,38 @@ defmodule Pears.Core.TeamTest do
     assert anchor == "pear2" || anchor == "pear3"
   end
 
+  test "lists the names of tracks without an anchor", %{team: team} do
+    track_names =
+      team
+      |> Team.add_track("track1")
+      |> Team.add_track("track2")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.toggle_anchor("pear1", "track1")
+      |> Team.unanchored_track_names()
+
+    assert track_names == ["track2"]
+  end
+
+  test "clears anchors only on the given tracks", %{team: team} do
+    team =
+      team
+      |> Team.add_track("track1")
+      |> Team.add_track("track2")
+      |> Team.add_track("track3")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.add_pear_to_track("pear2", "track2")
+      |> Team.toggle_anchor("pear1", "track1")
+      |> Team.toggle_anchor("pear2", "track2")
+      |> Team.clear_anchors(["track1", "track3"])
+
+    assert team.tracks["track1"].anchor == nil
+    assert team.tracks["track2"].anchor == "pear2"
+    assert team.tracks["track3"].anchor == nil
+  end
+
   test "can find a match in the team's history" do
     team =
       TeamBuilders.team()

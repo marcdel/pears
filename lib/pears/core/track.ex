@@ -38,6 +38,8 @@ defmodule Pears.Core.Track do
     toggle_anchor(track, pear_name)
   end
 
+  def clear_anchor(track), do: %{track | anchor: nil}
+
   def toggle_anchor(track, pear_name) do
     if track.anchor == pear_name do
       Map.put(track, :anchor, nil)
