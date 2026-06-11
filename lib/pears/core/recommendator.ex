@@ -116,10 +116,14 @@ defmodule Pears.Core.Recommendator do
         do: {p1, p2}
   end
 
+  # Scoring is symmetric, so generating only one ordering of each available
+  # pair halves the work. Assigning both pears of a match must happen in one
+  # step (see the assign_match test) — there is no longer a reversed
+  # duplicate later in the list to rescue a dropped pear.
   defp secondary_matches(potential_matches) do
     for p1 <- potential_matches.available,
         p2 <- potential_matches.available,
-        p1 != p2,
+        p1 < p2,
         do: {p1, p2}
   end
 
