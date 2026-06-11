@@ -119,5 +119,42 @@ defmodule PearsWeb.TeamLiveTest do
 
       refute_push_event(view, "whimsy:confetti", %{})
     end
+
+    test "Suggest pushes a drumroll event with the newly assigned pear ids when whimsy mode is on",
+         %{conn: conn, team: team} do
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+      {:ok, pear_one} = Pears.Persistence.add_pear_to_team(team.name, "Pear One")
+      {:ok, pear_two} = Pears.Persistence.add_pear_to_team(team.name, "Pear Two")
+      pear_ids = [pear_one.id, pear_two.id]
+
+      {:ok, view, _html} = live(conn, ~p"/teams")
+
+      view |> element("button", "Suggest") |> render_click()
+
+      assert_push_event(view, "whimsy:drumroll", %{pears: pushed_ids})
+      assert Enum.sort(pushed_ids) == Enum.sort(pear_ids)
+    end
+
+    test "Suggest pushes no drumroll event when whimsy mode is off",
+         %{conn: conn, team: team} do
+      {:ok, _} = Pears.Persistence.add_pear_to_team(team.name, "Pear One")
+
+      {:ok, view, _html} = live(conn, ~p"/teams")
+
+      view |> element("button", "Suggest") |> render_click()
+
+      refute_push_event(view, "whimsy:drumroll", %{pears: _})
+    end
+
+    test "Suggest pushes no drumroll event when nothing gets assigned",
+         %{conn: conn, team: team} do
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+
+      {:ok, view, _html} = live(conn, ~p"/teams")
+
+      view |> element("button", "Suggest") |> render_click()
+
+      refute_push_event(view, "whimsy:drumroll", %{pears: _})
+    end
   end
 end

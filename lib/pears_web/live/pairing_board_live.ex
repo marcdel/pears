@@ -40,6 +40,25 @@ defmodule PearsWeb.PairingBoardLive do
     end
   end
 
+  # Assigns the updated team in the same reply as the push_event so the
+  # DOM patch (pears in their new tracks) is applied before the client
+  # dispatches the drumroll event — the animation targets must exist.
+  defp maybe_push_drumroll(socket, team_before, updated_team) do
+    socket = assign(socket, team: updated_team)
+
+    assigned_pear_ids =
+      team_before.available_pears
+      |> Map.values()
+      |> Enum.reject(fn pear -> Map.has_key?(updated_team.available_pears, pear.name) end)
+      |> Enum.map(& &1.id)
+
+    if whimsy_mode?(updated_team) and assigned_pear_ids != [] do
+      push_event(socket, "whimsy:drumroll", %{pears: assigned_pear_ids})
+    else
+      socket
+    end
+  end
+
   defp hide_reset_button?(team) do
     FeatureFlags.enabled?(:hide_reset_button, for: team)
   end
@@ -84,15 +103,21 @@ defmodule PearsWeb.PairingBoardLive do
   @impl true
   @decorate trace("team_live.recommend_pears", include: [:team_name])
   def handle_event("recommend-pears", _params, socket) do
-    team_name = team_name(socket)
+    team_before = team(socket)
+    team_name = team_before.name
 
     case Pears.recommend_pears(team_name) do
-      {:ok, _updated_team} -> nil
-      {:error, error} -> O11y.set_error(error)
-      error -> O11y.set_error(error)
-    end
+      {:ok, updated_team} ->
+        {:noreply, maybe_push_drumroll(socket, team_before, updated_team)}
 
-    {:noreply, socket}
+      {:error, error} ->
+        O11y.set_error(error)
+        {:noreply, socket}
+
+      error ->
+        O11y.set_error(error)
+        {:noreply, socket}
+    end
   end
 
   @impl true
