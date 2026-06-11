@@ -196,10 +196,33 @@ defmodule Pears.Core.Team do
   def choose_anchors(team) do
     updated_tracks =
       team.tracks
-      |> Enum.map(fn {name, track} -> {name, Track.choose_anchor(track)} end)
+      |> Enum.map(fn {name, track} ->
+        {name, Track.choose_anchor(track, anchor_weights(team, track))}
+      end)
       |> Enum.into(%{})
 
     %{team | tracks: updated_tracks}
+  end
+
+  # Pure randomness produces streaks — the same pear can anchor a track for
+  # days running, which reads as the tool playing favorites. Weighting each
+  # pear by 1/(tenure + 1) keeps the choice unpredictable while making
+  # long-tenured pears progressively less likely to stay behind again.
+  defp anchor_weights(team, track) do
+    Map.new(track.pears, fn {pear_name, _} ->
+      {pear_name, 1 / (tenure_on_track(team.history, pear_name, track.name) + 1)}
+    end)
+  end
+
+  # Consecutive most-recent recorded days the pear spent on the track.
+  defp tenure_on_track(history, pear_name, track_name) do
+    history
+    |> Enum.take_while(fn days_matches ->
+      Enum.any?(days_matches, fn {track, pears} ->
+        track == track_name and pear_name in pears
+      end)
+    end)
+    |> Enum.count()
   end
 
   @decorate trace(

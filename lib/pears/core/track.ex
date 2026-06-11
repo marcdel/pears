@@ -29,13 +29,39 @@ defmodule Pears.Core.Track do
 
   def find_pear(track, pear_name), do: Map.get(track.pears, pear_name, nil)
 
-  def choose_anchor(%{anchor: anchor} = track) when anchor != nil, do: track
+  def choose_anchor(track, weights \\ %{})
 
-  def choose_anchor(%{pears: pears} = track) when map_size(pears) == 0, do: track
+  def choose_anchor(%{anchor: anchor} = track, _weights) when anchor != nil, do: track
 
-  def choose_anchor(track) do
-    {pear_name, _} = Enum.random(track.pears)
+  def choose_anchor(%{pears: pears} = track, _weights) when map_size(pears) == 0, do: track
+
+  def choose_anchor(track, weights) do
+    pear_name =
+      track.pears
+      |> Map.keys()
+      |> weighted_random(weights)
+
     toggle_anchor(track, pear_name)
+  end
+
+  defp weighted_random(pear_names, weights) do
+    weighted = Enum.map(pear_names, fn name -> {name, Map.get(weights, name, 1.0)} end)
+    total = weighted |> Enum.map(fn {_, weight} -> weight end) |> Enum.sum()
+    roll = :rand.uniform() * total
+
+    weighted
+    |> Enum.reduce_while(roll, fn {name, weight}, remaining ->
+      if remaining <= weight do
+        {:halt, {:chosen, name}}
+      else
+        {:cont, remaining - weight}
+      end
+    end)
+    |> case do
+      {:chosen, name} -> name
+      # Float rounding can leave a sliver of the roll unconsumed.
+      _fell_through -> weighted |> List.last() |> elem(0)
+    end
   end
 
   def clear_anchor(track), do: %{track | anchor: nil}

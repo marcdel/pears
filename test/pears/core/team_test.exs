@@ -272,6 +272,37 @@ defmodule Pears.Core.TeamTest do
     assert anchor == "pear2" || anchor == "pear3"
   end
 
+  test "anchor choice favors pears with a shorter tenure on the track", %{team: team} do
+    # Seeded so the run is deterministic; the assertion is statistical only
+    # in the sense that weighting is probabilistic, not a hard rule.
+    :rand.seed(:exsss, {42, 42, 42})
+
+    team =
+      team
+      |> Team.add_track("track1")
+      |> Team.add_track("track2")
+      |> Team.add_pear("pear1")
+      |> Team.add_pear("pear2")
+      |> Team.add_pear_to_track("pear1", "track1")
+      |> Team.add_pear_to_track("pear2", "track1")
+      |> Map.put(:history, [
+        [{"track1", ["pear1", "pear3"]}, {"track2", ["pear2", "pear4"]}],
+        [{"track1", ["pear1", "pear4"]}, {"track2", ["pear2", "pear3"]}],
+        [{"track1", ["pear1", "pear2"]}]
+      ])
+
+    anchor_counts =
+      1..200
+      |> Enum.map(fn _ ->
+        team |> Team.choose_anchors() |> Map.get(:tracks) |> get_in(["track1", Access.key(:anchor)])
+      end)
+      |> Enum.frequencies()
+
+    # pear1 has anchored track1 for 3 straight days; pear2 just arrived.
+    # Weighted 1/(tenure+1), pear2 should win roughly 80% of the time.
+    assert anchor_counts["pear2"] >= 140
+  end
+
   test "lists the names of tracks without an anchor", %{team: team} do
     track_names =
       team
