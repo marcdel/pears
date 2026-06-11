@@ -294,7 +294,10 @@ defmodule Pears.Core.TeamTest do
     anchor_counts =
       1..200
       |> Enum.map(fn _ ->
-        team |> Team.choose_anchors() |> Map.get(:tracks) |> get_in(["track1", Access.key(:anchor)])
+        team
+        |> Team.choose_anchors()
+        |> Map.get(:tracks)
+        |> get_in(["track1", Access.key(:anchor)])
       end)
       |> Enum.frequencies()
 
