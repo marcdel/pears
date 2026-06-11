@@ -97,7 +97,7 @@ Hooks.Destination = {
 
       this.pushEvent("move-pear", {from, to, pear})
 
-      if (whimsyEnabled() && to !== "Removed") {
+      if (whimsyEnabled() && this.el.getAttribute("phx-value-destination") !== "Removed") {
         sparklePoof(e.clientX, e.clientY)
       }
     })
