@@ -637,6 +637,54 @@ defmodule Pears.Core.TeamTest do
       assert Team.moved_pear_ids(before_team, after_team) == [22, 33, 11]
     end
 
+    test "includes pears that changed position within the same track", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear_to_track("pear1", "track one")
+        |> Team.add_pear_to_track("pear2", "track one")
+
+      # Suggest resets pears to the bench and re-adds them, which can land the
+      # same pair back in the same track in the opposite order — the cards swap
+      # text on screen, so both should animate.
+      after_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [22, 11]
+    end
+
+    test "excludes pears whose rank in the track is unchanged even if raw order shifted",
+         %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_track("track two", 2)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      # pear1 drops to track two; pear2 stays the first card in track one even
+      # though its raw order value differs after a reset/re-add cycle.
+      after_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_track("track two", 2)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track two")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [11]
+    end
+
     test "returns an empty list when nothing moved", %{team: team} do
       before_team =
         team

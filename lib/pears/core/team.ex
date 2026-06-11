@@ -254,30 +254,43 @@ defmodule Pears.Core.Team do
   end
 
   @doc """
-  Ids of pears that ended up in a track they weren't in before — either newly
-  assigned from the bench or moved between tracks. Ordered by track id, then
-  pear order, so animations can sweep the board predictably.
+  Ids of pears whose rendered board position changed — newly assigned from the
+  bench, moved between tracks, or reordered within a track (suggesting resets
+  and re-adds pears, which can land the same pair back in the opposite order).
+  A card's text changes exactly when its occupant changed position, so this is
+  the set of cards worth animating. Ordered by track id, then position, so
+  animations can sweep the board predictably.
   """
   def moved_pear_ids(team_before, team_after) do
-    locations_before = assigned_locations(team_before)
+    positions_before = board_positions(team_before)
 
     team_after.tracks
     |> Map.values()
     |> Enum.sort_by(& &1.id)
     |> Enum.flat_map(fn track ->
-      track.pears
-      |> Map.values()
-      |> Enum.filter(fn pear -> Map.get(locations_before, pear.name) != track.name end)
-      |> Enum.sort_by(& &1.order)
+      track
+      |> ranked_pears()
+      |> Enum.reject(fn {pear, rank} ->
+        Map.get(positions_before, pear.name) == {track.name, rank}
+      end)
+      |> Enum.map(fn {pear, _rank} -> pear.id end)
     end)
-    |> Enum.map(& &1.id)
   end
 
-  defp assigned_locations(team) do
-    for {track_name, track} <- team.tracks,
-        {pear_name, _pear} <- track.pears,
+  defp board_positions(team) do
+    for {_track_name, track} <- team.tracks,
+        {pear, rank} <- ranked_pears(track),
         into: %{},
-        do: {pear_name, track_name}
+        do: {pear.name, {track.name, rank}}
+  end
+
+  # Pears in display order with their rank (position) in the track. Rank, not
+  # the raw order counter, is what determines where the card renders.
+  defp ranked_pears(track) do
+    track.pears
+    |> Map.values()
+    |> Enum.sort_by(& &1.order)
+    |> Enum.with_index()
   end
 
   @decorate trace("team.record_pears", include: [:team])
