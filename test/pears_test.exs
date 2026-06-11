@@ -140,12 +140,12 @@ defmodule PearsTest do
 
     {:ok, team} = Pears.record_pears(name)
 
-    assert [
-             [
-               {"Track One", ["Pear Four", "Pear One"]},
-               {"Track Two", ["Pear Three", "Pear Two"]}
-             ]
-           ] = team.history
+    assert [[{"Track One", track_one_pears}, {"Track Two", track_two_pears}]] = team.history
+    assert Enum.count(track_one_pears) == 2
+    assert Enum.count(track_two_pears) == 2
+
+    assert Enum.sort(track_one_pears ++ track_two_pears) ==
+             ["Pear Four", "Pear One", "Pear Three", "Pear Two"]
 
     {:ok, %{snapshots: [snapshot], tracks: tracks}} = Persistence.get_team_by_name(name)
 

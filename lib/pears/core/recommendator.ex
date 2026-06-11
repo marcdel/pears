@@ -149,6 +149,17 @@ defmodule Pears.Core.Recommendator do
 
       {{p1, p2}, score}
     end)
-    |> Enum.sort(fn {_, score1}, {_, score2} -> score1 >= score2 end)
+    |> sort_by_score_shuffling_ties()
+  end
+
+  # Equally-scored matches used to keep map-iteration (alphabetical) order,
+  # so identical boards always produced the identical suggestion and
+  # alphabetically-early pears systematically won ties. Shuffling before the
+  # stable sort randomizes order within each score group without disturbing
+  # the score ordering itself.
+  defp sort_by_score_shuffling_ties(scored_matches) do
+    scored_matches
+    |> Enum.shuffle()
+    |> Enum.sort_by(fn {_, score} -> score end, :desc)
   end
 end
