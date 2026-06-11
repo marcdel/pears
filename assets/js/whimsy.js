@@ -7,6 +7,7 @@ import confetti from '../vendor/canvas-confetti'
 export function confettiBurst() {
   try {
     confetti({
+      disableForReducedMotion: true,
       particleCount: 150,
       spread: 90,
       origin: { y: 0.6 },
@@ -19,6 +20,7 @@ export function confettiBurst() {
 export function sparklePoof(x, y) {
   try {
     confetti({
+      disableForReducedMotion: true,
       particleCount: 12,
       spread: 50,
       startVelocity: 18,

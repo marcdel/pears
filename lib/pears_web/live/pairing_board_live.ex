@@ -50,6 +50,7 @@ defmodule PearsWeb.PairingBoardLive do
       team_before.available_pears
       |> Map.values()
       |> Enum.reject(fn pear -> Map.has_key?(updated_team.available_pears, pear.name) end)
+      |> Enum.sort_by(& &1.order)
       |> Enum.map(& &1.id)
 
     if whimsy_mode?(updated_team) and assigned_pear_ids != [] do
