@@ -42,7 +42,7 @@ defmodule Pears.Core.Recommendator do
   end
 
   @decorate trace("recommendator.assign_match", include: [:team, :match])
-  defp assign_match(match, team) do
+  def assign_match(match, team) do
     if MatchValidator.valid?(match, team), do: do_assign_match(match, team), else: team
   end
 
@@ -63,8 +63,10 @@ defmodule Pears.Core.Recommendator do
     cond do
       Team.pear_available?(team, p1) && Team.pear_available?(team, p2) ->
         empty_track = Team.find_empty_track(team)
-        Team.add_pear_to_track(team, p1, empty_track.name)
-        Team.add_pear_to_track(team, p2, empty_track.name)
+
+        team
+        |> Team.add_pear_to_track(p1, empty_track.name)
+        |> Team.add_pear_to_track(p2, empty_track.name)
 
       Team.pear_available?(team, p1) ->
         Team.add_pear_to_track(team, p1, pear2.track)

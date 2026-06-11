@@ -90,6 +90,21 @@ defmodule Pears.Core.RecommendatorTest do
     end
   end
 
+  describe "assign_match" do
+    test "a match of two available pears assigns both to an empty track" do
+      team =
+        TeamBuilders.team()
+        |> Team.add_track("empty track")
+        |> Team.add_pear("pear1")
+        |> Team.add_pear("pear2")
+
+      {"pear1", "pear2"}
+      |> Recommendator.assign_match(team)
+      |> assert_pear_in_track("pear1", "empty track")
+      |> assert_pear_in_track("pear2", "empty track")
+    end
+  end
+
   describe "assign_pears" do
     test "does not modify team when there are no unassigned pears" do
       before_team =
