@@ -3,6 +3,7 @@ defmodule PearsWeb.PairingBoardLive do
   use OpenTelemetryDecorator
 
   alias Pears.Accounts
+  alias Pears.Core.Team
   alias Pears.Slack
 
   @decorate trace("team_live.mount")
@@ -46,17 +47,11 @@ defmodule PearsWeb.PairingBoardLive do
   defp maybe_push_drumroll(socket, team_before, updated_team) do
     socket = assign(socket, team: updated_team)
 
-    assigned_pear_ids =
-      team_before.available_pears
-      |> Map.values()
-      |> Enum.reject(fn pear -> Map.has_key?(updated_team.available_pears, pear.name) end)
-      |> Enum.sort_by(& &1.order)
-      |> Enum.map(& &1.id)
-
-    if whimsy_mode?(updated_team) and assigned_pear_ids != [] do
-      push_event(socket, "whimsy:drumroll", %{pears: assigned_pear_ids})
+    with true <- whimsy_mode?(updated_team),
+         [_ | _] = moved_pear_ids <- Team.moved_pear_ids(team_before, updated_team) do
+      push_event(socket, "whimsy:drumroll", %{pears: moved_pear_ids})
     else
-      socket
+      _ -> socket
     end
   end
 

@@ -253,6 +253,33 @@ defmodule Pears.Core.Team do
     %{team | tracks: updated_tracks}
   end
 
+  @doc """
+  Ids of pears that ended up in a track they weren't in before — either newly
+  assigned from the bench or moved between tracks. Ordered by track id, then
+  pear order, so animations can sweep the board predictably.
+  """
+  def moved_pear_ids(team_before, team_after) do
+    locations_before = assigned_locations(team_before)
+
+    team_after.tracks
+    |> Map.values()
+    |> Enum.sort_by(& &1.id)
+    |> Enum.flat_map(fn track ->
+      track.pears
+      |> Map.values()
+      |> Enum.filter(fn pear -> Map.get(locations_before, pear.name) != track.name end)
+      |> Enum.sort_by(& &1.order)
+    end)
+    |> Enum.map(& &1.id)
+  end
+
+  defp assigned_locations(team) do
+    for {track_name, track} <- team.tracks,
+        {pear_name, _pear} <- track.pears,
+        into: %{},
+        do: {pear_name, track_name}
+  end
+
   @decorate trace("team.record_pears", include: [:team])
   def record_pears(team) do
     if any_pears_assigned?(team) do
