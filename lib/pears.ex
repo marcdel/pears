@@ -23,6 +23,17 @@ defmodule Pears do
     {:ok, team_name}
   end
 
+  @doc """
+  Sends a whimsy celebration to every board subscribed to the team, so the
+  whole team sees it — not just the client whose action triggered it.
+  """
+  @decorate trace("pears.broadcast_whimsy", include: [:team_name, :event])
+  def broadcast_whimsy(team_name, event, payload) do
+    topic = @topic <> "#{team_name}"
+    Phoenix.PubSub.broadcast(Pears.PubSub, topic, {__MODULE__, :whimsy, event, payload})
+    :ok
+  end
+
   @decorate trace("pears.validate_name", include: [:team_name])
   def validate_name(team_name) do
     with :ok <- TeamManager.validate_name(team_name),

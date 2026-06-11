@@ -165,5 +165,36 @@ defmodule PearsWeb.TeamLiveTest do
 
       refute_push_event(view, "whimsy:drumroll", %{pears: _})
     end
+
+    test "Suggest pushes the drumroll to every connected board for the team",
+         %{conn: conn, team: team} do
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+      {:ok, pear_one} = Pears.Persistence.add_pear_to_team(team.name, "Pear One")
+
+      {:ok, clicker, _html} = live(conn, ~p"/teams")
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_team(team)
+      {:ok, watcher, _html} = live(other_conn, ~p"/teams")
+
+      clicker |> element("button", "Suggest") |> render_click()
+
+      assert_push_event(clicker, "whimsy:drumroll", %{pears: [pushed_id]})
+      assert_push_event(watcher, "whimsy:drumroll", %{pears: [watched_id]})
+      assert pushed_id == pear_one.id
+      assert watched_id == pear_one.id
+    end
+
+    test "Save pushes the confetti to every connected board for the team",
+         %{conn: conn, team: team} do
+      FeatureFlags.enable(:whimsy_mode, for_actor: team)
+
+      {:ok, clicker, _html} = live(conn, ~p"/teams")
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_team(team)
+      {:ok, watcher, _html} = live(other_conn, ~p"/teams")
+
+      clicker |> element("button", "Save") |> render_click()
+
+      assert_push_event(clicker, "whimsy:confetti", %{})
+      assert_push_event(watcher, "whimsy:confetti", %{})
+    end
   end
 end
