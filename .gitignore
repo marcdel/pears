@@ -46,3 +46,6 @@ pears.iml
 .zed/
 
 .env.local
+
+# Visual brainstorming scratch
+.superpowers/

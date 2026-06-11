@@ -1,4 +1,5 @@
 import Sortable from '../vendor/Sortable';
+import {sparklePoof, whimsyEnabled} from './whimsy';
 
 export default {
   mounted() {
@@ -21,6 +22,11 @@ export default {
             pear: evt.item.id,
             to: evt.to.id,
           });
+
+          if (whimsyEnabled() && evt.to.id !== 'Removed') {
+            const rect = evt.item.getBoundingClientRect();
+            sparklePoof(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          }
         },
       });
     });

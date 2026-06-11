@@ -253,6 +253,46 @@ defmodule Pears.Core.Team do
     %{team | tracks: updated_tracks}
   end
 
+  @doc """
+  Ids of pears whose rendered board position changed — newly assigned from the
+  bench, moved between tracks, or reordered within a track (suggesting resets
+  and re-adds pears, which can land the same pair back in the opposite order).
+  A card's text changes exactly when its occupant changed position, so this is
+  the set of cards worth animating. Ordered by track id, then position, so
+  animations can sweep the board predictably.
+  """
+  def moved_pear_ids(team_before, team_after) do
+    positions_before = board_positions(team_before)
+
+    team_after.tracks
+    |> Map.values()
+    |> Enum.sort_by(& &1.id)
+    |> Enum.flat_map(fn track ->
+      track
+      |> ranked_pears()
+      |> Enum.reject(fn {pear, rank} ->
+        Map.get(positions_before, pear.name) == {track.name, rank}
+      end)
+      |> Enum.map(fn {pear, _rank} -> pear.id end)
+    end)
+  end
+
+  defp board_positions(team) do
+    for {_track_name, track} <- team.tracks,
+        {pear, rank} <- ranked_pears(track),
+        into: %{},
+        do: {pear.name, {track.name, rank}}
+  end
+
+  # Pears in display order with their rank (position) in the track. Rank, not
+  # the raw order counter, is what determines where the card renders.
+  defp ranked_pears(track) do
+    track.pears
+    |> Map.values()
+    |> Enum.sort_by(& &1.order)
+    |> Enum.with_index()
+  end
+
   @decorate trace("team.record_pears", include: [:team])
   def record_pears(team) do
     if any_pears_assigned?(team) do

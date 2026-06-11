@@ -3,3 +3,42 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* Whimsy mode: staggered slam applied to pear cards after Suggest — the card
+   drops in from above (oversized + raised shadow), squashes on impact, and
+   settles. animation-fill-mode backwards keeps delayed cards invisible until
+   their stagger delay elapses, so they slam down one by one. position/z-index
+   let the oversized incoming card render above its neighbors. */
+@media (prefers-reduced-motion: no-preference) {
+  .whimsy-slam {
+    animation: whimsy-slam 0.45s cubic-bezier(0.6, 0, 0.4, 1) backwards;
+    position: relative;
+    z-index: 10;
+  }
+
+  @keyframes whimsy-slam {
+    0% {
+      transform: scale(2.4) rotate(-3deg);
+      opacity: 0;
+      box-shadow: 0 24px 32px rgba(0, 0, 0, 0.3);
+    }
+    35% {
+      opacity: 1;
+    }
+    55% {
+      transform: scale(0.88, 0.82) rotate(0.5deg);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    }
+    72% {
+      transform: scale(1.08, 1.04);
+    }
+    86% {
+      transform: scale(0.97);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+      box-shadow: none;
+    }
+  }
+}
