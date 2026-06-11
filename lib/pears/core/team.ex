@@ -303,6 +303,11 @@ defmodule Pears.Core.Team do
     Map.put(team, :slack_token, slack_token)
   end
 
+  # Mob-day rule: tracks that held four or more people on a given day don't
+  # count as the occupants having paired — a whole-team mob session shouldn't
+  # block any of its members from being matched with each other afterwards.
+  # Two- and three-person tracks do count here. (The Recommendator's scoring
+  # is stricter still: it only registers exact pairs.)
   @decorate trace("team.matched_on_day?",
               include: [:days_matches, :potential_match, [:_team, :name]]
             )

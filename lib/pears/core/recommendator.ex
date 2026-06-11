@@ -111,20 +111,31 @@ defmodule Pears.Core.Recommendator do
                 :solo_pears
               ]
             )
+  # Matches are tried in this order: never-paired before previously-paired,
+  # primary (bench + already-seated) before secondary (bench + bench) within
+  # each, then by recency, longest-ago first. Shuffling first randomizes only
+  # the order within those tie groups — the stable sort preserves everything
+  # the policy cares about. Solo placements are the last resort.
   defp potential_matches_by_score(team) do
     potential_matches = Team.potential_matches(team)
+    indexed_history = team |> Team.historical_matches() |> Enum.with_index(1)
+    max_score = max_score(team)
 
-    primary =
-      potential_matches
-      |> primary_matches()
-      |> score_matches(team)
+    primary = Enum.map(primary_matches(potential_matches), &{&1, _primary? = true})
+    secondary = Enum.map(secondary_matches(potential_matches), &{&1, _primary? = false})
 
-    secondary =
-      potential_matches
-      |> secondary_matches()
-      |> score_matches(team)
+    scored_matches =
+      (primary ++ secondary)
+      |> Enum.map(fn {match, primary?} ->
+        {match, primary?, score(match, indexed_history, max_score)}
+      end)
+      |> Enum.shuffle()
+      |> Enum.sort_by(
+        fn {_match, primary?, score} -> {score >= max_score, primary?, score} end,
+        :desc
+      )
+      |> Enum.map(fn {match, _primary?, _score} -> match end)
 
-    scored_matches = sort_scored_matches(primary, secondary, team)
     solo_pears = Enum.map(potential_matches.available, fn pear -> {pear} end)
 
     scored_matches ++ solo_pears
@@ -150,43 +161,20 @@ defmodule Pears.Core.Recommendator do
 
   defp max_score(team), do: Enum.count(team.history) + 1
 
-  defp sort_scored_matches(primary, secondary, team) do
-    splitter = fn {_, score} -> score >= max_score(team) end
+  # Scoring policy: a match scores by how long ago the two pears last worked
+  # together — the 1-based index of the most recent history day containing
+  # exactly that pair, or max_score (history length + 1) if they never have.
+  # Recency is the whole policy; how *often* a pair has worked together is
+  # deliberately ignored, so a pair that has paired many times but not lately
+  # outranks a pair that paired once yesterday. Note that only exact pairs
+  # register: a day spent together in a three-person track doesn't count as
+  # having paired (see also the mob-day rule in Team.matched_on_day?/3).
+  defp score({p1, p2}, indexed_history, max_score) do
+    {_, score} =
+      Enum.find(indexed_history, {nil, max_score}, fn {days_matches, _index} ->
+        Enum.member?(days_matches, {p1, p2}) || Enum.member?(days_matches, {p2, p1})
+      end)
 
-    {p1, p3} = Enum.split_with(primary, splitter)
-    {p2, p4} = Enum.split_with(secondary, splitter)
-
-    [p1, p2, p3, p4]
-    |> Enum.concat()
-    |> Enum.map(fn {match, _} -> match end)
-  end
-
-  defp score_matches(potential_matches, team) do
-    indexed_history =
-      team
-      |> Team.historical_matches()
-      |> Enum.with_index(1)
-
-    potential_matches
-    |> Enum.map(fn {p1, p2} ->
-      {_, score} =
-        Enum.find(indexed_history, {[], max_score(team)}, fn {days_matches, _index} ->
-          Enum.member?(days_matches, {p1, p2}) || Enum.member?(days_matches, {p2, p1})
-        end)
-
-      {{p1, p2}, score}
-    end)
-    |> sort_by_score_shuffling_ties()
-  end
-
-  # Equally-scored matches used to keep map-iteration (alphabetical) order,
-  # so identical boards always produced the identical suggestion and
-  # alphabetically-early pears systematically won ties. Shuffling before the
-  # stable sort randomizes order within each score group without disturbing
-  # the score ordering itself.
-  defp sort_by_score_shuffling_ties(scored_matches) do
-    scored_matches
-    |> Enum.shuffle()
-    |> Enum.sort_by(fn {_, score} -> score end, :desc)
+    score
   end
 end
