@@ -67,8 +67,28 @@ defmodule Pears.Core.RecommendatorTest do
                track2_pears == ["pear2", "pear3"] || track2_pears == ["pear2", "pear4"]
     end
 
+    test "creates extra tracks so every pear is seated, even from 3-pear tracks" do
+      team =
+        TeamBuilders.team()
+        |> Team.add_track("track1")
+        |> Team.add_pear("pear1")
+        |> Team.add_pear("pear2")
+        |> Team.add_pear("pear3")
+        |> Team.add_pear("pear4")
+        |> Team.add_pear("pear5")
+        |> Team.add_pear_to_track("pear1", "track1")
+        |> Team.add_pear_to_track("pear2", "track1")
+        |> Team.add_pear_to_track("pear3", "track1")
+        |> Recommendator.choose_anchors_and_suggest()
+
+      # A 3-pear track frees two pears but exposes only one slot after the
+      # reset, so capacity has to be counted post-reset to seat everyone.
+      assert Enum.empty?(team.available_pears)
+      assert Enum.count(team.assigned_pears) == 5
+    end
+
     test "leaves only the user set anchors" do
-      anchors =
+      team =
         TeamBuilders.team()
         |> Team.add_track("track1")
         |> Team.add_track("track2")
@@ -84,9 +104,23 @@ defmodule Pears.Core.RecommendatorTest do
         |> Team.toggle_anchor("pear3", "track2")
         |> Recommendator.choose_anchors_and_suggest()
         |> assert_anchoring_track("pear3", "track2")
-        |> Team.anchors()
 
-      assert Enum.count(anchors) == 1
+      assert team.tracks["track1"].anchor == nil
+    end
+  end
+
+  describe "assign_match" do
+    test "a match of two available pears assigns both to an empty track" do
+      team =
+        TeamBuilders.team()
+        |> Team.add_track("empty track")
+        |> Team.add_pear("pear1")
+        |> Team.add_pear("pear2")
+
+      {"pear1", "pear2"}
+      |> Recommendator.assign_match(team)
+      |> assert_pear_in_track("pear1", "empty track")
+      |> assert_pear_in_track("pear2", "empty track")
     end
   end
 
@@ -147,6 +181,35 @@ defmodule Pears.Core.RecommendatorTest do
       |> Team.add_pear_to_track("pear3", "one pear track")
       |> Recommendator.assign_pears()
       |> assert_pear_in_track("pear4", "one pear track")
+    end
+
+    test "breaks ties between equally good matches randomly" do
+      :rand.seed(:exsss, {7, 8, 9})
+
+      team =
+        TeamBuilders.team()
+        |> Team.add_track("track one")
+        |> Team.add_track("track two")
+        |> Team.add_pear("pear1")
+        |> Team.add_pear("pear2")
+        |> Team.add_pear("pear3")
+        |> Team.add_pear("pear4")
+
+      distinct_pairings =
+        1..50
+        |> Enum.map(fn _ ->
+          team
+          |> Recommendator.assign_pears()
+          |> Map.get(:tracks)
+          |> Map.values()
+          |> Enum.map(fn track -> track.pears |> Map.keys() |> Enum.sort() end)
+          |> Enum.sort()
+        end)
+        |> Enum.uniq()
+
+      # With no history every pairing scores the same; a fixed tie order
+      # would suggest the identical board every time.
+      assert length(distinct_pairings) > 1
     end
 
     test "given two days of history and two empty tracks, pairs the two that haven't paired before" do
@@ -218,54 +281,42 @@ defmodule Pears.Core.RecommendatorTest do
     end
 
     test "won't pair people with the same pear as yesterday" do
-      [
-        {"pear1", "pear2", "track one"},
-        {"pear3", "pear4", "track two"},
-        {"pear5", "track three"}
-      ]
-      |> TeamBuilders.from_matches()
-      |> Team.remove_pear_from_track("pear2", "track one")
-      |> Team.remove_pear_from_track("pear4", "track two")
-      |> Recommendator.assign_pears()
-      |> Team.record_pears()
+      team =
+        [
+          {"pear1", "pear2", "track one"},
+          {"pear3", "pear4", "track two"},
+          {"pear5", "track three"}
+        ]
+        |> TeamBuilders.from_matches()
+        |> Team.remove_pear_from_track("pear2", "track one")
+        |> Team.remove_pear_from_track("pear4", "track two")
+        |> Recommendator.assign_pears()
+
+      team
       |> refute_pear_in_track("pear2", "track one")
       |> refute_pear_in_track("pear4", "track two")
-      |> assert_history([
-        [
-          {"track one", ["pear1", "pear4"]},
-          {"track three", ["pear2", "pear5"]},
-          {"track two", ["pear3"]}
-        ],
-        [
-          {"track one", ["pear1", "pear2"]},
-          {"track three", ["pear5"]},
-          {"track two", ["pear3", "pear4"]}
-        ]
-      ])
+
+      assert Team.pear_assigned?(team, "pear2")
+      assert Team.pear_assigned?(team, "pear4")
     end
 
     test "won't pear people in locked tracks" do
-      [
-        {"pear1", "track one"},
-        "pear2",
-        {"pear3", "track two"},
-        "pear4"
-      ]
-      |> TeamBuilders.from_matches()
-      |> Team.lock_track("track two")
-      |> Recommendator.assign_pears()
-      |> Team.record_pears()
-      |> refute_pear_in_track("pear4", "track two")
-      |> assert_history([
+      team =
         [
-          {"track one", ["pear1", "pear2"]},
-          {"track two", ["pear3"]}
-        ],
-        [
-          {"track one", ["pear1"]},
-          {"track two", ["pear3"]}
+          {"pear1", "track one"},
+          "pear2",
+          {"pear3", "track two"},
+          "pear4"
         ]
-      ])
+        |> TeamBuilders.from_matches()
+        |> Team.lock_track("track two")
+        |> Recommendator.assign_pears()
+
+      assert Map.keys(team.tracks["track two"].pears) == ["pear3"]
+
+      track_one_pears = Map.keys(team.tracks["track one"].pears)
+      assert "pear1" in track_one_pears
+      assert Enum.count(track_one_pears) == 2
 
       TeamBuilders.team()
       |> Team.add_track("track one")

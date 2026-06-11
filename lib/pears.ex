@@ -341,9 +341,9 @@ defmodule Pears do
 
   @decorate trace("pears.recommend_pears", include: [:team_name, :result, :error])
   def recommend_pears(team_name) do
-    with {:ok, team_with_history} <- TeamSession.find_or_start_session(team_name),
-         team_with_empty_tracks <- maybe_add_empty_tracks(team_with_history),
-         updated_team <- Recommendator.choose_anchors_and_suggest(team_with_empty_tracks),
+    with {:ok, team} <- TeamSession.find_or_start_session(team_name),
+         updated_team <- Recommendator.choose_anchors_and_suggest(team),
+         :ok <- persist_new_tracks(team, updated_team),
          {:ok, updated_team} <- TeamSession.update_team(team_name, updated_team),
          {:ok, updated_team} <- update_subscribers(updated_team) do
       {:ok, updated_team}
@@ -521,35 +521,17 @@ defmodule Pears do
     end
   end
 
-  @decorate trace(
-              "pears.maybe_add_empty_tracks",
-              include: [
-                :team,
-                :available_slots,
-                :available_pears,
-                :pears_without_track,
-                :number_to_add
-              ]
-            )
-  defp maybe_add_empty_tracks(team) do
-    available_slots = Team.available_slot_count(team)
-    available_pears = Enum.count(team.available_pears)
-    pears_without_track = available_pears - available_slots
-    number_to_add = ceil(pears_without_track / 2)
+  # Suggesting creates untitled tracks in the domain; persist them in one
+  # pass and abort before the session or any subscriber sees the new board
+  # if a track can't be saved.
+  @decorate trace("pears.persist_new_tracks", include: [:new_track_names, :error])
+  defp persist_new_tracks(team_before, team_after) do
+    new_track_names = Map.keys(team_after.tracks) -- Map.keys(team_before.tracks)
 
-    add_empty_tracks(team, number_to_add)
-  end
-
-  @decorate trace("pears.add_empty_tracks", include: [:team, :count])
-  defp add_empty_tracks(team, count)
-
-  defp add_empty_tracks(team, count) when count <= 0, do: team
-
-  defp add_empty_tracks(team, count) do
-    Enum.reduce(1..count, team, fn i, team ->
-      case add_track(team.name, "Untitled Track #{i}") do
-        {:ok, team} -> team
-        {:error, _} -> team
+    Enum.reduce_while(new_track_names, :ok, fn track_name, :ok ->
+      case Persistence.add_track_to_team(team_after.name, track_name) do
+        {:ok, _track_record} -> {:cont, :ok}
+        {:error, error} -> {:halt, {:error, error}}
       end
     end)
   end

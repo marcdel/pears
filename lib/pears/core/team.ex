@@ -196,10 +196,33 @@ defmodule Pears.Core.Team do
   def choose_anchors(team) do
     updated_tracks =
       team.tracks
-      |> Enum.map(fn {name, track} -> {name, Track.choose_anchor(track)} end)
+      |> Enum.map(fn {name, track} ->
+        {name, Track.choose_anchor(track, anchor_weights(team, track))}
+      end)
       |> Enum.into(%{})
 
     %{team | tracks: updated_tracks}
+  end
+
+  # Pure randomness produces streaks — the same pear can anchor a track for
+  # days running, which reads as the tool playing favorites. Weighting each
+  # pear by 1/(tenure + 1) keeps the choice unpredictable while making
+  # long-tenured pears progressively less likely to stay behind again.
+  defp anchor_weights(team, track) do
+    Map.new(track.pears, fn {pear_name, _} ->
+      {pear_name, 1 / (tenure_on_track(team.history, pear_name, track.name) + 1)}
+    end)
+  end
+
+  # Consecutive most-recent recorded days the pear spent on the track.
+  defp tenure_on_track(history, pear_name, track_name) do
+    history
+    |> Enum.take_while(fn days_matches ->
+      Enum.any?(days_matches, fn {track, pears} ->
+        track == track_name and pear_name in pears
+      end)
+    end)
+    |> Enum.count()
   end
 
   @decorate trace(
@@ -212,13 +235,22 @@ defmodule Pears.Core.Team do
     %{team | tracks: updated_tracks}
   end
 
-  @decorate trace("team.anchors", include: [:team, :result])
-  def anchors(team) do
-    team
-    |> Map.get(:tracks)
+  @decorate trace("team.unanchored_track_names", include: [:team, :result])
+  def unanchored_track_names(team) do
+    team.tracks
     |> Map.values()
-    |> Enum.map(fn track -> {Map.get(track, :anchor), Map.get(track, :name)} end)
-    |> Enum.filter(fn {anchor, _} -> anchor == nil end)
+    |> Enum.filter(fn track -> track.anchor == nil end)
+    |> Enum.map(& &1.name)
+  end
+
+  @decorate trace("team.clear_anchors", include: [:team, :track_names])
+  def clear_anchors(team, track_names) do
+    updated_tracks =
+      Enum.reduce(track_names, team.tracks, fn track_name, tracks ->
+        Map.update!(tracks, track_name, &Track.clear_anchor/1)
+      end)
+
+    %{team | tracks: updated_tracks}
   end
 
   @decorate trace("team.record_pears", include: [:team])
@@ -271,6 +303,11 @@ defmodule Pears.Core.Team do
     Map.put(team, :slack_token, slack_token)
   end
 
+  # Mob-day rule: tracks that held four or more people on a given day don't
+  # count as the occupants having paired — a whole-team mob session shouldn't
+  # block any of its members from being matched with each other afterwards.
+  # Two- and three-person tracks do count here. (The Recommendator's scoring
+  # is stricter still: it only registers exact pairs.)
   @decorate trace("team.matched_on_day?",
               include: [:days_matches, :potential_match, [:_team, :name]]
             )
@@ -500,6 +537,14 @@ defmodule Pears.Core.Team do
     |> Map.values()
   end
 
+  # Max + 1 rather than count + 1: session tracks carry database ids, so a
+  # count-based id could collide with an existing track's id.
   @decorate trace("team.next_track_id", include: [:team])
-  defp next_track_id(team), do: Enum.count(team.tracks) + 1
+  defp next_track_id(team) do
+    team.tracks
+    |> Map.values()
+    |> Enum.map(& &1.id)
+    |> Enum.max(fn -> 0 end)
+    |> Kernel.+(1)
+  end
 end

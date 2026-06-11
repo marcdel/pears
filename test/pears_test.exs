@@ -109,7 +109,7 @@ defmodule PearsTest do
       assert Map.keys(team.tracks) == ["Track One", "Track Three", "Track Two"]
     end
 
-    test "doesn't create new tracks when there is an existing track with the same name", %{
+    test "skips existing track names when creating untitled tracks", %{
       name: name
     } do
       Pears.add_team(name)
@@ -121,10 +121,68 @@ defmodule PearsTest do
 
       {:ok, team} = Pears.lookup_team_by(name: name)
 
-      assert Enum.count(team.tracks) == 1
-      assert Enum.count(team.assigned_pears) == 2
-      assert Enum.count(team.available_pears) == 1
-      assert Map.keys(team.tracks) == ["Untitled Track 1"]
+      assert Enum.count(team.tracks) == 2
+      assert Enum.count(team.assigned_pears) == 3
+      assert Enum.empty?(team.available_pears)
+      assert Map.keys(team.tracks) == ["Untitled Track 1", "Untitled Track 2"]
+    end
+
+    test "persists the untitled tracks it creates", %{name: name} do
+      Pears.add_team(name)
+      Pears.add_pear(name, "Pear One")
+      Pears.add_pear(name, "Pear Two")
+      Pears.recommend_pears(name)
+
+      {:ok, %{tracks: track_records}} = Persistence.get_team_by_name(name)
+
+      assert Enum.map(track_records, & &1.name) == ["Untitled Track 1"]
+    end
+
+    test "suggesting broadcasts a single board update", %{name: name} do
+      Pears.add_team(name)
+      Pears.add_pear(name, "Pear One")
+      Pears.add_pear(name, "Pear Two")
+      Pears.add_pear(name, "Pear Three")
+      Pears.add_pear(name, "Pear Four")
+
+      Pears.subscribe(name)
+      Pears.recommend_pears(name)
+
+      assert_receive {Pears, [:team, :updated], _}
+      refute_receive {Pears, [:team, :updated], _}, 50
+    end
+
+    test "creates untitled tracks numbered past existing full untitled tracks", %{
+      name: name
+    } do
+      Pears.add_team(name)
+      Pears.add_pear(name, "Pear One")
+      Pears.add_pear(name, "Pear Two")
+      Pears.add_pear(name, "Pear Three")
+      Pears.add_pear(name, "Pear Four")
+      Pears.add_track(name, "Untitled Track 1")
+      Pears.add_track(name, "Untitled Track 2")
+      Pears.add_pear_to_track(name, "Pear One", "Untitled Track 1")
+      Pears.add_pear_to_track(name, "Pear Two", "Untitled Track 1")
+      Pears.add_pear_to_track(name, "Pear Three", "Untitled Track 2")
+      Pears.add_pear_to_track(name, "Pear Four", "Untitled Track 2")
+      Pears.add_pear(name, "Pear Five")
+      Pears.add_pear(name, "Pear Six")
+      Pears.add_pear(name, "Pear Seven")
+      Pears.recommend_pears(name)
+
+      {:ok, team} = Pears.lookup_team_by(name: name)
+
+      assert Enum.count(team.tracks) == 4
+      assert Enum.count(team.assigned_pears) == 7
+      assert Enum.empty?(team.available_pears)
+
+      assert Map.keys(team.tracks) == [
+               "Untitled Track 1",
+               "Untitled Track 2",
+               "Untitled Track 3",
+               "Untitled Track 4"
+             ]
     end
   end
 
@@ -140,12 +198,12 @@ defmodule PearsTest do
 
     {:ok, team} = Pears.record_pears(name)
 
-    assert [
-             [
-               {"Track One", ["Pear Four", "Pear One"]},
-               {"Track Two", ["Pear Three", "Pear Two"]}
-             ]
-           ] = team.history
+    assert [[{"Track One", track_one_pears}, {"Track Two", track_two_pears}]] = team.history
+    assert Enum.count(track_one_pears) == 2
+    assert Enum.count(track_two_pears) == 2
+
+    assert Enum.sort(track_one_pears ++ track_two_pears) ==
+             ["Pear Four", "Pear One", "Pear Three", "Pear Two"]
 
     {:ok, %{snapshots: [snapshot], tracks: tracks}} = Persistence.get_team_by_name(name)
 
