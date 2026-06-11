@@ -62,6 +62,7 @@ defmodule Pears.MixProject do
       {:quantum, "~> 3.5"},
       {:floki, "~> 0.38", only: :test},
       {:lazy_html, "~> 0.1", only: :test},
+      {:stream_data, "~> 1.1", only: [:dev, :test]},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
