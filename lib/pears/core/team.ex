@@ -532,6 +532,14 @@ defmodule Pears.Core.Team do
     |> Map.values()
   end
 
+  # Max + 1 rather than count + 1: session tracks carry database ids, so a
+  # count-based id could collide with an existing track's id.
   @decorate trace("team.next_track_id", include: [:team])
-  defp next_track_id(team), do: Enum.count(team.tracks) + 1
+  defp next_track_id(team) do
+    team.tracks
+    |> Map.values()
+    |> Enum.map(& &1.id)
+    |> Enum.max(fn -> 0 end)
+    |> Kernel.+(1)
+  end
 end

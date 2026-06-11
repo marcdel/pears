@@ -67,6 +67,26 @@ defmodule Pears.Core.RecommendatorTest do
                track2_pears == ["pear2", "pear3"] || track2_pears == ["pear2", "pear4"]
     end
 
+    test "creates extra tracks so every pear is seated, even from 3-pear tracks" do
+      team =
+        TeamBuilders.team()
+        |> Team.add_track("track1")
+        |> Team.add_pear("pear1")
+        |> Team.add_pear("pear2")
+        |> Team.add_pear("pear3")
+        |> Team.add_pear("pear4")
+        |> Team.add_pear("pear5")
+        |> Team.add_pear_to_track("pear1", "track1")
+        |> Team.add_pear_to_track("pear2", "track1")
+        |> Team.add_pear_to_track("pear3", "track1")
+        |> Recommendator.choose_anchors_and_suggest()
+
+      # A 3-pear track frees two pears but exposes only one slot after the
+      # reset, so capacity has to be counted post-reset to seat everyone.
+      assert Enum.empty?(team.available_pears)
+      assert Enum.count(team.assigned_pears) == 5
+    end
+
     test "leaves only the user set anchors" do
       team =
         TeamBuilders.team()

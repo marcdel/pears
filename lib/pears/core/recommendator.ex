@@ -13,8 +13,35 @@ defmodule Pears.Core.Recommendator do
     team
     |> Team.choose_anchors()
     |> Team.reset_matches()
+    |> add_tracks_for_unseated_pears()
     |> assign_pears()
     |> Team.clear_anchors(auto_anchored_tracks)
+  end
+
+  # Counted after the reset: the bench now holds the freed pears too, and a
+  # track that had three pears exposes only one slot (its anchor stays), so
+  # counting beforehand under-provisions and leaves someone benched.
+  @decorate trace("recommendator.add_tracks_for_unseated_pears", include: [:team])
+  defp add_tracks_for_unseated_pears(team) do
+    unseated = Enum.count(team.available_pears) - Team.available_slot_count(team)
+    tracks_needed = ceil(unseated / 2)
+
+    if tracks_needed > 0 do
+      Enum.reduce(1..tracks_needed, team, fn _, team ->
+        Team.add_track(team, next_untitled_track_name(team))
+      end)
+    else
+      team
+    end
+  end
+
+  # "Untitled Track #{n}" for the smallest n not already taken, so suggesting
+  # keeps working on boards that already have untitled tracks from earlier
+  # suggestions.
+  defp next_untitled_track_name(team) do
+    Stream.iterate(1, &(&1 + 1))
+    |> Stream.map(&"Untitled Track #{&1}")
+    |> Enum.find(&(not Map.has_key?(team.tracks, &1)))
   end
 
   @decorate trace("recommendator.assign_pears", include: [:team])
