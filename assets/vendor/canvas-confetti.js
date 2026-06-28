@@ -1,6 +1,6 @@
-// canvas-confetti v1.9.3 — https://github.com/catdad/canvas-confetti (ISC license)
-// Vendored from https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.module.mjs
-// canvas-confetti v1.9.3 built on 2024-04-30T22:19:17.794Z
+// canvas-confetti v1.9.4 — https://github.com/catdad/canvas-confetti (ISC license)
+// Vendored from https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.module.mjs
+// canvas-confetti v1.9.4 built on 2025-10-25T05:14:56.640Z
 var module = {};
 
 // source content
@@ -25,12 +25,11 @@ var module = {};
       return false;
     }
 
-    var canvas = new OffscreenCanvas(1, 1);
-    var ctx = canvas.getContext('2d');
-    ctx.fillRect(0, 0, 1, 1);
-    var bitmap = canvas.transferToImageBitmap();
-
     try {
+      var canvas = new OffscreenCanvas(1, 1);
+      var ctx = canvas.getContext('2d');
+      ctx.fillRect(0, 0, 1, 1);
+      var bitmap = canvas.transferToImageBitmap();
       ctx.createPattern(bitmap, 'no-repeat');
     } catch (e) {
       return false;
@@ -216,7 +215,7 @@ var module = {};
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
           // eslint-disable-next-line no-console
-          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Could not load worker', e) : null;
+          typeof console !== 'undefined' && typeof console.warn === 'function' ? console.warn('🎊 Could not load worker', e) : null;
 
           return null;
         }
@@ -690,7 +689,7 @@ var module = {};
 
         if (isLibCanvas && canvas) {
           if (document.body.contains(canvas)) {
-            document.body.removeChild(canvas); 
+            document.body.removeChild(canvas);
           }
           canvas = null;
           initialized = false;

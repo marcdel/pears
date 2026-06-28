@@ -62,10 +62,10 @@ defmodule Pears.MixProject do
       {:quantum, "~> 3.5"},
       {:floki, "~> 0.38", only: :test},
       {:lazy_html, "~> 0.1", only: :test},
-      {:stream_data, "~> 1.1", only: [:dev, :test]},
+      {:stream_data, "~> 1.3", only: [:dev, :test]},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.5", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:heroicons,
        github: "tailwindlabs/heroicons",
@@ -75,13 +75,13 @@ defmodule Pears.MixProject do
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.26"},
-      {:finch, "~> 0.22"},
+      {:finch, "~> 0.23"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.3"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.4"},
       {:bandit, "~> 1.12"},
-      {:sentry, "~> 13.1"}
+      {:sentry, "~> 13.2"}
     ]
   end
 
