@@ -43,7 +43,7 @@ defmodule Pears.MixProject do
       {:dns_cluster, "~> 0.2"},
       {:fun_with_flags, "~> 1.13"},
       {:fun_with_flags_ui, "~> 1.1"},
-      {:hammox, "~> 0.7"},
+      {:hammox, "~> 1.0"},
       {:opentelemetry_exporter, "~> 1.10"},
       {:opentelemetry, "~> 1.7"},
       {:opentelemetry_bandit, "~> 0.3"},
