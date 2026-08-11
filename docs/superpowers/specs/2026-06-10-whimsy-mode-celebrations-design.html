@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whimsy Mode Celebrations — Design Spec</title>
+<style>
+  :root {
+    --ink: #1f2430;
+    --muted: #5d6675;
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --pear: #5aa83a;
+    --pear-dark: #3d7a25;
+    --accent: #fd4f00;
+    --border: #e4e1da;
+    --callout-info: #eef6ff;
+    --callout-info-border: #7fb3e8;
+    --callout-warn: #fff7e6;
+    --callout-warn-border: #e8b84d;
+    --callout-key: #f0f9eb;
+    --callout-key-border: #5aa83a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    margin: 0;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  header.title {
+    border-bottom: 3px solid var(--pear);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+  header.title h1 { margin: 0 0 0.25rem; font-size: 1.9rem; }
+  header.title .meta { color: var(--muted); font-size: 0.9rem; }
+  h2 {
+    font-size: 1.3rem;
+    margin-top: 2.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 1.05rem; margin-top: 1.75rem; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: #f0eee9;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  pre {
+    background: #23272e;
+    color: #e6e1d7;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .callout {
+    border-left: 4px solid;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin: 1.25rem 0;
+  }
+  .callout.key { background: var(--callout-key); border-color: var(--callout-key-border); }
+  .callout.info { background: var(--callout-info); border-color: var(--callout-info-border); }
+  .callout.warn { background: var(--callout-warn); border-color: var(--callout-warn-border); }
+  .callout .label {
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .callout.key .label { color: var(--pear-dark); }
+  .callout.info .label { color: #2c6cb0; }
+  .callout.warn .label { color: #9a6d00; }
+  table { border-collapse: collapse; width: 100%; margin: 1.25rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+  th { background: #f3f1ec; font-weight: 600; }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .feature-card h3 { margin-top: 0; }
+  .feature-card .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15em 0.6em;
+    border-radius: 999px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .badge.server { background: #e8eefc; color: #2c4cb0; }
+  .badge.client { background: #fcefe8; color: #b05a2c; }
+  .badge.both { background: #efe8fc; color: #6b2cb0; }
+  ul { padding-left: 1.4rem; }
+  li { margin: 0.3rem 0; }
+  .files code { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>🍐🎉 Whimsy Mode Celebrations</h1>
+  <div class="meta">Design spec · 2026-06-10 · Pears</div>
+</header>
+
+<p>
+Whimsy Mode shipped as an April Fools toggle that does nothing. This design gives it a job:
+when enabled for a team, three celebration effects activate on the pairing board.
+When disabled, the app behaves <strong>byte-for-byte identically</strong> to today.
+</p>
+
+<div class="callout key">
+  <span class="label">Guiding principle</span>
+  All effects are gated on the existing <code>:whimsy_mode</code> FunWithFlags flag
+  (per-team actor, already persisted and toggled by the UI switch). The toggle remains the
+  single source of truth; no new state is introduced.
+</div>
+
+<h2>Shared Infrastructure</h2>
+<ul>
+  <li><strong>New dependency:</strong> <code>canvas-confetti</code> (~10&nbsp;kb, zero transitive deps), vendored as <code>assets/vendor/canvas-confetti.js</code> (pinned ESM build) — this repo has no npm toolchain; JS deps live in <code>assets/vendor/</code> alongside topbar and Sortable. Handles confetti bursts and star/sparkle particle shapes.</li>
+  <li><strong>New module:</strong> <code>assets/js/whimsy.js</code> exporting three functions — <code>confettiBurst()</code>, <code>sparklePoof(x, y)</code>, and <code>drumroll(pearIds)</code>. All celebration code lives here, isolated from board logic.</li>
+  <li><strong>Server → client signaling:</strong> LiveView <code>push_event/3</code> with <code>window.addEventListener("phx:whimsy:...")</code> listeners registered in <code>app.js</code>. The server only pushes when whimsy is on, so server-triggered effects need no client-side flag check.</li>
+  <li><strong>Client-side gate:</strong> the board root element renders <code>data-whimsy={@whimsy_mode}</code> from the existing assign, for the one effect (drop sparkles) that is client-initiated.</li>
+</ul>
+
+<h2>The Three Celebrations</h2>
+
+<div class="feature-card">
+  <h3>1. Confetti on Save <span class="badge server">server-gated</span></h3>
+  <p>
+    Saving the day's pairs is the ritual's "done" moment — it deserves fanfare.
+    In the <code>record-pears</code> handler, on success and when whimsy is enabled:
+  </p>
+  <pre><code>socket = push_event(socket, "whimsy:confetti", %{})</code></pre>
+  <p>
+    The client listener fires a center-screen confetti burst. Roughly a two-line server change
+    plus one listener.
+  </p>
+</div>
+
+<div class="feature-card">
+  <h3>2. Sparkles on Drop <span class="badge client">client-gated</span></h3>
+  <p>
+    When a pear lands in a track, a small ✨ poof appears at the drop point, using
+    canvas-confetti's star particles.
+  </p>
+  <p>
+    The board has <strong>two drag systems</strong>: the legacy <code>Pear</code>/<code>Destination</code>
+    hooks and the Sortable-based <code>new_drag_n_drop</code> path. Both drop handlers call
+    <code>sparklePoof(x, y)</code>, gated by the <code>data-whimsy</code> attribute
+    (drops are client-initiated, so the server can't push this one).
+  </p>
+</div>
+
+<div class="feature-card">
+  <h3>3. Suggest Drumroll — Staggered Fly-In <span class="badge both">server-triggered, CSS-animated</span></h3>
+  <p>
+    In the <code>recommend-pears</code> handler, when whimsy is enabled, collect the ids of
+    pears that were newly assigned (ids, not names — pear card DOM ids are built from
+    <code>pear.id</code>) and push them in board order:
+  </p>
+  <pre><code>socket = push_event(socket, "whimsy:drumroll", %{pears: assigned_pear_ids})</code></pre>
+  <p>
+    The client listener finds each pear card by DOM id and applies a <code>whimsy-pop</code>
+    class with <code>animation-delay: index × 150ms</code>. One scale-bounce keyframe animation
+    is added to <code>app.css</code>. The class is removed on <code>animationend</code> so repeat
+    suggestions re-animate cleanly.
+  </p>
+  <div class="callout info">
+    <span class="label">No fake latency</span>
+    LiveView renders the new assignments immediately; the cards simply <em>arrive</em>
+    theatrically. Nothing blocks or delays the actual state change.
+  </div>
+</div>
+
+<h2>Error Handling</h2>
+<p>
+  Celebrations are fire-and-forget visuals. If <code>canvas-confetti</code> fails to load or a
+  listener throws, the effect silently no-ops and the board functions normally. No celebration
+  code sits on any critical path (save, drag-drop, or suggest logic runs first; effects trail).
+</p>
+
+<h2>Testing</h2>
+<table>
+  <tr><th>Layer</th><th>Approach</th></tr>
+  <tr>
+    <td>LiveView (Elixir)</td>
+    <td>
+      <code>assert_push_event</code> that <code>whimsy:confetti</code> and
+      <code>whimsy:drumroll</code> fire when the flag is on; <code>refute_push_event</code>
+      when off. Assert the <code>data-whimsy</code> attribute renders true/false with the flag.
+    </td>
+  </tr>
+  <tr>
+    <td>JS (<code>whimsy.js</code>)</td>
+    <td>Deliberately thin, fire-and-forget wrapper around canvas-confetti; verified manually in the browser.</td>
+  </tr>
+</table>
+
+<h2>Files Touched</h2>
+<ul class="files">
+  <li><code>assets/vendor/canvas-confetti.js</code> — vendored canvas-confetti (pinned ESM build)</li>
+  <li><code>assets/js/whimsy.js</code> — new module (burst, poof, drumroll)</li>
+  <li><code>assets/js/app.js</code> — register <code>phx:whimsy:*</code> listeners; call <code>sparklePoof</code> from both drop paths</li>
+  <li><code>assets/css/app.css</code> — <code>whimsy-pop</code> keyframe animation</li>
+  <li><code>lib/pears_web/live/pairing_board_live.ex</code> — push events in <code>record-pears</code> and <code>recommend-pears</code> handlers when whimsy enabled</li>
+  <li><code>lib/pears_web/live/pairing_board_live.html.heex</code> — <code>data-whimsy</code> attribute on board root</li>
+  <li><code>test/pears_web/live/pairing_board_live_test.exs</code> — push-event and attribute assertions</li>
+</ul>
+
+<div class="callout warn">
+  <span class="label">Process note</span>
+  Do <strong>not</strong> enable auto-merge on the PR for this work — Marc wants to test it
+  locally before it merges.
+</div>
+
+</div>
+</body>
+</html>

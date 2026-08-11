@@ -576,6 +576,126 @@ defmodule Pears.Core.TeamTest do
     assert Team.earliest_pear_in_match(pears).timezone_offset == -28800
   end
 
+  describe "moved_pear_ids/2" do
+    test "includes pears newly assigned from the bench, in track insertion order", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear("pear2", id: 22)
+
+      after_team =
+        before_team
+        |> Team.add_pear_to_track("pear1", "track one")
+        |> Team.add_pear_to_track("pear2", "track one")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [11, 22]
+    end
+
+    test "includes pears moved from one track to another", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_track("track two", 2)
+        |> Team.add_pear("pear1", id: 11, order: 1)
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      after_team = Team.move_pear_to_track(before_team, "pear1", "track one", "track two")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [11]
+    end
+
+    test "excludes pears that stayed in the same track", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_track("track two", 2)
+        |> Team.add_pear("pear1", id: 11, order: 1)
+        |> Team.add_pear("pear2", id: 22, order: 2)
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      after_team = Team.add_pear_to_track(before_team, "pear2", "track two")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [22]
+    end
+
+    test "orders moved pears by track id, then position within the track", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track two", 2)
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear("pear3", id: 33)
+
+      after_team =
+        before_team
+        |> Team.add_pear_to_track("pear3", "track two")
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track two")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [22, 33, 11]
+    end
+
+    test "includes pears that changed position within the same track", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear_to_track("pear1", "track one")
+        |> Team.add_pear_to_track("pear2", "track one")
+
+      # Suggest resets pears to the bench and re-adds them, which can land the
+      # same pair back in the same track in the opposite order — the cards swap
+      # text on screen, so both should animate.
+      after_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [22, 11]
+    end
+
+    test "excludes pears whose rank in the track is unchanged even if raw order shifted",
+         %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_track("track two", 2)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      # pear1 drops to track two; pear2 stays the first card in track one even
+      # though its raw order value differs after a reset/re-add cycle.
+      after_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_track("track two", 2)
+        |> Team.add_pear("pear2", id: 22)
+        |> Team.add_pear("pear1", id: 11)
+        |> Team.add_pear_to_track("pear2", "track one")
+        |> Team.add_pear_to_track("pear1", "track two")
+
+      assert Team.moved_pear_ids(before_team, after_team) == [11]
+    end
+
+    test "returns an empty list when nothing moved", %{team: team} do
+      before_team =
+        team
+        |> Team.add_track("track one", 1)
+        |> Team.add_pear("pear1", id: 11, order: 1)
+        |> Team.add_pear_to_track("pear1", "track one")
+
+      assert Team.moved_pear_ids(before_team, before_team) == []
+    end
+  end
+
   defp team(_) do
     {:ok, team: Team.new(name: "test team")}
   end

@@ -3,6 +3,7 @@ defmodule PearsWeb.PairingBoardLive do
   use OpenTelemetryDecorator
 
   alias Pears.Accounts
+  alias Pears.Core.Team
   alias Pears.Slack
 
   @decorate trace("team_live.mount")
@@ -30,6 +31,34 @@ defmodule PearsWeb.PairingBoardLive do
 
   defp whimsy_mode?(team) do
     FeatureFlags.enabled?(:whimsy_mode, for: team)
+  end
+
+  # Celebrations are broadcast over the team topic rather than pushed to this
+  # socket alone, so every connected board (other tabs, teammates, the shared
+  # screen) celebrates — each subscriber forwards it in handle_info.
+  defp maybe_broadcast_confetti(socket) do
+    team = team(socket)
+
+    if whimsy_mode?(team) do
+      Pears.broadcast_whimsy(team.name, "whimsy:confetti", %{})
+    end
+
+    socket
+  end
+
+  # Assigns the updated team before the broadcast so this client's DOM patch
+  # (pears in their new tracks) is applied before the drumroll event — the
+  # animation targets must exist. Other clients get the team-updated broadcast
+  # first for the same reason: PubSub preserves per-sender message order.
+  defp maybe_broadcast_drumroll(socket, team_before, updated_team) do
+    socket = assign(socket, team: updated_team)
+
+    with true <- whimsy_mode?(updated_team),
+         [_ | _] = moved_pear_ids <- Team.moved_pear_ids(team_before, updated_team) do
+      Pears.broadcast_whimsy(updated_team.name, "whimsy:drumroll", %{pears: moved_pear_ids})
+    end
+
+    socket
   end
 
   defp hide_reset_button?(team) do
@@ -76,15 +105,21 @@ defmodule PearsWeb.PairingBoardLive do
   @impl true
   @decorate trace("team_live.recommend_pears", include: [:team_name])
   def handle_event("recommend-pears", _params, socket) do
-    team_name = team_name(socket)
+    team_before = team(socket)
+    team_name = team_before.name
 
     case Pears.recommend_pears(team_name) do
-      {:ok, _updated_team} -> nil
-      {:error, error} -> O11y.set_error(error)
-      error -> O11y.set_error(error)
-    end
+      {:ok, updated_team} ->
+        {:noreply, maybe_broadcast_drumroll(socket, team_before, updated_team)}
 
-    {:noreply, socket}
+      {:error, error} ->
+        O11y.set_error(error)
+        {:noreply, socket}
+
+      error ->
+        O11y.set_error(error)
+        {:noreply, socket}
+    end
   end
 
   @impl true
@@ -113,7 +148,10 @@ defmodule PearsWeb.PairingBoardLive do
         # refreshes via the PubSub team-updated broadcast that record_pears fires.
         send(self(), {:post_daily_pears_summary, team_name})
 
-        {:noreply, put_flash(socket, :info, "Today's assigned pears have been recorded!")}
+        {:noreply,
+         socket
+         |> put_flash(:info, "Today's assigned pears have been recorded!")
+         |> maybe_broadcast_confetti()}
 
       {:error, changeset} ->
         Pears.O11y.set_changeset_errors(changeset)
@@ -276,6 +314,11 @@ defmodule PearsWeb.PairingBoardLive do
   @impl true
   def handle_info({Pears, :put_flash, type, message}, socket) do
     {:noreply, put_flash(socket, type, message)}
+  end
+
+  @impl true
+  def handle_info({Pears, :whimsy, event, payload}, socket) do
+    {:noreply, push_event(socket, event, payload)}
   end
 
   @impl true
