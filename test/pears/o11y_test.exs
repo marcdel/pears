@@ -30,7 +30,7 @@ defmodule Pears.O11yTest do
         }
       }
 
-      OpenTelemetry.Tracer.with_span("test") do
+      OpenTelemetry.Tracer.with_span "test" do
         Pears.O11y.set_slack_response(response)
       end
 
@@ -45,7 +45,7 @@ defmodule Pears.O11yTest do
     test "reads the channel id from a conversations.open response" do
       response = %{"ok" => true, "channel" => %{"id" => "GROUPCHATID", "is_im" => false}}
 
-      OpenTelemetry.Tracer.with_span("test") do
+      OpenTelemetry.Tracer.with_span "test" do
         Pears.O11y.set_slack_response(response)
       end
 
@@ -70,7 +70,7 @@ defmodule Pears.O11yTest do
         ]
       }
 
-      OpenTelemetry.Tracer.with_span("test") do
+      OpenTelemetry.Tracer.with_span "test" do
         Pears.O11y.set_slack_interaction(payload)
       end
 
@@ -85,7 +85,7 @@ defmodule Pears.O11yTest do
 
   describe "set_param_keys/1" do
     test "records param names as one attribute" do
-      OpenTelemetry.Tracer.with_span("test") do
+      OpenTelemetry.Tracer.with_span "test" do
         Pears.O11y.set_param_keys(%{"Pear Two" => "U2", "Pear One" => ""})
       end
 
