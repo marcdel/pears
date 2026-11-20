@@ -99,8 +99,11 @@ defmodule Pears.Slack do
     end
   end
 
-  @decorate trace("slack.save_slack_names", include: [:team_name, :params])
+  # params is keyed by pear name, so it stays off the span (see Pears.O11y).
+  @decorate trace("slack.save_slack_names", include: [:team_name])
   def save_slack_names(details, team_name, params) do
+    O11y.set_attribute(:param_count, Enum.count(params))
+
     with updated_pears <- do_save_slack_names(team_name, details.users, details.pears, params),
          updated_details <- update_pears_on_details(details, updated_pears) do
       {:ok, updated_details}
@@ -186,7 +189,7 @@ defmodule Pears.Slack do
 
     case slack_client().find_or_create_group_chat(user_ids, token) do
       %{"ok" => true} = response ->
-        O11y.set_attribute(:response, response)
+        Pears.O11y.set_slack_response(response)
         {:ok, get_in(response, ["channel", "id"])}
 
       error ->
@@ -208,7 +211,7 @@ defmodule Pears.Slack do
   defp do_send_message(%{slack_token: token}, channel, message) do
     case slack_client().send_message(channel, message, token) do
       %{"ok" => true} = response ->
-        O11y.set_attribute(:response, response)
+        Pears.O11y.set_slack_response(response)
         {:ok, message}
 
       error ->

@@ -23,7 +23,8 @@ defmodule PearsWeb.SlackAuthController do
 
   @decorate trace("slack_auth_controller.authenticate")
   def new(conn, params) do
-    O11y.set_attribute(:params, params)
+    Pears.O11y.set_param_keys(params)
+    O11y.set_attribute(:slack_error, params["error"])
     O11y.set_error("missing or invalid state")
     send_resp(conn, 401, "")
   end

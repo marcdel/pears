@@ -55,7 +55,7 @@ defmodule PearsWeb.TeamSlackLive do
   end
 
   @impl Phoenix.LiveView
-  @decorate trace("slack_live.save_slack_handles", include: [:team_name, :params])
+  @decorate trace("slack_live.save_slack_handles", include: [:team_name])
   def handle_event("save-slack-handles", params, socket) do
     team_name = team_name(socket)
     details = socket.assigns.details

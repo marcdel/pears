@@ -47,17 +47,23 @@ defmodule Pears.SlackClient do
 
   def send_message(channel, text, token, post_chat_message \\ &Chat.post_message/3)
 
-  @decorate trace("slack_client.send_message", include: [:channel, :text, :result])
+  @decorate trace("slack_client.send_message", include: [:channel, :text])
   def send_message(channel, text, token, post_chat_message) when is_binary(text) do
-    post_chat_message.(channel, text, %{token: token})
+    response = post_chat_message.(channel, text, %{token: token})
+    Pears.O11y.set_slack_response(response)
+    response
   end
 
-  @decorate trace("slack_client.send_message", include: [:channel, :blocks, :result])
+  @decorate trace("slack_client.send_message", include: [:channel, :blocks])
   def send_message(channel, blocks, token, post_chat_message) when is_list(blocks) do
-    post_chat_message.(channel, "A message from the Pears app...", %{
-      blocks: Jason.encode!(blocks),
-      token: token
-    })
+    response =
+      post_chat_message.(channel, "A message from the Pears app...", %{
+        blocks: Jason.encode!(blocks),
+        token: token
+      })
+
+    Pears.O11y.set_slack_response(response)
+    response
   end
 
   @decorate trace("slack_client.find_or_create_group_chat")
