@@ -6,7 +6,7 @@ defmodule PearsWeb.SlackInteractionController do
   def create(conn, %{"payload" => payload}) do
     case Jason.decode(payload) do
       {:ok, decoded_payload} ->
-        O11y.set_attribute(:payload, decoded_payload)
+        Pears.O11y.set_slack_interaction(decoded_payload)
 
         json(conn, %{})
 
@@ -23,7 +23,7 @@ defmodule PearsWeb.SlackInteractionController do
   @decorate trace("slack_interaction_controller.create")
   def create(conn, params) do
     O11y.set_error("no payload in params")
-    O11y.set_attribute(:params, params)
+    Pears.O11y.set_param_keys(params)
 
     conn
     |> put_status(400)
